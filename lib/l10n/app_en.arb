@@ -1,0 +1,9 @@
+{
+    "app_title": "Gamevault",
+    "@app_title": {
+        "description": "just the title of the app"
+    },
+    "games_title": "Games",
+    "users_title": "Users",
+    "settings_title": "Settings"
+}
