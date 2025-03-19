@@ -27,3 +27,7 @@ doc/api/
 pubspec.lock
 .dart_tool
 .idea
+
+# openapi client sdk generator
+openapi_generator_config.json
+.vscode

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:gamevault_web/api/api.dart';
 import 'package:gamevault_web/widgets/games/page.dart';
 
 class SidebarDrawer extends StatelessWidget {
@@ -26,7 +27,12 @@ class SidebarDrawer extends StatelessWidget {
               );
             },
           ),
-          ListTile(title: Text(translate.users_title), onTap: () {}),
+          ListTile(
+            title: Text(translate.users_title),
+            onTap: () async {
+              var _ = await GamevaultApi(url: "some").getGames();
+            },
+          ),
           ListTile(title: Text(translate.settings_title), onTap: () {}),
         ],
       ),

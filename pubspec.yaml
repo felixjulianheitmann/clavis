@@ -11,6 +11,8 @@ dependencies:
   openapi_generator_annotations: ^6.1.0
 
   cupertino_icons: ^1.0.8
+  gamevault_client_sdk:
+    git: https://github.com/felixjulianheitmann/gamevault_client_sdk.git
 
 dev_dependencies:
   flutter_test:
