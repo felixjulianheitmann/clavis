@@ -2,10 +2,9 @@
 import 'package:openapi_generator_annotations/openapi_generator_annotations.dart';
 
 @Openapi(
-  inputSpec: InputSpec(path: 'openapi.json'),
+  inputSpec: InputSpec(path: 'gamevault_api.json'),
   generatorName: Generator.dio,
-  // outputDirectory: 'gamevault_api',
+  outputDirectory: 'lib/gamevault_api',
   skipSpecValidation: true,
-  debugLogging: true,
 )
 class GvApi {}

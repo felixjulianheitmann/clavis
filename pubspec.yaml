@@ -21,6 +21,7 @@ dev_dependencies:
   intl: any
   openapi_generator: ^6.1.0
   http:
+  build_runner: ^2.4.15
   
 flutter:
   uses-material-design: true
