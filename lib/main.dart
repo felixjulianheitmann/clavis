@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gamevault_web/widgets/drawer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:gamevault_web/widgets/games/page.dart';
 
 void main() {
   runApp(const Gamevault());
@@ -39,6 +40,7 @@ class GamevaultHome extends StatelessWidget {
         title: Text(AppLocalizations.of(context)!.app_title),
       ),
       drawer: SidebarDrawer(),
+      body: GamesPage(),
     );
   }
 }

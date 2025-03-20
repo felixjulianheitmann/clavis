@@ -19,19 +19,8 @@ class SidebarDrawer extends StatelessWidget {
             child: Text(translate.app_title),
           ),
           ListTile(
-            title: Text(translate.games_title),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const GamesPage()),
-              );
-            },
-          ),
-          ListTile(
             title: Text(translate.users_title),
-            onTap: () async {
-              var _ = await GamevaultApi(url: "some").getGames();
-            },
+            onTap: () {},
           ),
           ListTile(title: Text(translate.settings_title), onTap: () {}),
         ],
