@@ -13,6 +13,7 @@ class GamesList extends StatelessWidget {
     return LayoutBuilder(
       builder: (ctx, constraints) {
         return GridView.extent(
+          padding: EdgeInsets.all(8),
           maxCrossAxisExtent: GameCard.width,
           childAspectRatio: GameCard.aspect,
           crossAxisSpacing: spacing,
