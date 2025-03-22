@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:gamevault_web/widgets/drawer.dart';
+import 'package:gamevault_web/home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:gamevault_web/widgets/games/page.dart';
 
 void main() {
   runApp(const Gamevault());
@@ -10,6 +9,7 @@ void main() {
 
 class Gamevault extends StatelessWidget {
   const Gamevault({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +30,3 @@ class Gamevault extends StatelessWidget {
   }
 }
 
-class GamevaultHome extends StatelessWidget {
-  const GamevaultHome({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.app_title),
-      ),
-      drawer: SidebarDrawer(),
-      body: GamesPage(),
-    );
-  }
-}

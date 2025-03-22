@@ -5,5 +5,8 @@
     },
     "games_title": "Games",
     "users_title": "Users",
-    "settings_title": "Settings"
+    "settings_title": "Settings",
+    "username_label": "Username",
+    "password_label": "Password",
+    "hostname_label": "Hostname"
 }

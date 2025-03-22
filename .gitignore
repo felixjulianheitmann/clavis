@@ -31,3 +31,5 @@ pubspec.lock
 # openapi client sdk generator
 openapi_generator_config.json
 .vscode
+.flutter-plugins-dependencies
+.flutter-plugins
