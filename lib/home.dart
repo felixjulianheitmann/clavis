@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:gamevault_web/blocs/credentialBloc.dart';
-import 'package:gamevault_web/widgets/auth/page.dart';
+import 'package:gamevault_web/model/credentials.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:gamevault_web/startup.dart';
 import 'package:gamevault_web/widgets/drawer.dart';
 import 'package:gamevault_web/widgets/games/page.dart';
 

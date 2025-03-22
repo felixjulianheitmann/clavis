@@ -8,5 +8,7 @@
     "settings_title": "Settings",
     "username_label": "Username",
     "password_label": "Password",
-    "hostname_label": "Hostname"
+    "hostname_label": "Hostname",
+    "validation_error_field_empty": "Field must not be empty",
+    "action_login": "Login"
 }
