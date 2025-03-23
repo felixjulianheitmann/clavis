@@ -7,13 +7,9 @@ import 'package:gamevault_web/startup.dart';
 import 'package:gamevault_web/widgets/drawer.dart';
 import 'package:gamevault_web/widgets/games/page.dart';
 
-class GamevaultHome extends StatefulWidget {
+class GamevaultHome extends StatelessWidget {
   const GamevaultHome({super.key});
-  @override
-  State<GamevaultHome> createState() => GamevaultHomeState();
-}
 
-class GamevaultHomeState extends State<GamevaultHome> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
@@ -22,18 +18,22 @@ class GamevaultHomeState extends State<GamevaultHome> {
           future: context.read<AuthBloc>().initialize(),
           builder: (context, snapshot) {
             Widget body = Center(child: SpinKitCircle(color: Colors.blue));
-            final ready = !snapshot.hasError;
-            if (!ready) {
+            if (snapshot.hasError) {
               // error at logging in
               body = StartupPage();
-            } else {
+            } else if (snapshot.hasData) {
+              if (state.api == null) {
+                context.read<AuthBloc>().add(
+                  AuthChangedEvent(state: snapshot.data!),
+                );
+              }
               // logged in
               body = GamesPage();
             } 
 
             return Scaffold(
               appBar:
-                  ready
+                  snapshot.hasData
                       ? AppBar(
                         title: Text(AppLocalizations.of(context)!.app_title),
                       )

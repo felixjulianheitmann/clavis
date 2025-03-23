@@ -311,10 +311,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "3f75ff504a09d68082fe9fe948f42168c6c32a94"
+      resolved-ref: "10b7084e05aae3f75a247ea54380bf7d36948647"
       url: "https://github.com/felixjulianheitmann/gamevault_client_sdk.git"
     source: git
-    version: "0.0.1"
+    version: "0.0.2"
   glob:
     dependency: transitive
     description:

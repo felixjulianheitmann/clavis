@@ -11,6 +11,11 @@ final class AuthCredChangedEvent extends AuthEvent {
   final Credentials? newCreds;
 }
 
+final class AuthChangedEvent extends AuthEvent {
+  AuthChangedEvent({required this.state});
+  final AuthState state;
+}
+
 final class AuthStateChangedEvent extends AuthEvent {
   AuthStateChangedEvent({required this.isAuthenticated});
   final bool isAuthenticated;
@@ -25,25 +30,25 @@ class AuthState {
   const AuthState({
     this.creds,
     this.hostname,
-    this.isAuthenticated = false,
     this.serverHealthy = false,
+    this.api,
   });
 
   final Credentials? creds;
   final String? hostname;
-  final bool isAuthenticated;
   final bool serverHealthy;
+  final ApiClient? api;
 
   AuthState copyWith({
     Credentials? creds,
     String? hostname,
-    bool? isAuthenticated,
     bool? serverHealthy,
+    ApiClient? api,
   }) {
     return AuthState(
       creds: creds ?? this.creds,
       hostname: hostname ?? this.hostname,
-      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      api: api ?? this.api,
       serverHealthy: serverHealthy ?? this.serverHealthy,
     );
   }
@@ -51,6 +56,12 @@ class AuthState {
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthState()) {
+    /**
+     * a full-on different authentication state became available
+     * usually on application start
+     */
+    on<AuthChangedEvent>((event, emit) => emit(event.state));
+
     /**
      * on changed host, check for healthyness
      */
@@ -91,18 +102,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (me != null) {
         emit(
           state.copyWith(
-            isAuthenticated: true,
-            serverHealthy: true,
             creds: event.newCreds,
+            serverHealthy: true, api: api,
           ),
         );
       }
 
-      emit(state.copyWith(isAuthenticated: false, creds: event.newCreds));
+      emit(
+        state.copyWith(creds: event.newCreds, api: null, serverHealthy: true),
+      );
     });
   }
 
-  Future<void> initialize() async {
+  Future<AuthState> initialize() async {
     final host = await Preferences.getHostname();
     if (host == null) {
       return Future.error("missing host");
@@ -122,7 +134,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       return Future.error("authentication failed");
     }
 
-    return Future.value();
+    return Future.value(
+      AuthState(api: api, creds: creds, hostname: host, serverHealthy: true),
+    );
   }
 
 }
