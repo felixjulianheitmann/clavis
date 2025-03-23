@@ -1,6 +1,8 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gamevault_web/blocs/credential_bloc.dart';
+import 'package:gamevault_web/model/credentials.dart';
 
 class StartupPage extends StatelessWidget {
   const StartupPage({super.key});
@@ -37,6 +39,7 @@ class LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
+
     return Form(
       key: _formKey,
       child: Column(
@@ -47,6 +50,10 @@ class LoginFormState extends State<LoginForm> {
               decoration: InputDecoration(labelText: translate.hostname_label),
               controller: _hostEditCtrl,
               validator: _fieldValidator,
+              onFieldSubmitted:
+                  (value) => context.read<AuthBloc>().add(
+                    AuthHostChangedEvent(host: value),
+                  ),
             ),
           ),
           Padding(
@@ -70,14 +77,15 @@ class LoginFormState extends State<LoginForm> {
           Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  final credStore = FlutterSecureStorage();
-                  await credStore.write(key: "host", value: _hostEditCtrl.text);
-                  await credStore.write(key: "user", value: _userEditCtrl.text);
-                  await credStore.write(key: "pass", value: _passEditCtrl.text);
-                }
-              },
+              onPressed:
+                  () async => context.read<AuthBloc>().add(
+                    AuthCredChangedEvent(
+                      newCreds: Credentials(
+                        user: _userEditCtrl.text,
+                        pass: _passEditCtrl.text,
+                      ),
+                    ),
+                  ),
               child: Text(translate.action_login),
             ),
           ),

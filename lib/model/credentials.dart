@@ -1,6 +1,5 @@
 class Credentials {
-  const Credentials({required this.host, required this.user, required this.pass});
-  final String host;
+  const Credentials({required this.user, required this.pass});
   final String user;
   final String pass;
 }

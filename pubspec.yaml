@@ -19,6 +19,7 @@ dependencies:
   flutter_secure_storage: ^4.2.1
   flutter_bloc: ^9.1.0
   flutter_secure_storage_linux: ^2.0.1
+  shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:gamevault_web/model/credentials.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gamevault_web/blocs/credential_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:gamevault_web/startup.dart';
 import 'package:gamevault_web/widgets/drawer.dart';
@@ -13,34 +13,21 @@ class GamevaultHome extends StatefulWidget {
 }
 
 class GamevaultHomeState extends State<GamevaultHome> {
-  final Future<Credentials?> _credentials = () async {
-    final FlutterSecureStorage secureStorage = FlutterSecureStorage();
-    String? host = await secureStorage.read(key: 'host');
-    String? user = await secureStorage.read(key: 'user');
-    String? pass = await secureStorage.read(key: 'pass');
-    if (host != null && user != null && pass != null) {
-      return Credentials(host: host, user: user, pass: pass);
-    }
-
-    return null;
-  }();
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Credentials?>(
-      future: _credentials,
-      builder: (context, AsyncSnapshot<Credentials?> snapshot) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
         Widget body = StartupPage();
-        if (snapshot.hasData) {
+        final bool ready = state.serverHealthy && state.isAuthenticated;
+        if (ready) {
           body = GamesPage();
-        } else if (snapshot.hasError) {
-          body = StartupPage();
-        } else {
-          body = StartupPage();
         }
 
         return Scaffold(
-        appBar: snapshot.hasData ? AppBar(title: Text(AppLocalizations.of(context)!.app_title)) : null,
+          appBar:
+              ready
+                  ? AppBar(title: Text(AppLocalizations.of(context)!.app_title))
+                  : null,
         drawer: SidebarDrawer(),
         body: body,
         );

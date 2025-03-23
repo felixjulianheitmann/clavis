@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gamevault_web/blocs/credential_bloc.dart';
 import 'package:gamevault_web/home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -25,7 +27,10 @@ class Gamevault extends StatelessWidget {
         AppLocalizations.delegate,
       ],
       supportedLocales: [Locale('en'), Locale('de')],
-      home: const GamevaultHome(),
+      home: BlocProvider(
+        create: (BuildContext ctx) => AuthBloc(),
+        child: const GamevaultHome(),
+      ),
     );
   }
 }
