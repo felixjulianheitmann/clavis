@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gamevault_client_sdk/openapi.dart';
+import 'package:gamevault_client_sdk/api.dart';
 
 class GameCard extends StatelessWidget {
   const GameCard({super.key, required this.metadata, required this.game});

@@ -1,7 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gamevault_client_sdk/openapi.dart';
+import 'package:gamevault_client_sdk/api.dart';
 import 'package:gamevault_web/credential_store.dart';
 import 'package:gamevault_web/model/credentials.dart';
 import 'package:gamevault_web/preferences.dart';
@@ -59,15 +57,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthHostChangedEvent>((event, emit) async {
       await Preferences.setHostname(event.host);
 
-      final health =
-          await Openapi(
-            basePathOverride: event.host,
-          ).getHealthApi().getHealth();
-      if (health.statusCode == HttpStatus.ok &&
-          health.data!.status == HealthStatusEnum.HEALTHY) {
+      final api = ApiClient(basePath: event.host);
+      final health = await HealthApi(api).getHealth();
+      if (health != null && health.status == HealthStatusEnum.HEALTHY) {
         emit(state.copyWith(hostname: event.host, serverHealthy: true));
       }
-
       emit(state.copyWith(hostname: event.host, serverHealthy: false));
     });
 
@@ -88,14 +82,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(state.copyWith(serverHealthy: false));
         return;
       }
-      final api = Openapi(basePathOverride: host);
-      api.setBasicAuth(
-        'basic',
-        event.newCreds!.user,
-        event.newCreds!.pass,
+      final auth = HttpBasicAuth(
+        password: event.newCreds!.pass,
+        username: event.newCreds!.user,
       );
-      final me = await api.getUserApi().getUsersMe();
-      if (me.statusCode == HttpStatus.ok && me.data != null) {
+      final api = ApiClient(basePath: host, authentication: auth);
+      final me = await UserApi(api).getUsersMe();
+      if (me != null) {
         emit(
           state.copyWith(
             isAuthenticated: true,

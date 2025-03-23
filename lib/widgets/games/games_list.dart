@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gamevault_client_sdk/openapi.dart';
+import 'package:gamevault_client_sdk/api.dart';
 import 'package:gamevault_web/widgets/games/game_card.dart';
 
 class GamesList extends StatelessWidget {
