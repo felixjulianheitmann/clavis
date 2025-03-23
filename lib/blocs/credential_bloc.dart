@@ -57,18 +57,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
      * on changed host, check for healthyness
      */
     on<AuthHostChangedEvent>((event, emit) async {
+      await Preferences.setHostname(event.host);
+
       final health =
           await Openapi(
             basePathOverride: event.host,
           ).getHealthApi().getHealth();
-      await Preferences.setHostname(event.host);
-
       if (health.statusCode == HttpStatus.ok &&
           health.data!.status == HealthStatusEnum.HEALTHY) {
-        emit(state.copyWith(serverHealthy: true));
+        emit(state.copyWith(hostname: event.host, serverHealthy: true));
       }
 
-      emit(state.copyWith(serverHealthy: false));
+      emit(state.copyWith(hostname: event.host, serverHealthy: false));
     });
 
     /**
@@ -90,7 +90,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
       final api = Openapi(basePathOverride: host);
       api.setBasicAuth(
-        event.newCreds!.user,
+        'basic',
         event.newCreds!.user,
         event.newCreds!.pass,
       );
