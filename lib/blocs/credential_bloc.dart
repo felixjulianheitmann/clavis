@@ -101,4 +101,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(state.copyWith(isAuthenticated: false, creds: event.newCreds));
     });
   }
+
+  Future<void> initialize() async {
+    final host = await Preferences.getHostname();
+    if (host == null) {
+      return Future.error("missing host");
+    }
+
+    final creds = await CredentialStore.read();
+    if (creds == null) {
+      return Future.error("missing credentials");
+    }
+
+    final api = ApiClient(
+      basePath: host,
+      authentication: HttpBasicAuth(username: creds.user, password: creds.pass),
+    );
+    final me = await UserApi(api).getUsersMe();
+    if (me == null) {
+      return Future.error("authentication failed");
+    }
+
+    return Future.value();
+  }
+
 }

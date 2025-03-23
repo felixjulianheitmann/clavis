@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gamevault_web/blocs/credential_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:gamevault_web/startup.dart';
@@ -17,22 +18,32 @@ class GamevaultHomeState extends State<GamevaultHome> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        Widget body = StartupPage();
-        final bool ready = state.serverHealthy && state.isAuthenticated;
-        if (ready) {
-          body = GamesPage();
-        }
+        return FutureBuilder(
+          future: context.read<AuthBloc>().initialize(),
+          builder: (context, snapshot) {
+            Widget body = Center(child: SpinKitCircle(color: Colors.blue));
+            final ready = !snapshot.hasError;
+            if (!ready) {
+              // error at logging in
+              body = StartupPage();
+            } else {
+              // logged in
+              body = GamesPage();
+            } 
 
-        return Scaffold(
-          appBar:
-              ready
-                  ? AppBar(title: Text(AppLocalizations.of(context)!.app_title))
-                  : null,
-        drawer: SidebarDrawer(),
-        body: body,
+            return Scaffold(
+              appBar:
+                  ready
+                      ? AppBar(
+                        title: Text(AppLocalizations.of(context)!.app_title),
+                      )
+                      : null,
+              drawer: SidebarDrawer(),
+              body: body,
+            );
+          },
         );
-      }
+      },
     );
   }
 }
-
