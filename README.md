@@ -1,5 +1,9 @@
-![logo](assets/Key-Logo_Diagonal.png)
-![name](assets/clavis_white.svg)
+<div style="display: flex; justify-content:center">
+<img src="assets/Key-Logo_Diagonal.png" width="10%" />
+</div>
+<div style="display: flex; justify-content:center">
+<img src="assets/clavis_white.svg" width="20%" />
+</div>
 
 A management client for your [Gamevault](https://gamevau.lt) library.
 
