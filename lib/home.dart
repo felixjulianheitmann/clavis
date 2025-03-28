@@ -23,7 +23,7 @@ class GamevaultHome extends StatelessWidget {
                 errorMessage: "Unexpected error: ${snapshot.error!.toString()}",
               );
             } else if (snapshot.hasData) {
-              if (state is AuthSuccessfulState) {
+              if (snapshot.data! is AuthSuccessfulState) {
                 context.read<AuthBloc>().add(
                   AuthChangedEvent(state: snapshot.data!),
                 );

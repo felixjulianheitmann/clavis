@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:gamevault_web/widgets/games/game_card.dart';
-import 'package:gamevault_web/widgets/queryBuilder.dart';
+import 'package:gamevault_web/widgets/query_builder.dart';
 
 class GamesList extends StatelessWidget {
   const GamesList({super.key, required this.games});
