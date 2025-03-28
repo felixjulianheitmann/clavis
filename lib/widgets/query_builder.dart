@@ -27,11 +27,13 @@ class QuerybuilderState extends State<Querybuilder> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         final spinner = Center(child: SpinKitCircle(color: Colors.blue));
-        if(state.api == null) {
+        if (state is! AuthSuccessfulState) {
           return spinner;
         }
 
-        return FutureBuilder(future: widget.query(state.api!), builder: (context, snapshot) {
+        return FutureBuilder(
+          future: widget.query(state.api),
+          builder: (context, snapshot) {
           if(snapshot.hasData) {
             return widget.builder(context, snapshot.data);
           } else if (snapshot.hasError && widget.onError != null) {

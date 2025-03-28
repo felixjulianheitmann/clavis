@@ -19,17 +19,20 @@ class GamevaultHome extends StatelessWidget {
           builder: (context, snapshot) {
             Widget body = Center(child: SpinKitCircle(color: Colors.blue));
             if (snapshot.hasError) {
-              // error at logging in
-              body = StartupPage();
+              body = StartupPage(
+                errorMessage: "Unexpected error: ${snapshot.error!.toString()}",
+              );
             } else if (snapshot.hasData) {
-              if (state.api == null) {
+              if (state is AuthSuccessfulState) {
                 context.read<AuthBloc>().add(
                   AuthChangedEvent(state: snapshot.data!),
                 );
+                body = GamesPage();
+              } else if (state is AuthFailedState) {
+                body = StartupPage(errorMessage: state.message);
               }
               // logged in
-              body = GamesPage();
-            } 
+            }
 
             return Scaffold(
               appBar:
