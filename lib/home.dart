@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gamevault_web/blocs/credential_bloc.dart';
 import 'package:gamevault_web/startup.dart';
-import 'package:gamevault_web/widgets/clavis_scaffold.dart';
 import 'package:gamevault_web/widgets/games/page.dart';
 
 class GamevaultHome extends StatelessWidget {
@@ -33,7 +32,7 @@ class GamevaultHome extends StatelessWidget {
               // logged in
             }
 
-            return ClavisScaffold(body: body);
+            return body;
           },
         );
       },

@@ -34,3 +34,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  fonts:
+    - family: Jersey10
+      fonts:
+        - asset: assets/Jersey10-Regular.ttf

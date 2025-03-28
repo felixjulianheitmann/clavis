@@ -10,11 +10,15 @@ class ClavisScaffold extends StatelessWidget {
 
     @override
   Widget build(BuildContext context) {
-    final appBar = showAppBar
-                      ? AppBar(
-                        title: Text(AppLocalizations.of(context)!.app_title),
-                      )
-                      : null; 
+    PreferredSizeWidget? appBar;
+    if (showAppBar) {
+      appBar = AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.app_title,
+          style: TextStyle(fontFamily: 'Jersey10'),
+        ),
+      );
+    }
     return Scaffold(
               appBar: appBar,
               drawer: SidebarDrawer(),
