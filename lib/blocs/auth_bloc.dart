@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:gamevault_web/credential_store.dart';
-import 'package:gamevault_web/model/credentials.dart';
-import 'package:gamevault_web/preferences.dart';
+import 'package:clavis/credential_store.dart';
+import 'package:clavis/model/credentials.dart';
+import 'package:clavis/preferences.dart';
 
 sealed class AuthEvent {}
 
@@ -26,8 +26,9 @@ abstract class AuthState {
 }
 
 class AuthSuccessfulState extends AuthState {
-  const AuthSuccessfulState({required this.api});
+  const AuthSuccessfulState({required this.api, required this.me});
   final ApiClient api;
+  final GamevaultUser me;
 }
 
 class AuthFailedState extends AuthState {
@@ -76,12 +77,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthFailedState("couldn't query user info"));
           return;
         }
+
+        emit(AuthSuccessfulState(api: api, me: me));
       } catch (e) {
         emit(AuthFailedState(e.toString()));
         return;
       }
 
-      emit(AuthSuccessfulState(api: api));
     });
   }
 
@@ -106,7 +108,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
 
     return Future.value(
-      AuthSuccessfulState(api: api),
+      AuthSuccessfulState(api: api, me: me),
     );
   }
 

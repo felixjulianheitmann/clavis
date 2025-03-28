@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:gamevault_web/blocs/auth_bloc.dart';
-import 'package:gamevault_web/credential_store.dart';
-import 'package:gamevault_web/model/credentials.dart';
-import 'package:gamevault_web/preferences.dart';
+import 'package:clavis/blocs/auth_bloc.dart';
+import 'package:clavis/credential_store.dart';
+import 'package:clavis/model/credentials.dart';
+import 'package:clavis/preferences.dart';
 
 class StartupPage extends StatelessWidget {
   const StartupPage({super.key, this.errorMessage});

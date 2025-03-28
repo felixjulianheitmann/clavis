@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:gamevault_web/widgets/drawer.dart';
+import 'package:clavis/widgets/drawer.dart';
 
 class ClavisScaffold extends StatelessWidget {
-    const ClavisScaffold({super.key, required this.body, this.showAppBar = true});
+  const ClavisScaffold({super.key, required this.body, this.showAppBar = true});
 
-    final bool showAppBar;
-    final Widget body;
+  final bool showAppBar;
+  final Widget body;
 
-    @override
+  @override
   Widget build(BuildContext context) {
     PreferredSizeWidget? appBar;
     if (showAppBar) {
@@ -17,12 +17,10 @@ class ClavisScaffold extends StatelessWidget {
           AppLocalizations.of(context)!.app_title,
           style: TextStyle(fontFamily: 'Jersey10'),
         ),
+        actions: [],
       );
     }
     return Scaffold(
-              appBar: appBar,
-              drawer: SidebarDrawer(),
-              body: body,
-            );
+      appBar: appBar, drawer: SidebarDrawer(), body: body);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:gamevault_web/widgets/games/game_page.dart';
+import 'package:clavis/widgets/games/game_page.dart';
 
 class GameCard extends StatefulWidget {
   const GameCard({super.key, required this.game});

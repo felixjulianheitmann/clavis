@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:gamevault_web/blocs/auth_bloc.dart';
+import 'package:clavis/blocs/auth_bloc.dart';
 
 typedef QueryBuildFunction<T> = Widget Function(BuildContext, T);
 typedef QueryFunction<T> = Future<T?> Function(ApiClient);

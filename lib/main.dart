@@ -1,22 +1,25 @@
+import 'package:clavis/blocs/page_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:gamevault_web/blocs/auth_bloc.dart';
-import 'package:gamevault_web/home.dart';
+import 'package:clavis/blocs/auth_bloc.dart';
+import 'package:clavis/home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(
-    BlocProvider(
-      create: (BuildContext ctx) => AuthBloc(),
-      child: const Gamevault(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => AuthBloc()),
+        BlocProvider(create: (_) => PageBloc()),
+      ],
+      child: Clavis(),
     ),
   );
 }
 
-class Gamevault extends StatelessWidget {
-  const Gamevault({super.key});
-
+class Clavis extends StatelessWidget {
+  const Clavis({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +35,7 @@ class Gamevault extends StatelessWidget {
         AppLocalizations.delegate,
       ],
       supportedLocales: [Locale('en'), Locale('de')],
-      home: const GamevaultHome(),
+      home: const ClavisHome(),
     );
   }
 }
-

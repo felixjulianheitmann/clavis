@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:gamevault_web/widgets/clavis_scaffold.dart';
+import 'package:clavis/widgets/clavis_scaffold.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({super.key, required this.game});

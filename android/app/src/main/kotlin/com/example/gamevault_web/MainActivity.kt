@@ -1,4 +1,4 @@
-package com.example.gamevault_web
+package com.felixbruns.clavis
 
 import io.flutter.embedding.android.FlutterActivity
 
