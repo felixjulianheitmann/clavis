@@ -6,7 +6,12 @@ import 'package:gamevault_web/home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
-  runApp(const Gamevault());
+  runApp(
+    BlocProvider(
+      create: (BuildContext ctx) => AuthBloc(),
+      child: const Gamevault(),
+    ),
+  );
 }
 
 class Gamevault extends StatelessWidget {
@@ -27,10 +32,7 @@ class Gamevault extends StatelessWidget {
         AppLocalizations.delegate,
       ],
       supportedLocales: [Locale('en'), Locale('de')],
-      home: BlocProvider(
-        create: (BuildContext ctx) => AuthBloc(),
-        child: const GamevaultHome(),
-      ),
+      home: const GamevaultHome(),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:gamevault_web/widgets/games/page.dart';
 
 class SidebarDrawer extends StatelessWidget {
   const SidebarDrawer({super.key});
@@ -15,6 +16,15 @@ class SidebarDrawer extends StatelessWidget {
           DrawerHeader(
             decoration: BoxDecoration(color: Colors.blue),
             child: Text(translate.app_title),
+          ),
+          ListTile(
+            title: Text(translate.games_title),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (ctx) => GamesPage()),
+              );
+            },
           ),
           ListTile(
             title: Text(translate.users_title),
