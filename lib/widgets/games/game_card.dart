@@ -1,3 +1,4 @@
+import 'package:clavis/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/widgets/games/game_page.dart';
@@ -16,14 +17,6 @@ class _GameCardState extends State<GameCard> {
   static const _hoverFactor = 1.1;
   static const _animationDuration = Duration(milliseconds: 100);
   bool _isHovering = false;
-
-  Image _cover() {
-    final url = widget.game.metadata?.cover?.sourceUrl;
-    if (url == null) {
-      return Image.asset("Key-Logo_Diagonal.png", width: _width);
-    }
-    return Image.network(url, width: _width);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +41,7 @@ class _GameCardState extends State<GameCard> {
           child: Card(
             clipBehavior: Clip.antiAlias,
             semanticContainer: true,
-            child: _cover(),
+            child: Helpers.cover(widget.game, _width),
           ),
         ),
       ),
