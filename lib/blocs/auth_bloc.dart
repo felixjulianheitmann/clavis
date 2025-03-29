@@ -87,7 +87,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  Future<AuthState> initialize() async {
+  static Future<AuthState> initialize() async {
     final host = await Preferences.getHostname();
     if (host == null) {
       return Future.value(AuthPendingState());
