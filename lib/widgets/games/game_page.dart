@@ -6,7 +6,8 @@ import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/widgets/clavis_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+ 
 class GamePage extends StatelessWidget {
   const GamePage({super.key, required this.game});
 
@@ -23,6 +24,7 @@ class _GameTitleBoard extends StatelessWidget {
 
   static const _padding = 16.0;
   static const _bannerHeight = 400.0;
+  static const _titleOffset = 40.0;
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +48,25 @@ class _GameTitleBoard extends StatelessWidget {
                       _bannerHeight +
                       _GameTitle.fontSize +
                       _GameTitle._titlePadding +
-                      _padding,
+                      _padding +
+                      _titleOffset,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [_GameCover(game), _GameTitle(title: game.title)],
+                    children: [
+                      _GameCover(game),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _GameWebsites(game.metadata?.urlWebsites),
+                          _GameTitle(title: game.title),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 _GameDescription(game.metadata?.description),
                 _GameScreenshots(game.metadata?.urlScreenshots),
-                // _GameTrailer(game.metadata?.urlTrailers),
-                _GameWebsites(game.metadata?.urlWebsites),
               ],
             ),
           ),
@@ -70,24 +81,32 @@ class _GameWebsites extends StatelessWidget {
   final List<String>? websites;
 
   static const _iconLookup = <String, IconData>{
-    "www.discorg.gg": Icons.discord,
-    "store.steampowered.com": FontAwesomeIcons.steam,
-    "www.youtube.com": FontAwesomeIcons.youtube,
-    "www.epicgames.com": FontAwesomeIcons.store,
-    "www.facebook.com": FontAwesomeIcons.facebook,
-    "www.twitter.com": FontAwesomeIcons.twitter,
-    "www.x.com": FontAwesomeIcons.twitter,
+    "discorg.gg": Icons.discord,
+    "steampowered.com": FontAwesomeIcons.steam,
+    "youtube.com": FontAwesomeIcons.youtube,
+    "facebook.com": FontAwesomeIcons.facebook,
+    "twitter.com": FontAwesomeIcons.twitter,
+    "x.com": FontAwesomeIcons.twitter,
     "en.wikipedia.org": FontAwesomeIcons.wikipediaW,
-    "www.twitch.tv": FontAwesomeIcons.twitch,
-    "www.reddit.com": FontAwesomeIcons.reddit,
+    "twitch.tv": FontAwesomeIcons.twitch,
+    "reddit.com": FontAwesomeIcons.reddit,
+    "instagram.com": FontAwesomeIcons.instagram,
   };
 
-  Icon _toIcon(String url) {
-    final iconData = _iconLookup[Uri.parse(url).host];
-    if (iconData == null) {
-      return Icon(Icons.language);
+  IconButton? _toIconButton(String url) {
+    IconData? iconData;
+    for (var hostIcon in _iconLookup.entries) {
+      if (url.contains(hostIcon.key)) {
+        iconData = hostIcon.value;
+      }
     }
-    return Icon(iconData);
+    if (iconData != null) {
+      return IconButton(
+        icon: Icon(iconData),
+        onPressed: () => launchUrl(Uri.parse(url)),
+      );
+    }
+    return null;
   }
 
   @override
@@ -95,24 +114,17 @@ class _GameWebsites extends StatelessWidget {
     if (websites == null) {
       return Container();
     }
-    final elements =
-        websites!
-            .map(
-              (w) => IconButton(
-                icon: _toIcon(w),
-                onPressed: () => launchUrl(Uri.parse(w)),
-              ),
-            )
-            .toList();
-    return Row(children: elements);
+    final elements = websites!.map((w) => _toIconButton(w)).nonNulls.toList();
+    return Padding(
+      padding: EdgeInsets.only(left: 24),
+      child: Row(children: elements),
+    );
   }
 }
 
 class _GameTrailer extends StatefulWidget {
   const _GameTrailer(this.trailerUrls);
   final List<String>? trailerUrls;
-
-  static const _height = 200;
 
   @override
   State<_GameTrailer> createState() => _GameTrailerState();
@@ -209,15 +221,71 @@ class _GameBanner extends StatelessWidget {
   }
 }
 
-class _GameCover extends StatelessWidget {
+class _GameCover extends StatefulWidget {
   const _GameCover(this.game);
   final GamevaultGame game;
   static const _coverWidth = 250.0;
+
+  @override
+  State<_GameCover> createState() => _GameCoverState();
+}
+
+class _GameCoverState extends State<_GameCover> {
+  static const _hoverOpacity = 0.5;
+  static const _animationDur = Duration(milliseconds: 150);
+  static const _downloadSize = 64.0;
+  bool isHovering = false;
+
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
     return Card(
+      color: Colors.black,
       clipBehavior: Clip.antiAlias,
-      child: Helpers.cover(game, _coverWidth),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isHovering = true),
+        onExit: (_) => setState(() => isHovering = false),
+        child: AnimatedOpacity(
+          duration: _animationDur,
+          opacity: isHovering ? _hoverOpacity : 1.0,
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            children: [
+              Helpers.cover(widget.game, _GameCover._coverWidth),
+              AnimatedOpacity(
+                opacity: isHovering ? 1.0 : 0.0,
+                duration: _animationDur,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.download,
+                      size: _downloadSize,
+                      color: Colors.white,
+                    ),
+                    _GameSizeText(widget: widget, translate: translate),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GameSizeText extends StatelessWidget {
+  const _GameSizeText({required this.widget, required this.translate});
+
+  final _GameCover widget;
+  final AppLocalizations translate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      Helpers.sizeInUnit(widget.game.size, translate),
+      style: TextStyle(fontSize: 24, color: Colors.white),
     );
   }
 }
@@ -233,7 +301,7 @@ class _GameTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = this.title ?? "missing title";
     return Padding(
-      padding: EdgeInsets.all(_titlePadding),
+      padding: EdgeInsets.only(left: _titlePadding, bottom: _titlePadding),
       child: Text(title, style: TextStyle(fontSize: fontSize)),
     );
   }
