@@ -1,5 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:gamevault_web/model/credentials.dart';
+import 'package:clavis/model/credentials.dart';
 
 class CredentialStore {
   static const _keyUsername = "username";

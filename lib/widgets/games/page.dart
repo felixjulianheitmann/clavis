@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:gamevault_web/widgets/games/games_list.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:gamevault_client_sdk/api.dart';
+import 'package:clavis/widgets/games/games_list.dart';
+import 'package:clavis/widgets/query_builder.dart';
 
 class GamesPage extends StatelessWidget {
   const GamesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.games_title)),
-      body: GamesList(games: []),
+    return Querybuilder(
+        query: (api) => GameApi(api).getGames(),
+        builder: (ctx, games) {
+          return GamesList(games: games);
+      },
     );
   }
 }

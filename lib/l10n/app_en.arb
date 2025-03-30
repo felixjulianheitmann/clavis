@@ -1,5 +1,5 @@
 {
-    "app_title": "Gamevault",
+    "app_title": "clavis",
     "@app_title": {
         "description": "just the title of the app"
     },
@@ -10,5 +10,10 @@
     "password_label": "Password",
     "hostname_label": "Hostname",
     "validation_error_field_empty": "Field must not be empty",
-    "action_login": "Login"
+    "action_login": "Login",
+    "size_bytes": "{size} B",
+    "size_kilobytes": "{size} kB",
+    "size_megabytes": "{size} MB",
+    "size_gigabytes": "{size} GB",
+    "size_terabytes": "{size} TB"
 }
