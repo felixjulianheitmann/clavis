@@ -9,7 +9,7 @@ import 'package:clavis/widgets/clavis_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
- 
+
 class GamePage extends StatelessWidget {
   const GamePage({super.key, required this.game});
 
@@ -257,26 +257,68 @@ class _GameCoverState extends State<_GameCover> {
               AnimatedOpacity(
                 opacity: isHovering ? 1.0 : 0.0,
                 duration: _animationDur,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.download),
-                      onPressed:
-                          () => context.read<DownloadBloc>().add(
-                            DownloadsQueuedEvent(ids: [widget.game.id as int]),
-                          ),
-                      iconSize: _downloadSize,
-                      color: Colors.white,
-                    ),
-                    _GameSizeText(widget: widget, translate: translate),
-                  ],
+                child: _GameDownloadButton(
+                  widget: widget,
+                  downloadSize: _downloadSize,
+                  translate: translate,
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GameDownloadButton extends StatelessWidget {
+  const _GameDownloadButton({
+    required this.widget,
+    required double downloadSize,
+    required this.translate,
+  }) : _downloadSize = downloadSize;
+
+  final _GameCover widget;
+  final double _downloadSize;
+  final AppLocalizations translate;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DownloadBloc, DownloadState>(
+      builder: (context, state) {
+        IconButton actionButton;
+        Widget label;
+        if (state is DownloadActiveState) {
+          actionButton = IconButton(
+            icon: Icon(Icons.cancel),
+            onPressed: () {
+              context.read<DownloadBloc>().add(DownloadCancelEvent());
+            },
+            iconSize: _downloadSize,
+            color: Colors.white,
+          );
+          label = CircularProgressIndicator(
+            color: Colors.white,
+            value: state.progress.bytesRead / state.progress.bytesTotal,
+          );
+        } else {
+          actionButton = IconButton(
+            icon: Icon(Icons.download),
+            onPressed:
+                () => context.read<DownloadBloc>().add(
+                  DownloadsQueuedEvent(ids: [widget.game.id as int]),
+                ),
+            iconSize: _downloadSize,
+            color: Colors.white,
+
+          );
+          label = _GameSizeText(widget: widget, translate: translate);
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [actionButton, label],
+        );
+      },
     );
   }
 }

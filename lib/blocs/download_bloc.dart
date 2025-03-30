@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:http/http.dart';
 
 class DownloadProgress {
   const DownloadProgress({
@@ -76,6 +75,10 @@ class DownloadAuthReceivedEvent extends DownloadEvent {
 class DownloadsQueuedEvent extends DownloadEvent {
   const DownloadsQueuedEvent({required this.ids});
   final List<int> ids;
+}
+
+class DownloadCancelEvent extends DownloadEvent {
+  const DownloadCancelEvent();
 }
 
 class DownloadRemovedEvent extends DownloadEvent {
