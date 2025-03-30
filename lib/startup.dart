@@ -56,11 +56,11 @@ class LoginFormState extends State<LoginForm> {
     await Preferences.setHostname(_hostEditCtrl.text);
     final user = _userEditCtrl.text;
     final pass = _passEditCtrl.text;
-    final newState = AuthCredChangedEvent(
+    final newEvent = AuthCredChangedEvent(
       newCreds: Credentials(user: user, pass: pass),
     );
     if (context.mounted) {
-      context.read<AuthBloc>().add(newState);
+      context.read<AuthBloc>().add(newEvent);
     }
   }
 

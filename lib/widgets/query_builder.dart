@@ -27,7 +27,7 @@ class QuerybuilderState extends State<Querybuilder> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         final spinner = Center(child: SpinKitCircle(color: Colors.blue));
-        if (state is! AuthSuccessfulState) {
+        if (state is! AuthSuccessState) {
           return spinner;
         }
 

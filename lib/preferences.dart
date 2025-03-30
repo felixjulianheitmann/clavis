@@ -1,3 +1,4 @@
+import 'package:clavis/util/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {
@@ -35,4 +36,21 @@ class Preferences {
   static const _keyHostname = "hostname";
   static Future<String?> getHostname() async => await _get(_keyHostname);
   static Future<void> setHostname(String host) async =>await _set(_keyHostname, host);
+
+  static const _keyLogDebug = "log.debug";
+  static const _keyLogOutFile = "log.outFile";
+  static Future<LogOpts> getLogOpts() async {
+    final debug = await _get(_keyLogDebug);
+    final outFile = await _get(_keyLogOutFile);
+    return LogOpts(debug: debug ?? false, outFile: outFile);
+  }
+
+  static Future<void> setLogOpts(LogOpts opts) async {
+    await _set(_keyLogDebug, opts.debug);
+    await _set(_keyLogOutFile, opts.outFile);
+  }
+
+  static const _keyDownloadDir = "games.downloadDir";
+  static Future<String?> getDownloadDir() async => await _get(_keyDownloadDir);
+  static Future<void> setDownloadDir(d) async => await _set(_keyDownloadDir, d);
 }

@@ -1,3 +1,4 @@
+import 'package:clavis/util/logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/credential_store.dart';
@@ -25,8 +26,8 @@ abstract class AuthState {
   const AuthState();
 }
 
-class AuthSuccessfulState extends AuthState {
-  const AuthSuccessfulState({required this.api, required this.me});
+class AuthSuccessState extends AuthState {
+  const AuthSuccessState({required this.api, required this.me});
   final ApiClient api;
   final GamevaultUser me;
 }
@@ -46,12 +47,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
      * a full-on different authentication state became available
      * usually on application start
      */
-    on<AuthChangedEvent>((event, emit) => emit(event.state));
+    on<AuthChangedEvent>((event, emit) {
+      log.i("Authentication changed");
+      emit(event.state);
+    });
 
     /**
      * on change of credentials, check if the user can be authenticated this way
      */
     on<AuthCredChangedEvent>((event, emit) async {
+      log.i(
+        "Authentication credentials have been entered: ${event.newCreds?.user}",
+      );
       if (event.newCreds == null) {
         await CredentialStore.remove();
         emit(AuthEmptyState());
@@ -62,6 +69,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final host = await Preferences.getHostname();
       if (host == null) {
+        log.w("authentication failed - no host available");
         emit(AuthEmptyState());
         return;
       }
@@ -74,16 +82,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         final me = await UserApi(api).getUsersMe();
         if (me == null) {
+          log.e("authentication failed - querying user info failed");
           emit(AuthFailedState("couldn't query user info"));
           return;
         }
 
-        emit(AuthSuccessfulState(api: api, me: me));
+        emit(AuthSuccessState(api: api, me: me));
       } catch (e) {
+        log.e("authentication failed - querying user info failed", error: e);
         emit(AuthFailedState(e.toString()));
         return;
       }
-
     });
   }
 
@@ -102,14 +111,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       basePath: host,
       authentication: HttpBasicAuth(username: creds.user, password: creds.pass),
     );
-    final me = await UserApi(api).getUsersMe();
-    if (me == null) {
+    try {
+      final me = await UserApi(api).getUsersMe();
+      if (me == null) {
+        log.w("initial user credentials couldn't query users");
+        return Future.value(AuthFailedState("Couldn't query users"));
+      }
+      return Future.value(AuthSuccessState(api: api, me: me));
+    } catch (e) {
+      log.w("initial user credentials couldn't query users", error: e);
       return Future.value(AuthFailedState("Couldn't query users"));
     }
-
-    return Future.value(
-      AuthSuccessfulState(api: api, me: me),
-    );
   }
-
 }

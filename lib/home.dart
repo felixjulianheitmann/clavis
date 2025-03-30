@@ -11,7 +11,7 @@ class ClavisHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        if (state is AuthSuccessfulState) {
+        if (state is AuthSuccessState) {
           return AppPageSwitcher();
         } else if (state is AuthFailedState) {
           return StartupPage(errorMessage: state.message);
