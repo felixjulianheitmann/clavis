@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:clavis/blocs/download_bloc.dart';
 import 'package:clavis/helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/widgets/clavis_scaffold.dart';
@@ -258,9 +260,13 @@ class _GameCoverState extends State<_GameCover> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.download,
-                      size: _downloadSize,
+                    IconButton(
+                      icon: Icon(Icons.download),
+                      onPressed:
+                          () => context.read<DownloadBloc>().add(
+                            DownloadQueuedEvent(id: widget.game.id as int),
+                          ),
+                      iconSize: _downloadSize,
                       color: Colors.white,
                     ),
                     _GameSizeText(widget: widget, translate: translate),

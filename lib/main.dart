@@ -2,12 +2,12 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:clavis/blocs/download_bloc.dart';
 import 'package:clavis/blocs/page_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:clavis/blocs/auth_bloc.dart';
 import 'package:clavis/home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worker_manager/worker_manager.dart';
 
 void main() {
   runApp(
@@ -45,6 +45,7 @@ class Clavis extends StatelessWidget {
         duration: 500,
         splash: 'assets/Key-Logo_Diagonal.png',
         screenFunction: () async {
+          await workerManager.init();
           final authState = await AuthBloc.initialize();
           if (context.mounted) {
             context.read<AuthBloc>().add(AuthChangedEvent(state: authState));
