@@ -25,7 +25,7 @@ void main() {
 class Clavis extends StatelessWidget {
   const Clavis({super.key});
 
-  Future<Widget> _initApp(context) async {
+  Future<Widget> _initApp(BuildContext context) async {
     await Log.initLog();
     log.i("Starting application");
     final authState = await AuthBloc.initialize();
