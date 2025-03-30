@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:clavis/preferences.dart';
+import 'package:clavis/util/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 

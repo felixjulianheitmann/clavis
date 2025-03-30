@@ -1,9 +1,9 @@
+import 'package:clavis/util/credential_store.dart';
 import 'package:clavis/util/logger.dart';
+import 'package:clavis/util/preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:clavis/credential_store.dart';
 import 'package:clavis/model/credentials.dart';
-import 'package:clavis/preferences.dart';
 
 sealed class AuthEvent {}
 

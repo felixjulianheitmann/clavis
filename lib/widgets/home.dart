@@ -1,8 +1,8 @@
+import 'package:clavis/widgets/app_page_switcher.dart';
+import 'package:clavis/widgets/startup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:clavis/app_page_switcher.dart';
 import 'package:clavis/blocs/auth_bloc.dart';
-import 'package:clavis/startup.dart';
 
 class ClavisHome extends StatelessWidget {
   const ClavisHome({super.key});

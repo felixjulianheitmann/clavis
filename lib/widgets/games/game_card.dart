@@ -1,4 +1,4 @@
-import 'package:clavis/helpers.dart';
+import 'package:clavis/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/widgets/games/game_page.dart';
