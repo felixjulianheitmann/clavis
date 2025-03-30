@@ -1,34 +1,33 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:http/http.dart';
-import 'package:worker_manager/worker_manager.dart';
-
 
 class DownloadProgress {
   const DownloadProgress({
-    required this.resp,
-    this.chunk,
+    this.bytesRead = -1,
+    this.bytesTotal = -1,
     this.hasError = false,
     this.isCancelled = false,
     this.isDone = false,
   });
-  final List<int>? chunk;
+  final int bytesRead;
+  final int bytesTotal;
   final bool hasError;
   final bool isCancelled;
   final bool isDone;
-  final StreamedResponse resp;
 }
+
 class DownloadState {
   DownloadState({this.queue = const [], this.finished = const []});
   final List<int> queue;
   final List<int> finished;
 
   DownloadState copyWith({List<int>? queue}) {
-    return DownloadState(
-      queue: queue ?? this.queue,
-    );
+    return DownloadState(queue: queue ?? this.queue);
   }
-
 }
 
 class DownloadAuthPendingState extends DownloadState {}
@@ -48,12 +47,21 @@ class DownloadReadyState extends DownloadState {
 
 class DownloadActiveState extends DownloadReadyState {
   DownloadActiveState({
-    required this.progress,
     required super.api,
     super.finished,
     super.queue,
+    required this.progress,
   });
   final DownloadProgress progress;
+
+  DownloadActiveState withProgress(DownloadProgress progress) {
+    return DownloadActiveState(
+      progress: progress,
+      api: api,
+      finished: finished,
+      queue: queue,
+    );
+  }
 }
 
 class DownloadEvent {
@@ -92,36 +100,62 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
       emit(newState);
     });
 
-    on<DownloadsQueuedEvent>((event, emit) {
-      switch (state.runtimeType) {
-        case const (DownloadReadyState):
-          final availableState = state as DownloadReadyState;
-          // remove duplicates
-          for (final id in event.ids) {
-            if (availableState.queue.contains(id)) {
-              event.ids.remove(id);
-            }
+    on<DownloadsQueuedEvent>((event, emit) async {
+      if (state is DownloadReadyState) {
+        final readyState = state as DownloadReadyState;
+        // remove duplicates
+        for (final id in event.ids) {
+          if (readyState.queue.contains(id)) {
+            event.ids.remove(id);
           }
+        }
 
-          final newState = availableState.copyWith(
-            queue: availableState.queue + event.ids,
+        final newQueue = readyState.queue + event.ids;
+
+        if (newQueue.length == 1) {
+          final uri =
+              "${readyState.api.basePath}/api/games/${event.ids.first}/download";
+
+          Map<String, String> headers = {};
+          await readyState.api.authentication!.applyToParams([], headers);
+          emit(
+            DownloadActiveState(
+              api: readyState.api,
+              progress: DownloadProgress(),
+              finished: readyState.finished,
+              queue: readyState.queue,
+            ),
           );
-          if (availableState.queue.length == 1) {
-            final activeDownloadTask = workerManager.executeGentleWithPort(
-              _startGameDownload(availableState.api, event.ids[0]),
-              onMessage:
-                  (DownloadProgress progress) => emit(
-                    DownloadActiveState(
-                      progress: progress,
-                      api: availableState.api,
-                    ),
+          final resp = await Dio().download(
+            uri,
+            "/dev/null",
+            onReceiveProgress: (count, total) {
+              if (state is DownloadActiveState) {
+                emit(
+                  (state as DownloadActiveState).withProgress(
+                    DownloadProgress(bytesRead: count, bytesTotal: total),
                   ),
+                );
+              }
+            },
+            options: Options(headers: headers),
+          );
+
+          if (resp.statusCode != HttpStatus.ok) {
+            emit(
+              (state as DownloadActiveState).withProgress(
+                DownloadProgress(hasError: true),
+              ),
             );
           }
-          emit(newState);
-          break;
-        case const (DownloadAuthPendingState):
-      }
+
+          emit(
+            (state as DownloadActiveState).withProgress(
+              DownloadProgress(isDone: true),
+            ),
+          );
+        }
+      } else if (state.runtimeType is DownloadReadyState) {}
     });
 
     on<DownloadRemovedEvent>((event, emit) {
@@ -148,26 +182,4 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
       emit(DownloadState(queue: state.queue));
     });
   }
-}
-
-Future<Null> Function(dynamic, dynamic) _startGameDownload(
-  ApiClient api,
-  int gameId,
-) {
-  return (sendPort, isCancelled) async {
-    final uri = Uri.parse("${api.basePath}/api/games/$gameId/download");
-    final client = StreamedRequest('GET', uri);
-    final resp = await api.client.send(client);
-    try {
-      await for (final chunk in resp.stream) {
-        if (isCancelled()) {
-          sendPort.send(DownloadProgress(resp: resp, isCancelled: true));
-        }
-        sendPort.send(DownloadProgress(resp: resp, chunk: chunk));
-      }
-    } catch (e) {
-      sendPort.send(DownloadProgress(resp: resp, hasError: true));
-    }
-    sendPort.send(DownloadProgress(resp: resp, isDone: true));
-  };
 }

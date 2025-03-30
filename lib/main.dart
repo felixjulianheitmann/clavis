@@ -7,7 +7,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:clavis/blocs/auth_bloc.dart';
 import 'package:clavis/home.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:worker_manager/worker_manager.dart';
 
 void main() {
   runApp(
@@ -45,10 +44,14 @@ class Clavis extends StatelessWidget {
         duration: 500,
         splash: 'assets/Key-Logo_Diagonal.png',
         screenFunction: () async {
-          await workerManager.init();
           final authState = await AuthBloc.initialize();
           if (context.mounted) {
             context.read<AuthBloc>().add(AuthChangedEvent(state: authState));
+            if (authState is AuthSuccessfulState) {
+              context.read<DownloadBloc>().add(
+                DownloadAuthReceivedEvent(authState.api),
+              );
+            }
           }
           return ClavisHome();
         },

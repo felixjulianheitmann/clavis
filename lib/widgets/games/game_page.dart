@@ -264,7 +264,7 @@ class _GameCoverState extends State<_GameCover> {
                       icon: Icon(Icons.download),
                       onPressed:
                           () => context.read<DownloadBloc>().add(
-                            DownloadQueuedEvent(id: widget.game.id as int),
+                            DownloadsQueuedEvent(ids: [widget.game.id as int]),
                           ),
                       iconSize: _downloadSize,
                       color: Colors.white,

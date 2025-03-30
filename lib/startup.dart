@@ -16,12 +16,14 @@ class StartupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> col = [];
     if (errorMessage != null) {
-      col.add(
+      col += [
         Card(surfaceTintColor: Colors.orange, child: Text(errorMessage!)),
-      );
+      ];
     }
-    col.add(SizedBox(width: loginFormWidth, child: LoginForm()));
-    return Center(child: Expanded(child: Column(children: col)));
+    col += [SizedBox(width: loginFormWidth, child: LoginForm())];
+    return Scaffold(
+      body: Center(child: Expanded(child: Column(children: col))),
+    );
   }
 }
 
