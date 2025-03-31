@@ -62,7 +62,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter ${{ matrix.platform }} app
-        if: runner.os == 'Windows' && matrix.platform == 'windows'
+        if: runner.os == 'linux'
         run: |
           if [ "${{ matrix.platform }}" == "android" ]; then
             flutter build apk --release
