@@ -10,12 +10,14 @@ on:
 
 jobs:
   build:
-    runs-on: [ubuntu-latest, windows-latest]
-
+    
     strategy:
       matrix:
         platform: [web, android, linux, windows]
+        os: [ubuntu-latest, windows-latest]
       fail-fast: false
+    
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
