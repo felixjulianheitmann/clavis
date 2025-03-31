@@ -43,7 +43,7 @@ jobs:
 
       - name: Upload build artifacts
         if: success() && (matrix.platform == 'android' || matrix.platform == 'web' || matrix.platform == 'linux' || matrix.platform == 'windows')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-build
           path: |
