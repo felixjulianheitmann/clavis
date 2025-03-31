@@ -1,5 +1,4 @@
 import 'package:clavis/blocs/page_bloc.dart';
-import 'package:clavis/widgets/about_page.dart';
 import 'package:clavis/widgets/app_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,14 +31,14 @@ class SidebarDrawer extends StatelessWidget {
                   AppTitle(),
                   IconButton(
                     onPressed:
-                    () => showLicensePage(context: context, applicationIcon: Image.asset('assets/Key-Logo_Diagonal.png'))
-                        // () => Navigator.push(
-                        //   context,
-
-                        //   MaterialPageRoute(
-                        //     builder: (ctx) => const AboutPage(),
-                        //   ),
-                        // ),
+                        () => showLicensePage(
+                          context: context,
+                          applicationIcon: Image.asset(
+                            'assets/Key-Logo_Diagonal.png',
+                          ),
+                          applicationName: translate.app_title,
+                          applicationLegalese: "Felix Bruns",
+                        ),
                     icon: Icon(Icons.info),
                   ),
                 ],
