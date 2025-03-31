@@ -13,8 +13,11 @@ jobs:
     
     strategy:
       matrix:
-        platform: [web, android, linux, windows]
-        os: [ubuntu-latest, windows-latest]
+        platform: [web, android, linux]
+        os: [ubuntu-latest]
+        include:
+          - os: windows-latest
+            platform: windows
       fail-fast: false
     
     runs-on: ${{ matrix.os }}
