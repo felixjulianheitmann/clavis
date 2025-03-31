@@ -71,6 +71,9 @@ jobs:
         if: runner.os == 'Windows' && matrix.platform == 'windows'
         run: flutter build windows --release
 
+      - name: list builds
+        run: ls build
+
       - name: Upload build artifacts
         if: success() && (matrix.platform == 'android' || matrix.platform == 'web' || matrix.platform == 'linux' || matrix.platform == 'windows')
         uses: actions/upload-artifact@v4
