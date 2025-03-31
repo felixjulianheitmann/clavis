@@ -85,22 +85,10 @@ jobs:
       - name: list builds
         run: ls build/*
 
-      - name: Upload build artifacts (web)
-        if: matrix.platform == 'web'
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-build-${{ github.sha }}
           path: |
             build/${{ matrix.platform }}
         
-      - name: Upload build artifacts (linux)
-        if: matrix.platform == 'linux'
-        run: ls build/${{ matrix.platform }}/x64
-
-      - name: Upload build artifacts (linux)
-        if: matrix.platform == 'linux'        
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform }}-build-${{ github.sha }}
-          path: |
-            build/${{ matrix.platform }}/x64/bundle
