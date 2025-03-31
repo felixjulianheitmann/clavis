@@ -13,7 +13,7 @@ class GameCard extends StatefulWidget {
 }
 
 class _GameCardState extends State<GameCard> {
-  static const _width = 350.0;
+  static const _width = 150.0;
   static const _hoverFactor = 1.1;
   static const _animationDuration = Duration(milliseconds: 100);
   bool _isHovering = false;

@@ -25,7 +25,7 @@ class _GameTitleBoard extends StatelessWidget {
   final GamevaultGame game;
 
   static const _padding = 16.0;
-  static const _bannerHeight = 400.0;
+  static const _bannerHeight = 250.0;
   static const _titleOffset = 40.0;
 
   @override
@@ -160,7 +160,7 @@ class _GameScreenshots extends StatefulWidget {
 class _GameScreenshotsState extends State<_GameScreenshots> {
   final controller = CarouselSliderController();
 
-  static const _imageHeight = 600.0;
+  static const _imageHeight = 200.0;
 
   @override
   Widget build(BuildContext context) {
@@ -171,16 +171,22 @@ class _GameScreenshotsState extends State<_GameScreenshots> {
     final images =
         widget.screenShotUrls!
             .map(
-              (url) =>
-                  Card(clipBehavior: Clip.antiAlias, child: Image.network(url)),
+              (url) {
+          var img = Image.network(url);
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [Card(clipBehavior: Clip.antiAlias, child: img)],
+          );
+        },
             )
             .toList();
 
     return CarouselSlider(
       items: images,
       options: CarouselOptions(
+        viewportFraction: 0.3,
         enlargeCenterPage: true,
-        enlargeStrategy: CenterPageEnlargeStrategy.height,
+        enlargeStrategy: CenterPageEnlargeStrategy.scale,
         height: _imageHeight,
       ),
       carouselController: controller,
@@ -226,7 +232,7 @@ class _GameBanner extends StatelessWidget {
 class _GameCover extends StatefulWidget {
   const _GameCover(this.game);
   final GamevaultGame game;
-  static const _coverWidth = 250.0;
+  static const _coverWidth = 200.0;
 
   @override
   State<_GameCover> createState() => _GameCoverState();
