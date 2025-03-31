@@ -17,7 +17,7 @@ class GamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      ClavisScaffold(body: _GameTitleBoard(game));
+      ClavisScaffold(body: _GameTitleBoard(game), showDrawer: false);
 }
 
 class _GameTitleBoard extends StatelessWidget {
