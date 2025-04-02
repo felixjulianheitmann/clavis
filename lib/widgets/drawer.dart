@@ -7,13 +7,14 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:clavis/constants.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
+void _setPage(BuildContext context, String page) {
+  final pageChanger = context.read<PageBloc>();
+  pageChanger.add(PageChangedEvent(page));
+  Navigator.pop(context);
+}
+
 class SidebarDrawer extends StatelessWidget {
   const SidebarDrawer({super.key});
-
-  void setPage(BuildContext context, String page) {
-    final pageChanger = context.read<PageBloc>();
-    pageChanger.add(PageChangedEvent(page));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +51,12 @@ class SidebarDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.gamepad),
             title: Text(translate.games_title),
-            onTap: () => setPage(context, Constants.gamesPageKey),
+            onTap: () => _setPage(context, Constants.gamesPageKey),
           ),
           ListTile(
             leading: Icon(Icons.person),
             title: Text(translate.users_title),
-            onTap: () => setPage(context, Constants.usersPageKey),
+            onTap: () => _setPage(context, Constants.usersPageKey),
           ),
           Spacer(),
           Divider(),
@@ -63,7 +64,7 @@ class SidebarDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.settings),
             title: Text(translate.settings_title),
-            onTap: () => setPage(context, Constants.settingsPageKey),
+            onTap: () => _setPage(context, Constants.settingsPageKey),
           ),
         ],
       ),
@@ -91,11 +92,7 @@ class _UserMeTile extends StatelessWidget {
           return ListTile(
             leading: Icon(Icons.person),
             title: Text(_userTitle(state.me)),
-            onTap: () {
-              context.read<PageBloc>().add(
-                PageChangedEvent(Constants.userMePageKey),
-              );
-            },
+            onTap: () => _setPage(context, Constants.userMePageKey),
           );
         }
 

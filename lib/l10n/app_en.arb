@@ -17,5 +17,12 @@
     "size_gigabytes": "{size} GB",
     "size_terabytes": "{size} TB",
     "settings_app_title": "Application",
-    "settings_gamevault_title": "Gamevault"
+    "settings_gamevault_title": "Gamevault",
+    "settings_autolaunch_title": "Launch clavis on boot",
+    "settings_autolaunch_subtitle": "Not yet useful - why would you autostart this?",
+    "settings_theme_select_title": "Select Theme",
+    "settings_theme_select_subtitle": "Light, dark or OLED mode",
+    "settings_download_dir_title": "Download Directory",
+    "settings_download_dir_not_selected": "No download directory selected, yet",
+    "settings_download_dir_select_title": "Select download directory"
 }

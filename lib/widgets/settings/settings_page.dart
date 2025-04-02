@@ -22,15 +22,13 @@ class SettingsPage extends StatelessWidget {
               Tab(text: translate.settings_gamevault_title),
             ],
           ),
-          body: TabBarView(children: [AppSettings(), GamevaultSettings()]),
+          body: TabBarView(children: [AppSettingsPanel(), GamevaultSettings()]),
         ),
       );
     } else {
       return Row(
-        mainAxisSize: MainAxisSize.max,
         children: [
-          Expanded(child: AppSettings()),
-          Divider(),
+          Expanded(child: AppSettingsPanel()),
           Expanded(child: GamevaultSettings()),
         ],
       );

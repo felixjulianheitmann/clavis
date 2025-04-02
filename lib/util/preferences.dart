@@ -1,19 +1,32 @@
 import 'package:clavis/util/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum ClavisTheme { light, dark, black }
+
+class AppSettings {
+  AppSettings({
+    required this.downloadDir,
+    required this.launchOnBoot,
+    required this.theme,
+  });
+  String? downloadDir;
+  bool launchOnBoot;
+  ClavisTheme theme;
+}
+
 class Preferences {
   static Future<T?> _get<T>(String key) async {
     final store = await SharedPreferences.getInstance();
     if(T == String) {
       return store.getString(key) as T?;
     } else if (T == int) {
-      return store.getInt(key) as T;
+      return store.getInt(key) as T?;
     } else if (T == double) {
-      return store.getDouble(key) as T;
+      return store.getDouble(key) as T?;
     } else if (T == bool) {
-      return store.getBool(key) as T;
+      return store.getBool(key) as T?;
     } else if (T == List<String>) {
-      return store.getStringList(key) as T;
+      return store.getStringList(key) as T?;
     }
     return null;
   }
@@ -52,5 +65,40 @@ class Preferences {
 
   static const _keyDownloadDir = "games.downloadDir";
   static Future<String?> getDownloadDir() async => await _get(_keyDownloadDir);
-  static Future<void> setDownloadDir(d) async => await _set(_keyDownloadDir, d);
+  static Future<void> setDownloadDir(String d) async =>
+      await _set(_keyDownloadDir, d);
+
+  static const _keyTheme = "app.theme";
+  static const _keyLaunchOnBoot = "app.launchOnBoot";
+  static Future<ClavisTheme?> getTheme() async {
+    final idx = await _get<int>(_keyTheme);
+    if (idx != null && idx < ClavisTheme.values.length) {
+      return ClavisTheme.values[idx];
+    }
+    return null;
+  }
+
+  static Future<void> setTheme(ClavisTheme t) async {
+    await _set(_keyTheme, t.index);
+  }
+
+  static Future<bool?> getLaunchOnBoot() async => await _get(_keyLaunchOnBoot);
+  static Future<void> setLaunchOnBoot(bool v) async =>
+      await _set(_keyLaunchOnBoot, v);
+
+  static Future<AppSettings> getAppSettings() async {
+    return AppSettings(
+      downloadDir: await getDownloadDir(),
+      launchOnBoot: await getLaunchOnBoot() ?? false,
+      theme: await getTheme() ?? ClavisTheme.light,
+    );
+  }
+
+  static Future<void> setAppSettings(AppSettings settings) async {
+    if (settings.downloadDir != null) {
+      await setDownloadDir(settings.downloadDir!);
+    }
+    await setLaunchOnBoot(settings.launchOnBoot);
+    await setTheme(settings.theme);
+  }
 }
