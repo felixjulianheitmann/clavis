@@ -1,9 +1,11 @@
+import 'package:clavis/blocs/auth_bloc.dart';
 import 'package:clavis/blocs/page_bloc.dart';
 import 'package:clavis/widgets/app_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:clavis/constants.dart';
+import 'package:gamevault_client_sdk/api.dart';
 
 class SidebarDrawer extends StatelessWidget {
   const SidebarDrawer({super.key});
@@ -15,7 +17,7 @@ class SidebarDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var translate = AppLocalizations.of(context)!;
+    final translate = AppLocalizations.of(context)!;
 
     return Drawer(
       child: Column(
@@ -57,6 +59,7 @@ class SidebarDrawer extends StatelessWidget {
           ),
           Spacer(),
           Divider(),
+          _UserMeTile(),
           ListTile(
             leading: Icon(Icons.settings),
             title: Text(translate.settings_title),
@@ -64,6 +67,44 @@ class SidebarDrawer extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _UserMeTile extends StatelessWidget {
+  const _UserMeTile();
+
+  String _userTitle(GamevaultUser user) {
+    if (user.lastName != null) {
+      return "${user.firstName} ${user.lastName}";
+    }
+    return user.firstName;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthSuccessState) {
+          return ListTile(
+            leading: Icon(Icons.person),
+            title: Text(_userTitle(state.me)),
+            onTap: () {
+              context.read<PageBloc>().add(
+                PageChangedEvent(Constants.userMePageKey),
+              );
+            },
+          );
+        }
+
+        // TODO: Include login link - should not actually ever be visible
+        return ListTile(
+          leading: Icon(Icons.login),
+          title: Text(translate.action_login),
+        );
+      },
     );
   }
 }
