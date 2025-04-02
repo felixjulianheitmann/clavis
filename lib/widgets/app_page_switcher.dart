@@ -1,4 +1,5 @@
 import 'package:clavis/blocs/page_bloc.dart';
+import 'package:clavis/widgets/settings/settings_page.dart';
 import 'package:flutter/widgets.dart';
 import 'package:clavis/constants.dart';
 import 'package:clavis/widgets/clavis_scaffold.dart';
@@ -13,7 +14,7 @@ class AppPageSwitcher extends StatelessWidget {
       case Constants.usersPageKey:
         return GamesPage(); // TODO: make it user page
       case Constants.settingsPageKey:
-        return GamesPage(); // TODO: make it settings page
+        return SettingsPage();
       case Constants.gamesPageKey:
       default:
         return GamesPage();

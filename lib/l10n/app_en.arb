@@ -15,5 +15,7 @@
     "size_kilobytes": "{size} kB",
     "size_megabytes": "{size} MB",
     "size_gigabytes": "{size} GB",
-    "size_terabytes": "{size} TB"
+    "size_terabytes": "{size} TB",
+    "settings_app_title": "Application",
+    "settings_gamevault_title": "Gamevault"
 }
