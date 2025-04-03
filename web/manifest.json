@@ -1,6 +1,6 @@
 {
-    "name": "gamevault_web",
-    "short_name": "gamevault_web",
+    "name": "clavis",
+    "short_name": "clavis",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
