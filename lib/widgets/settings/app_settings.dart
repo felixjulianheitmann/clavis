@@ -1,51 +1,26 @@
+import 'package:clavis/blocs/settings_bloc.dart';
 import 'package:clavis/main.dart';
 import 'package:clavis/util/logger.dart';
 import 'package:clavis/util/preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class AppSettingsPanel extends StatefulWidget {
+class AppSettingsPanel extends StatelessWidget {
   const AppSettingsPanel({super.key});
-
-  @override
-  State<AppSettingsPanel> createState() => _AppSettingsPanelState();
-}
-
-class _AppSettingsPanelState extends State<AppSettingsPanel> {
-  late Future<AppSettings> _settings;
-
-  final _themeSelection = [false, false, false];
-
-  @override
-  void initState() {
-    super.initState();
-    _settings = Preferences.getAppSettings();
-  }
 
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
-    return FutureBuilder(
-      future: _settings,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          log.e(
-            "couldn't load app settings and future failed",
-            error: snapshot.error,
-          );
-          return Center(
-            child: Card(
-              color: Colors.amber,
-              child: Text(snapshot.error.toString()),
-            ),
-          );
-        } else if (!snapshot.hasData) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, state) {
+        if (state is SettingsLoadingState) {
           return Center(child: CircularProgressIndicator());
         }
 
-        var settings = snapshot.data!;
+        var settings = (state as SettingsLoadedState).settings;
 
         return Stack(
           children: [
@@ -62,12 +37,7 @@ class _AppSettingsPanelState extends State<AppSettingsPanel> {
                         settings.theme == ClavisTheme.black,
                       ],
                       onPressed: (index) {
-                        setState(() {
-                          for (int i = 0; i < _themeSelection.length; i++) {
-                            _themeSelection[i] = i == index;
-                          }
-                          settings.theme = ClavisTheme.values[index];
-                        });
+                          context.read<SettingsBloc>().add(SettingsChangedEvent(settings: settings.with(theme: ClavisTheme.values[index])))
                       },
                       children: [
                         Icon(Icons.light_mode_outlined),
@@ -84,7 +54,9 @@ class _AppSettingsPanelState extends State<AppSettingsPanel> {
                       trailing: Switch(
                         value: settings.launchOnBoot,
                         onChanged:
-                            (b) => setState(() => settings.launchOnBoot = b),
+                            (b) {
+                          context.read<SettingsBloc>().add(SettingsChangedEvent(settings: settings.with(launchOnBoot: b)));
+                            },
                       ),
                     ),
                   ),
@@ -105,9 +77,9 @@ class _AppSettingsPanelState extends State<AppSettingsPanel> {
                           dialogTitle:
                               translate.settings_download_dir_select_title,
                         );
-                        setState(() {
-                          settings.downloadDir = dir;
-                        });
+                        if(context.mounted) {
+                          context.read<SettingsBloc>().add(SettingsChangedEvent(settings: settings.with(dir)));
+                        }
                       },
                     ),
                   ),
