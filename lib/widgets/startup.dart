@@ -1,5 +1,6 @@
 import 'package:clavis/util/credential_store.dart';
 import 'package:clavis/util/preferences.dart';
+import 'package:clavis/widgets/app_title.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -14,15 +15,24 @@ class StartupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> col = [];
-    if (errorMessage != null) {
-      col += [
-        Card(surfaceTintColor: Colors.orange, child: Text(errorMessage!)),
-      ];
-    }
-    col += [SizedBox(width: loginFormWidth, child: LoginForm())];
     return Scaffold(
-      body: Center(child: Expanded(child: Column(children: col))),
+      body: Center(
+        child: Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AppTitle(fontSize: 64, withIcon: true),
+              errorMessage != null
+                  ? Card(
+                    surfaceTintColor: Colors.orange,
+                    child: Text(errorMessage!),
+                  )
+                  : Container(),
+              SizedBox(width: loginFormWidth, child: Card(child: LoginForm())),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
