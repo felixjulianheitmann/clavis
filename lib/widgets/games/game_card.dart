@@ -1,4 +1,5 @@
 import 'package:clavis/util/helpers.dart';
+import 'package:clavis/util/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/widgets/games/game_page.dart';
@@ -13,7 +14,7 @@ class GameCard extends StatefulWidget {
 }
 
 class _GameCardState extends State<GameCard> {
-  static const _width = 150.0;
+  static const _defaultWidth = 150.0;
   static const _hoverFactor = 1.1;
   static const _animationDuration = Duration(milliseconds: 100);
   bool _isHovering = false;
@@ -25,26 +26,35 @@ class _GameCardState extends State<GameCard> {
       scale = _hoverFactor;
     }
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (ctx) => GamePage(game: widget.game)),
-        );
-      },
-      child: MouseRegion(
-        onEnter: (e) => setState(() => _isHovering = true),
-        onExit: (e) => setState(() => _isHovering = false),
-        child: AnimatedScale(
-          scale: scale,
-          duration: _animationDuration,
-          child: Card(
-            clipBehavior: Clip.antiAlias,
-            semanticContainer: true,
-            child: Helpers.cover(widget.game, _width),
+    return FutureBuilder(
+      future: Preferences.getGameCardWidth(),
+      builder: (context, snapshot) {
+        var width = _defaultWidth;
+        if (snapshot.hasData) {
+          width = snapshot.data!;
+        }
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (ctx) => GamePage(game: widget.game)),
+            );
+          },
+          child: MouseRegion(
+            onEnter: (e) => setState(() => _isHovering = true),
+            onExit: (e) => setState(() => _isHovering = false),
+            child: AnimatedScale(
+              scale: scale,
+              duration: _animationDuration,
+              child: Card(
+                clipBehavior: Clip.antiAlias,
+                semanticContainer: true,
+                child: Helpers.cover(widget.game, width),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 }

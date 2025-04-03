@@ -15,9 +15,20 @@ class GamesList extends StatelessWidget {
         final children =
             games.data.map((game) => GameCard(game: game)).toList();
 
-        return SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Wrap(spacing: spacing, children: children),
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Wrap(spacing: spacing, children: children),
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Slider(value: 0.5, onChanged: (_) {}),
+              ),
+            ),
+          ],
         );
       },
     );

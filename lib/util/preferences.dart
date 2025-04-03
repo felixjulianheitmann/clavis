@@ -113,4 +113,11 @@ class Preferences {
     await setLaunchOnBoot(settings.launchOnBoot);
     await setTheme(settings.theme);
   }
+
+  static const _keyGameCardWidth = "app.gamecardwidth_index";
+  static Future<double?> getGameCardWidth() async =>
+      await _get<double>(_keyGameCardWidth);
+
+  static Future<void> setGameCardWidth(double w) async =>
+      await _set(_keyGameCardWidth, w);
 }
