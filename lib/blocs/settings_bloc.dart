@@ -16,8 +16,9 @@ class SettingsLoadedState extends SettingsState{
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc() : super(SettingsLoadingState()) {
-    on<SettingsChangedEvent>((event, emit) {
+    on<SettingsChangedEvent>((event, emit) async {
       emit(SettingsLoadedState(settings: event.settings));
+      await Preferences.setAppSettings(event.settings);
     });
   }
 }

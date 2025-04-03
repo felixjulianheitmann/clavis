@@ -12,6 +12,18 @@ class AppSettings {
   String? downloadDir;
   bool launchOnBoot;
   ClavisTheme theme;
+
+  AppSettings copy({
+    String? downloadDir,
+    bool? launchOnBoot,
+    ClavisTheme? theme,
+  }) {
+    return AppSettings(
+      downloadDir: downloadDir ?? this.downloadDir,
+      launchOnBoot: launchOnBoot ?? this.launchOnBoot,
+      theme: theme ?? this.theme,
+    );
+  }
 }
 
 class Preferences {

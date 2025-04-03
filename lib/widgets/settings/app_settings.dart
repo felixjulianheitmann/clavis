@@ -1,6 +1,4 @@
 import 'package:clavis/blocs/settings_bloc.dart';
-import 'package:clavis/main.dart';
-import 'package:clavis/util/logger.dart';
 import 'package:clavis/util/preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -22,90 +20,80 @@ class AppSettingsPanel extends StatelessWidget {
 
         var settings = (state as SettingsLoadedState).settings;
 
-        return Stack(
+        return ListView(
           children: [
-            Form(
-              child: ListView(
+            ListTile(
+              title: Text(translate.settings_theme_select_title),
+              subtitle: Text(translate.settings_theme_select_subtitle),
+              trailing: ToggleButtons(
+                isSelected: [
+                  settings.theme == ClavisTheme.light,
+                  settings.theme == ClavisTheme.dark,
+                  settings.theme == ClavisTheme.black,
+                ],
+                onPressed: (index) {
+                  context.read<SettingsBloc>().add(
+                    SettingsChangedEvent(
+                      settings: settings.copy(theme: ClavisTheme.values[index]),
+                    ),
+                  );
+                },
                 children: [
-                  ListTile(
-                    title: Text(translate.settings_theme_select_title),
-                    subtitle: Text(translate.settings_theme_select_subtitle),
-                    trailing: ToggleButtons(
-                      isSelected: [
-                        settings.theme == ClavisTheme.light,
-                        settings.theme == ClavisTheme.dark,
-                        settings.theme == ClavisTheme.black,
-                      ],
-                      onPressed: (index) {
-                          context.read<SettingsBloc>().add(SettingsChangedEvent(settings: settings.with(theme: ClavisTheme.values[index])))
-                      },
-                      children: [
-                        Icon(Icons.light_mode_outlined),
-                        Icon(Icons.dark_mode_outlined),
-                        Icon(Icons.dark_mode),
-                      ],
-                    ),
-                  ),
-                  Visibility(
-                    visible: false, // not yet useful
-                    child: ListTile(
-                      title: Text(translate.settings_autolaunch_title),
-                      subtitle: Text(translate.settings_autolaunch_subtitle),
-                      trailing: Switch(
-                        value: settings.launchOnBoot,
-                        onChanged:
-                            (b) {
-                          context.read<SettingsBloc>().add(SettingsChangedEvent(settings: settings.with(launchOnBoot: b)));
-                            },
-                      ),
-                    ),
-                  ),
-
-                  // Text("Minimize ?"),
-                  Visibility(
-                    visible:
-                        !kIsWeb, // download directory not useful on web clients
-                    child: ListTile(
-                      title: Text(translate.settings_download_dir_title),
-                      subtitle: Text(
-                        settings.downloadDir ??
-                            translate.settings_download_dir_not_selected,
-                      ),
-                      trailing: Icon(Icons.folder),
-                      onTap: () async {
-                        final dir = await FilePicker.platform.getDirectoryPath(
-                          dialogTitle:
-                              translate.settings_download_dir_select_title,
-                        );
-                        if(context.mounted) {
-                          context.read<SettingsBloc>().add(SettingsChangedEvent(settings: settings.with(dir)));
-                        }
-                      },
-                    ),
-                  ),
-                  // download and install
-                  // Text("Download bandwidth"),
-                  // Text("Extraction auto extract"),
-                  // Text("Extraction auto password"),
-                  // Text("Mount ISO instead of extraction"),
-                  // Text("Auto install portables"),
-                  // Text("Auto delete portable games install files"),
+                  Icon(Icons.light_mode_outlined),
+                  Icon(Icons.dark_mode_outlined),
+                  Icon(Icons.dark_mode),
                 ],
               ),
             ),
-
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: FloatingActionButton(
-                  child: Icon(Icons.save),
-                  onPressed: () async {
-                    await Preferences.setAppSettings(settings);
+            Visibility(
+              visible: false, // not yet useful
+              child: ListTile(
+                title: Text(translate.settings_autolaunch_title),
+                subtitle: Text(translate.settings_autolaunch_subtitle),
+                trailing: Switch(
+                  value: settings.launchOnBoot,
+                  onChanged: (b) {
+                    context.read<SettingsBloc>().add(
+                      SettingsChangedEvent(
+                        settings: settings.copy(launchOnBoot: b),
+                      ),
+                    );
                   },
                 ),
               ),
             ),
+
+            // Text("Minimize ?"),
+            Visibility(
+              visible: !kIsWeb, // download directory not useful on web clients
+              child: ListTile(
+                title: Text(translate.settings_download_dir_title),
+                subtitle: Text(
+                  settings.downloadDir ??
+                      translate.settings_download_dir_not_selected,
+                ),
+                trailing: Icon(Icons.folder),
+                onTap: () async {
+                  final dir = await FilePicker.platform.getDirectoryPath(
+                    dialogTitle: translate.settings_download_dir_select_title,
+                  );
+                  if (context.mounted) {
+                    context.read<SettingsBloc>().add(
+                      SettingsChangedEvent(
+                        settings: settings.copy(downloadDir: dir),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+            // download and install
+            // Text("Download bandwidth"),
+            // Text("Extraction auto extract"),
+            // Text("Extraction auto password"),
+            // Text("Mount ISO instead of extraction"),
+            // Text("Auto install portables"),
+            // Text("Auto delete portable games install files"),
           ],
         );
       },
