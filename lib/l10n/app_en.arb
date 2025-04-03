@@ -22,6 +22,9 @@
     "settings_autolaunch_subtitle": "Not yet useful - why would you autostart this?",
     "settings_theme_select_title": "Select Theme",
     "settings_theme_select_subtitle": "Light, dark or OLED mode",
+    "settings_theme_tooltip_system": "System",
+    "settings_theme_tooltip_light": "Light",
+    "settings_theme_tooltip_dark": "Dark",
     "settings_download_dir_title": "Download Directory",
     "settings_download_dir_not_selected": "No download directory selected, yet",
     "settings_download_dir_select_title": "Select download directory"

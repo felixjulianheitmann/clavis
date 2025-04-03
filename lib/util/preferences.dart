@@ -1,7 +1,7 @@
 import 'package:clavis/util/logger.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum ClavisTheme { light, dark, black }
 
 class AppSettings {
   AppSettings({
@@ -11,12 +11,12 @@ class AppSettings {
   });
   String? downloadDir;
   bool launchOnBoot;
-  ClavisTheme theme;
+  ThemeMode theme;
 
   AppSettings copy({
     String? downloadDir,
     bool? launchOnBoot,
-    ClavisTheme? theme,
+    ThemeMode? theme,
   }) {
     return AppSettings(
       downloadDir: downloadDir ?? this.downloadDir,
@@ -82,15 +82,15 @@ class Preferences {
 
   static const _keyTheme = "app.theme";
   static const _keyLaunchOnBoot = "app.launchOnBoot";
-  static Future<ClavisTheme?> getTheme() async {
+  static Future<ThemeMode?> getTheme() async {
     final idx = await _get<int>(_keyTheme);
-    if (idx != null && idx < ClavisTheme.values.length) {
-      return ClavisTheme.values[idx];
+    if (idx != null && idx < ThemeMode.values.length) {
+      return ThemeMode.values[idx];
     }
     return null;
   }
 
-  static Future<void> setTheme(ClavisTheme t) async {
+  static Future<void> setTheme(ThemeMode t) async {
     await _set(_keyTheme, t.index);
   }
 
@@ -102,7 +102,7 @@ class Preferences {
     return AppSettings(
       downloadDir: await getDownloadDir(),
       launchOnBoot: await getLaunchOnBoot() ?? false,
-      theme: await getTheme() ?? ClavisTheme.light,
+      theme: await getTheme() ?? ThemeMode.light,
     );
   }
 

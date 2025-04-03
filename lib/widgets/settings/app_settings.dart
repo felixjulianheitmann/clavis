@@ -19,29 +19,34 @@ class AppSettingsPanel extends StatelessWidget {
         }
 
         var settings = (state as SettingsLoadedState).settings;
-
         return ListView(
           children: [
             ListTile(
               title: Text(translate.settings_theme_select_title),
               subtitle: Text(translate.settings_theme_select_subtitle),
               trailing: ToggleButtons(
-                isSelected: [
-                  settings.theme == ClavisTheme.light,
-                  settings.theme == ClavisTheme.dark,
-                  settings.theme == ClavisTheme.black,
-                ],
+                isSelected:
+                    ThemeMode.values.map((t) => t == settings.theme).toList(),
                 onPressed: (index) {
                   context.read<SettingsBloc>().add(
                     SettingsChangedEvent(
-                      settings: settings.copy(theme: ClavisTheme.values[index]),
+                      settings: settings.copy(theme: ThemeMode.values[index]),
                     ),
                   );
                 },
                 children: [
-                  Icon(Icons.light_mode_outlined),
-                  Icon(Icons.dark_mode_outlined),
-                  Icon(Icons.dark_mode),
+                  Tooltip(
+                    message: translate.settings_theme_tooltip_system,
+                    child: Icon(Icons.computer),
+                  ),
+                  Tooltip(
+                    message: translate.settings_theme_tooltip_light,
+                    child: Icon(Icons.light_mode_outlined),
+                  ),
+                  Tooltip(
+                    message: translate.settings_theme_tooltip_dark,
+                    child: Icon(Icons.dark_mode_outlined),
+                  ),
                 ],
               ),
             ),

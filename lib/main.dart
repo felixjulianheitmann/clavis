@@ -5,6 +5,7 @@ import 'package:clavis/blocs/settings_bloc.dart';
 import 'package:clavis/util/logger.dart';
 import 'package:clavis/util/preferences.dart';
 import 'package:clavis/widgets/home.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -56,11 +57,18 @@ class Clavis extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.select((SettingsBloc s) {
+      if (s.state is SettingsLoadedState) {
+        return (s.state as SettingsLoadedState).settings.theme;
+      }
+      return ThemeMode.system;
+    });
+
     return MaterialApp(
       title: "clavis",
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: FlexThemeData.light(),
+      darkTheme: FlexThemeData.dark(),
+      themeMode: theme,
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -73,6 +81,10 @@ class Clavis extends StatelessWidget {
         animationDuration: Duration(milliseconds: 500),
         duration: 500,
         splash: 'assets/Key-Logo_Diagonal.png',
+        backgroundColor:
+            MediaQuery.of(context).platformBrightness == Brightness.light
+                ? FlexThemeData.light().canvasColor
+                : FlexThemeData.dark().canvasColor,
         screenFunction: () => _initApp(context),
       ),
     );
