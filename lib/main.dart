@@ -4,6 +4,7 @@ import 'package:clavis/blocs/page_bloc.dart';
 import 'package:clavis/blocs/settings_bloc.dart';
 import 'package:clavis/util/logger.dart';
 import 'package:clavis/util/preferences.dart';
+import 'package:clavis/widgets/games/page.dart';
 import 'package:clavis/widgets/home.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ void main() {
         BlocProvider(create: (_) => PageBloc()),
         BlocProvider(create: (_) => DownloadBloc()),
         BlocProvider(create: (_) => SettingsBloc()),
+        BlocProvider(create: (_) => SearchBloc()),
       ],
       child: Clavis(),
     ),

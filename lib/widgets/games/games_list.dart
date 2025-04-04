@@ -7,7 +7,7 @@ class GamesList extends StatefulWidget {
   const GamesList({super.key, required this.games});
 
   static const spacing = 12.0;
-  final GetGames200Response games;
+  final List<GamevaultGame> games;
 
   @override
   State<GamesList> createState() => _GamesListState();
@@ -31,7 +31,7 @@ class _GamesListState extends State<GamesList> {
     return LayoutBuilder(
       builder: (ctx, constraints) {
         final children =
-            widget.games.data
+            widget.games
                 .map((game) => GameCard(game: game, width: _gameCardWidth))
                 .toList();
 
