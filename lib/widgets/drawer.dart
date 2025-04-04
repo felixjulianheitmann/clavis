@@ -82,6 +82,13 @@ class _UserMeTile extends StatelessWidget {
     return user.firstName;
   }
 
+  Widget _userIcon(GamevaultUser user) {
+    if (user.avatar?.sourceUrl != null) {
+      return CircleAvatar(child: Image.network(user.avatar!.sourceUrl!));
+    }
+    return Icon(Icons.person);
+  }
+
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
@@ -90,13 +97,12 @@ class _UserMeTile extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthSuccessState) {
           return ListTile(
-            leading: Icon(Icons.person),
+            leading: _userIcon(state.me),
             title: Text(_userTitle(state.me)),
             onTap: () => _setPage(context, Constants.userMePageKey),
           );
         }
 
-        // TODO: Include login link - should not actually ever be visible
         return ListTile(
           leading: Icon(Icons.login),
           title: Text(translate.action_login),
