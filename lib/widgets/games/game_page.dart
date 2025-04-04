@@ -8,7 +8,7 @@ import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/widgets/clavis_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clavis/l10n/app_localizations.dart';
 
 class GamePage extends StatelessWidget {
   const GamePage({super.key, required this.game});

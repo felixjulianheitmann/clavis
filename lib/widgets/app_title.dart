@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clavis/l10n/app_localizations.dart';
 
 class AppTitle extends StatelessWidget {
   const AppTitle({super.key, this.fontSize = 32.0, this.withIcon = false});

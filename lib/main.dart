@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:clavis/blocs/auth_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clavis/l10n/app_localizations.dart';
 
 void main() {
   runApp(
@@ -81,6 +81,7 @@ class Clavis extends StatelessWidget {
         animationDuration: Duration(milliseconds: 500),
         duration: 500,
         splash: 'assets/Key-Logo_Diagonal.png',
+        splashIconSize: 5.0,
         backgroundColor:
             MediaQuery.of(context).platformBrightness == Brightness.light
                 ? FlexThemeData.light().canvasColor

@@ -59,17 +59,17 @@ flutter:
     - "assets/clavis_black.svg"
 
 
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/Key-Logo_Diagonal.png"
-  min_sdk_android: 21 # android min sdk min:16, default 21
-  web:
-    generate: true
-    image_path: "assets/Key-Logo_Diagonal.png"
-  windows:
-    generate: true
-    image_path: "assets/Key-Logo_Diagonal.png"
-  macos:
-    generate: true
-    image_path: "assets/Key-Logo_Diagonal.png"
+# flutter_launcher_icons:
+#   android: true
+#   ios: true
+#   image_path: "assets/Key-Logo_Diagonal.png"
+#   min_sdk_android: 21 # android min sdk min:16, default 21
+#   web:
+#     generate: true
+#     image_path: "assets/Key-Logo_Diagonal.png"
+#   windows:
+#     generate: true
+#     image_path: "assets/Key-Logo_Diagonal.png"
+#   macos:
+#     generate: true
+#     image_path: "assets/Key-Logo_Diagonal.png"

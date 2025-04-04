@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clavis/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 abstract class Helpers {

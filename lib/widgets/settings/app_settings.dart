@@ -1,10 +1,9 @@
 import 'package:clavis/blocs/settings_bloc.dart';
-import 'package:clavis/util/preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clavis/l10n/app_localizations.dart';
 
 class AppSettingsPanel extends StatelessWidget {
   const AppSettingsPanel({super.key});
