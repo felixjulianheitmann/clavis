@@ -7,7 +7,7 @@ import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/constants.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
-void _setPage(BuildContext context, String page) {
+void _setPage(BuildContext context, PageInfo page) {
   final pageChanger = context.read<PageBloc>();
   pageChanger.add(PageChangedEvent(page));
   Navigator.pop(context);
@@ -51,12 +51,12 @@ class SidebarDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.gamepad),
             title: Text(translate.games_title),
-            onTap: () => _setPage(context, Constants.gamesPageKey),
+            onTap: () => _setPage(context, Constants.gamesPageInfo()),
           ),
           ListTile(
             leading: Icon(Icons.person),
             title: Text(translate.users_title),
-            onTap: () => _setPage(context, Constants.usersPageKey),
+            onTap: () => _setPage(context, Constants.usersPageInfo()),
           ),
           Spacer(),
           Divider(),
@@ -64,7 +64,7 @@ class SidebarDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.settings),
             title: Text(translate.settings_title),
-            onTap: () => _setPage(context, Constants.settingsPageKey),
+            onTap: () => _setPage(context, Constants.settingsPageInfo()),
           ),
         ],
       ),
@@ -99,7 +99,7 @@ class _UserMeTile extends StatelessWidget {
           return ListTile(
             leading: _userIcon(state.me),
             title: Text(_userTitle(state.me)),
-            onTap: () => _setPage(context, Constants.userMePageKey),
+            onTap: () => _setPage(context, Constants.userMePageInfo()),
           );
         }
 

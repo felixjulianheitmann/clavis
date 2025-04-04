@@ -1,4 +1,4 @@
-import 'package:clavis/widgets/app_page_switcher.dart';
+import 'package:clavis/widgets/clavis_scaffold.dart';
 import 'package:clavis/widgets/startup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +12,7 @@ class ClavisHome extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthSuccessState) {
-          return AppPageSwitcher();
+          return ClavisScaffold();
         } else if (state is AuthFailedState) {
           return StartupPage(errorMessage: state.message);
         } else {
