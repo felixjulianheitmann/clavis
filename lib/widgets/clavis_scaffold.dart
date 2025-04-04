@@ -1,6 +1,24 @@
+import 'package:clavis/blocs/auth_bloc.dart';
+import 'package:clavis/util/credential_store.dart';
 import 'package:clavis/widgets/app_title.dart';
 import 'package:flutter/material.dart';
 import 'package:clavis/widgets/drawer.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class _LogoutAction extends StatelessWidget {
+  const _LogoutAction();
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () async {
+        await CredentialStore.remove();
+        context.read<AuthBloc>().add(AuthRemovedEvent());
+      },
+      icon: Icon(Icons.logout),
+    );
+  }
+}
 
 class ClavisScaffold extends StatelessWidget {
   const ClavisScaffold({
@@ -20,7 +38,7 @@ class ClavisScaffold extends StatelessWidget {
     if (showAppBar) {
       appBar = AppBar(
         title: AppTitle(),
-        actions: [],
+        actions: [_LogoutAction()],
       );
     }
     return Scaffold(

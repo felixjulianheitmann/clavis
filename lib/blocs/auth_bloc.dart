@@ -17,6 +17,8 @@ final class AuthChangedEvent extends AuthEvent {
   final AuthState state;
 }
 
+final class AuthRemovedEvent extends AuthEvent {}
+
 final class AuthStateChangedEvent extends AuthEvent {
   AuthStateChangedEvent({required this.isAuthenticated});
   final bool isAuthenticated;
@@ -50,6 +52,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthChangedEvent>((event, emit) {
       log.i("Authentication changed");
       emit(event.state);
+    });
+
+    /**
+     * credentials have been deleted - logout likely
+     */
+    on<AuthRemovedEvent>((event, emit) {
+      log.i("Authentication has been revoked");
+      emit(AuthEmptyState());
     });
 
     /**
