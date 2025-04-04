@@ -87,10 +87,25 @@ jobs:
       - name: list builds
         run: ls build/*
 
-      - name: Upload build artifacts
+      - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
+        if: matrix.platform == 'android'
         with:
           name: ${{ matrix.platform }}-build-${{ github.sha }}
-          path: |
-            build/${{ matrix.platform }}
-        
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.platform == 'linux'
+        with:
+          name: ${{ matrix.platform }}-build-${{ github.sha }}
+          path: build/linux/x64/release/bundle
+
+      - name: Upload Web artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.platform == 'web'
+        with:
+          name: ${{ matrix.platform }}-build-${{ github.sha }}
+          path: build/web
+
+  
