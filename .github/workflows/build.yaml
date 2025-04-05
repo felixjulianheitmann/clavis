@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - main
+    tags: 
+      - v*.*.*
   pull_request:
     branches:
       - main
 
+      
 jobs:
   build:
-    
     strategy:
       matrix:
         platform: [web, android, linux]
@@ -20,6 +22,8 @@ jobs:
             platform: windows
       fail-fast: false
     
+
+    
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -27,6 +31,20 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
+          fetch-depth: 0
+      
+      - name: Get version
+        id: version
+        uses: felixjulianheitmann/git-tag-semver
+
+      - name: print version
+        run: |
+          echo "is-semver: ${{ steps.version.outputs.is-semver }}"
+          echo "version-full: ${{ steps.version.outputs.version-full }}"
+          echo "version-major: ${{ steps.version.outputs.version-major }}"
+          echo "version-minor: ${{ steps.version.outputs.version-minor }}"
+          echo "version-patch: ${{ steps.version.outputs.version-patch }}"
+          echo "version-prerelease: ${{ steps.version.outputs.version-prerelease }}"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -108,4 +126,24 @@ jobs:
           name: ${{ matrix.platform }}-build-${{ github.sha }}
           path: build/web
 
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.platform == 'windows'
+        with:
+          name: ${{ matrix.platform }}-build-${{ github.sha }}
+          path: build/windows
   
+  package:
+
+    strategy:
+      matrix:
+        platform: [web, android, linux, windows]
+      fail-fast: false
+    
+    runs-on: linux
+
+    
+    steps:
+    - name: package installers
+      if: ${{ ! startsWith(github.ref , 'refs/tags/v') || contains(github.ref, 'alpha') || contains(github.ref, 'dev') }}
+      run: echo building
