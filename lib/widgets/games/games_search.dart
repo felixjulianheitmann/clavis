@@ -1,7 +1,8 @@
-import 'package:clavis/widgets/games/page.dart';
+import 'dart:math';
+
+import 'package:clavis/blocs/search_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gamevault_client_sdk/api.dart';
 
 class GamesSearch extends StatefulWidget {
   const GamesSearch({super.key});
@@ -12,14 +13,6 @@ class GamesSearch extends StatefulWidget {
 
 class _GamesSearchState extends State<GamesSearch> {
   TextEditingController textCtrl = TextEditingController();
-
-  List<GamevaultGame> _search(String input, List<GamevaultGame> games) {
-    return games
-        .where(
-          (game) => game.title != null && game.title!.contains("(?i)$input"),
-        )
-        .toList();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +25,7 @@ class _GamesSearchState extends State<GamesSearch> {
         if (state.open) {
           search = ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width,
+              maxWidth: min(MediaQuery.of(context).size.width, 400),
             ),
             child: SearchAnchor(
               builder: (context, controller) {
@@ -54,9 +47,7 @@ class _GamesSearchState extends State<GamesSearch> {
                   ],
                 );
               },
-              suggestionsBuilder: (context, controller) {
-                return [];
-              },
+              suggestionsBuilder: (_, _) => [],
             ),
           );
         }

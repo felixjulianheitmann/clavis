@@ -30,6 +30,15 @@ class _GamesListState extends State<GamesList> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (ctx, constraints) {
+        widget.games.sort((a, b) {
+          if (a.title == null) {
+            return 1;
+          } else if (b.title == null) {
+            return -1;
+          } else {
+            return a.title!.compareTo(b.title!);
+          }
+        });
         final children =
             widget.games
                 .map((game) => GameCard(game: game, width: _gameCardWidth))
