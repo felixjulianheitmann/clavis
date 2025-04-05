@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:clavis/blocs/download_bloc.dart';
 import 'package:clavis/util/helpers.dart';
+import 'package:clavis/util/logger.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,12 +20,32 @@ class GamePage extends StatelessWidget {
   final GamevaultGame game;
 
   @override
-  Widget build(BuildContext context) =>
-      ClavisScaffold(
-    body: _GameTitleBoard(game),
-    showDrawer: false,
-    actions: [],
-  );
+  Widget build(BuildContext context) {
+    var actions = <Widget>[];
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      actions += [
+        BlocBuilder<DownloadBloc, DownloadState>(
+          builder: (context, state) {
+            return IconButton(
+              icon: Icon(Icons.download),
+              onPressed: () {
+                if (state is DownloadReadyState) {
+                  context.read<DownloadBloc>().add(
+                    DownloadsQueuedEvent(ids: [game.id as int]),
+                  );
+                }
+              },
+            );
+          },
+        ),
+      ];
+    }
+    return ClavisScaffold(
+      body: _GameTitleBoard(game),
+      showDrawer: false,
+      actions: actions,
+    );
+  }
 }
 
 class _GameTitleBoard extends StatelessWidget {
@@ -179,17 +203,13 @@ class _GameScreenshotsState extends State<_GameScreenshots> {
     }
 
     final images =
-        widget.screenShotUrls!
-            .map(
-              (url) {
+        widget.screenShotUrls!.map((url) {
           var img = Image.network(url);
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [Card(clipBehavior: Clip.antiAlias, child: img)],
           );
-        },
-            )
-            .toList();
+        }).toList();
 
     return CarouselSlider(
       items: images,
@@ -257,6 +277,11 @@ class _GameCoverState extends State<_GameCover> {
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
+    final cover = Helpers.cover(widget.game, _GameCover._coverWidth);
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      return Card(clipBehavior: Clip.antiAlias, child: cover);
+    }
+
     return Card(
       color: Colors.black,
       clipBehavior: Clip.antiAlias,
@@ -269,7 +294,7 @@ class _GameCoverState extends State<_GameCover> {
           child: Stack(
             alignment: AlignmentDirectional.center,
             children: [
-              Helpers.cover(widget.game, _GameCover._coverWidth),
+              cover,
               AnimatedOpacity(
                 opacity: isHovering ? 1.0 : 0.0,
                 duration: _animationDur,
@@ -298,6 +323,19 @@ class _GameDownloadButton extends StatelessWidget {
   final double _downloadSize;
   final AppLocalizations translate;
 
+  void _triggerDownload(BuildContext ctx, ApiClient api) {
+    // try and trigger a direct browser download
+    if (kIsWeb) {
+      log.e("file download not yet supported on web");
+      throw Error();
+    } else {
+      // use the download queuing mechanism
+      ctx.read<DownloadBloc>().add(
+        DownloadsQueuedEvent(ids: [widget.game.id as int]),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DownloadBloc, DownloadState>(
@@ -317,18 +355,16 @@ class _GameDownloadButton extends StatelessWidget {
             color: Colors.white,
             value: state.progress.bytesRead / state.progress.bytesTotal,
           );
-        } else {
+        } else if (state is DownloadReadyState) {
           actionButton = IconButton(
             icon: Icon(Icons.download),
-            onPressed:
-                () => context.read<DownloadBloc>().add(
-                  DownloadsQueuedEvent(ids: [widget.game.id as int]),
-                ),
+            onPressed: () => _triggerDownload(context, state.api),
             iconSize: _downloadSize,
             color: Colors.white,
-
           );
           label = _GameSizeText(widget: widget, translate: translate);
+        } else {
+          return Container();
         }
         return Column(
           mainAxisSize: MainAxisSize.min,
