@@ -28,54 +28,56 @@ class _GamesListState extends State<GamesList> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (ctx, constraints) {
-        widget.games.sort((a, b) {
-          if (a.title == null) {
-            return 1;
-          } else if (b.title == null) {
-            return -1;
-          } else {
-            return a.title!.compareTo(b.title!);
-          }
-        });
-        final children =
-            widget.games
-                .map((game) => GameCard(game: game, width: _gameCardWidth))
-                .toList();
+    widget.games.sort((a, b) {
+      if (a.title == null) {
+        return 1;
+      } else if (b.title == null) {
+        return -1;
+      } else {
+        return a.title!.compareTo(b.title!);
+      }
+    });
+    final children =
+        widget.games
+            .map((game) => GameCard(game: game, width: _gameCardWidth))
+            .toList();
 
-        return Stack(
-          children: [
-            SingleChildScrollView(
+    return Expanded(
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
               padding: EdgeInsets.all(16),
-              child: Align(
-                alignment: Alignment.center,
-                child: Wrap(spacing: GamesList.spacing, children: children),
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: GamesList.spacing,
+                children: children,
               ),
             ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: SizedBox(
-                  height: 32,
-                  width: 320,
-                  child: Slider(
-                    value: _gameCardWidth,
-                    max: GameCard.maxWidth,
-                    min: GameCard.minWidth,
-                    onChanged: (w) async {
-                      setState(() => _gameCardWidth = w);
-                    },
-                    onChangeEnd:
-                        (w) async => await Preferences.setGameCardWidth(w),
-                  ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: SizedBox(
+                height: 32,
+                width: 320,
+                child: Slider(
+                  value: _gameCardWidth,
+                  max: GameCard.maxWidth,
+                  min: GameCard.minWidth,
+                  onChanged: (w) async {
+                    setState(() => _gameCardWidth = w);
+                  },
+                  onChangeEnd:
+                      (w) async => await Preferences.setGameCardWidth(w),
                 ),
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }

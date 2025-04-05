@@ -17,7 +17,11 @@ class GamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      ClavisScaffold(body: _GameTitleBoard(game), showDrawer: false);
+      ClavisScaffold(
+    body: _GameTitleBoard(game),
+    showDrawer: false,
+    actions: [],
+  );
 }
 
 class _GameTitleBoard extends StatelessWidget {
@@ -44,25 +48,34 @@ class _GameTitleBoard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(_padding),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   height:
                       _bannerHeight +
                       _GameTitle.fontSize +
-                      _GameTitle._titlePadding +
                       _padding +
                       _titleOffset,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
                       _GameCover(game),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _GameWebsites(game.metadata?.urlWebsites),
-                          _GameTitle(title: game.title),
-                        ],
+                      Expanded(
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _GameWebsites(game.metadata?.urlWebsites),
+                                _GameTitle(title: game.title),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -117,10 +130,7 @@ class _GameWebsites extends StatelessWidget {
       return Container();
     }
     final elements = websites!.map((w) => _toIconButton(w)).nonNulls.toList();
-    return Padding(
-      padding: EdgeInsets.only(left: 24),
-      child: Row(children: elements),
-    );
+    return Wrap(children: elements);
   }
 }
 
@@ -348,15 +358,28 @@ class _GameTitle extends StatelessWidget {
   const _GameTitle({this.title});
   final String? title;
 
-  static const _titlePadding = 24.0;
   static const fontSize = 48.0;
 
   @override
   Widget build(BuildContext context) {
-    final title = this.title ?? "missing title";
-    return Padding(
-      padding: EdgeInsets.only(left: _titlePadding, bottom: _titlePadding),
-      child: Text(title, style: TextStyle(fontSize: fontSize)),
+    return LayoutBuilder(
+      builder: (ctx, constraint) {
+        final title = this.title ?? "missing title";
+        final style = TextStyle(fontSize: fontSize);
+        final textWidth =
+            (TextPainter(
+              text: TextSpan(text: title, style: style),
+              textScaler: MediaQuery.of(context).textScaler,
+              textDirection: TextDirection.ltr,
+            )..layout()).size.width *
+            1.05; // buffer because the measuring is slightly off
+
+        var scale = 1.0;
+        if (constraint.maxWidth < textWidth) {
+          scale = constraint.maxWidth / textWidth;
+        }
+        return Text(title, style: style, textScaler: TextScaler.linear(scale));
+      },
     );
   }
 }
