@@ -33,17 +33,15 @@ jobs:
           lfs: true
           fetch-depth: 0
           fetch-tags: true
-      
-      - name: get version
-        id: get-version
-        run: |
-          echo $(git tag -n)
-          echo "VERSION=$(git describe --tags)" >> $GITHUB_OUTPUT
+
+      - name: Git describe
+        id: ghd
+        uses: proudust/gh-describe@v2
 
       - uses: apexskier/github-semver-parse@v1
         id: semver
         with:
-          version: ${{ steps.get-version.outputs.VERSION }}
+          version: ${{ steps.ghd.outputs.describe }}
 
       - name: print version
         run: |
