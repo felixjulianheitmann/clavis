@@ -114,28 +114,28 @@ jobs:
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'android'
         with:
-          name: ${{ matrix.platform }}-build-${{ github.sha }}
+          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'linux'
         with:
-          name: ${{ matrix.platform }}-build-${{ github.sha }}
+          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/linux/x64/release/bundle
 
       - name: Upload Web artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'web'
         with:
-          name: ${{ matrix.platform }}-build-${{ github.sha }}
+          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/web
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'windows'
         with:
-          name: ${{ matrix.platform }}-build-${{ github.sha }}
+          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/windows
   
   package:
@@ -150,5 +150,12 @@ jobs:
     if: ${{ needs.build.outputs.distance }} == 0
 
     steps:
+
+    - name: Download builds
+      uses: "actions/download-artifact@v4"
+      with:
+        name: build-${{ matrix.platform }}-${{ needs.build.outputs.distance }}-${{ github.sha }}
+        path: ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
+
     - name: package installers
       run: echo packaging
