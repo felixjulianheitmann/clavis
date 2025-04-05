@@ -1,6 +1,7 @@
 import 'package:clavis/widgets/games/page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gamevault_client_sdk/api.dart';
 
 class GamesSearch extends StatefulWidget {
   const GamesSearch({super.key});
@@ -11,6 +12,14 @@ class GamesSearch extends StatefulWidget {
 
 class _GamesSearchState extends State<GamesSearch> {
   TextEditingController textCtrl = TextEditingController();
+
+  List<GamevaultGame> _search(String input, List<GamevaultGame> games) {
+    return games
+        .where(
+          (game) => game.title != null && game.title!.contains("(?i)$input"),
+        )
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
