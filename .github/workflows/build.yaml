@@ -154,7 +154,7 @@ jobs:
     - name: Download builds
       uses: "actions/download-artifact@v4"
       with:
-        name: build-${{ matrix.platform }}-${{ needs.build.outputs.distance }}-${{ github.sha }}
+        name: build-${{ matrix.platform }}-${{ needs.build.outputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
 
     - name: package installers
