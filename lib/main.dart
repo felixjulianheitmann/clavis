@@ -83,7 +83,6 @@ class Clavis extends StatelessWidget {
         animationDuration: Duration(milliseconds: 500),
         duration: 500,
         splash: 'assets/Key-Logo_Diagonal.png',
-        splashIconSize: 5.0,
         backgroundColor:
             MediaQuery.of(context).platformBrightness == Brightness.light
                 ? FlexThemeData.light().canvasColor
