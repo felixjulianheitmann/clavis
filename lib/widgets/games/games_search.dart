@@ -25,7 +25,7 @@ class _GamesSearchState extends State<GamesSearch> {
         if (state.open) {
           search = ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: min(MediaQuery.of(context).size.width, 400),
+              maxWidth: min(MediaQuery.of(context).size.width * 0.6, 400),
             ),
             child: SearchAnchor(
               builder: (context, controller) {
