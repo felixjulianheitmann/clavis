@@ -37,6 +37,7 @@ jobs:
       - name: get version
         id: get-version
         run: |
+          echo $(git tag -n)
           echo "VERSION=$(git describe --tags)" >> $GITHUB_OUTPUT
 
       - uses: apexskier/github-semver-parse@v1
