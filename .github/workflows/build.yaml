@@ -35,7 +35,7 @@ jobs:
       
       - name: Get version
         id: version
-        uses: felixjulianheitmann/git-tag-semver@v0.1.1
+        uses: felixjulianheitmann/git-tag-semver@v0.1.2
 
       - name: print version
         run: |
