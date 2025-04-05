@@ -35,7 +35,7 @@ jobs:
       
       - name: Get version
         id: version
-        uses: felixjulianheitmann/git-tag-semver@v0.1.0
+        uses: felixjulianheitmann/git-tag-semver@v0.1.1
 
       - name: print version
         run: |
@@ -140,7 +140,7 @@ jobs:
         platform: [web, android, linux, windows]
       fail-fast: false
     
-    runs-on: linux
+    runs-on: ubuntu-latest
 
     
     steps:
