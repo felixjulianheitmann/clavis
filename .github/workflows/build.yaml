@@ -33,18 +33,24 @@ jobs:
           lfs: true
           fetch-depth: 0
       
-      - name: Get version
-        id: version
-        uses: felixjulianheitmann/git-tag-semver@v0.1.2
+      - name: get version
+        id: get-version
+        run: |
+          echo "VERSION=$(git-describe --tags)" >> $GITHUB_OUTPUT
+
+      - uses: apexskier/github-semver-parse@v1
+        id: semver
+        with:
+          version: ${{ steps.get-version.outputs.VERSION }}
 
       - name: print version
         run: |
-          echo "is-semver: ${{ steps.version.outputs.is-semver }}"
-          echo "version-full: ${{ steps.version.outputs.version-full }}"
-          echo "version-major: ${{ steps.version.outputs.version-major }}"
-          echo "version-minor: ${{ steps.version.outputs.version-minor }}"
-          echo "version-patch: ${{ steps.version.outputs.version-patch }}"
-          echo "version-prerelease: ${{ steps.version.outputs.version-prerelease }}"
+          echo "build: ${{ steps.semver.outputs.build }}"
+          echo "version-full: ${{ steps.semver.outputs.version }}"
+          echo "version-major: ${{ steps.semver.outputs.major }}"
+          echo "version-minor: ${{ steps.semver.outputs.minor }}"
+          echo "version-patch: ${{ steps.semver.outputs.patch }}"
+          echo "version-prerelease: ${{ steps.semver.outputs.prerelease }}"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
