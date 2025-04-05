@@ -3,7 +3,7 @@ import sys
 
 if len(sys.argv) < 2:
     print("usage: python inject-version.py <version> [<distance>]")
-    print(f"provided: {" ".join(sys.argv)}")
+    print(f'provided: {" ".join(sys.argv)}')
     exit(1)
 
 version = sys.argv[1]
