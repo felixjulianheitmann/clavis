@@ -35,13 +35,7 @@ class ClavisScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PageBloc, PageState>(
       builder: (context, state) {
-        final providers =
-            state.activePage.blocs
-                .map((bloc) => BlocProvider(create: (_) => bloc))
-                .toList();
-        return MultiBlocProvider(
-          providers: providers,
-          child: Scaffold(
+        final scaffold = Scaffold(
             appBar:
                 showAppBar
                     ? ClavisAppbar(
@@ -49,9 +43,17 @@ class ClavisScaffold extends StatelessWidget {
                     )
                     : null,
             drawer: showDrawer ? SidebarDrawer() : null,
-            body: body ?? _getBody(state.activePage),
-          )
+          body: body ?? _getBody(state.activePage),
         );
+        if (state.activePage.blocs.isEmpty) {
+          return scaffold;
+        }
+
+        final providers =
+            state.activePage.blocs
+                .map((bloc) => BlocProvider(create: (_) => bloc))
+                .toList();
+        return MultiBlocProvider(providers: providers, child: scaffold);
       },
     );
   }

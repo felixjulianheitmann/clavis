@@ -40,11 +40,11 @@ class AppSettingsPanel extends StatelessWidget {
                   ),
                   Tooltip(
                     message: translate.settings_theme_tooltip_light,
-                    child: Icon(Icons.light_mode_outlined),
+                    child: Icon(Icons.light_mode),
                   ),
                   Tooltip(
                     message: translate.settings_theme_tooltip_dark,
-                    child: Icon(Icons.dark_mode_outlined),
+                    child: Icon(Icons.dark_mode),
                   ),
                 ],
               ),
