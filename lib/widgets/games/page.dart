@@ -43,7 +43,7 @@ class _GamesPageState extends State<GamesPage> {
           return Center(child: Card(child: Text(error.toString())));
         }
 
-        final games = (gameResponse as GetGames200Response?)!.data;
+        final games = gameResponse!.data;
         ctx.read<SearchBloc>().add(SearchGamesAvailableEvent(games: games));
 
         return Column(

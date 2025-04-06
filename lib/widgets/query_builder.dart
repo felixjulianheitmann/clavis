@@ -5,23 +5,24 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/blocs/auth_bloc.dart';
 
-typedef QueryBuildFunction<T> = Widget Function(BuildContext, T?, Exception?);
-typedef QueryFunction<T> = Future<T?> Function(ApiClient);
+typedef QueryBuildFunction<T> =
+    Widget Function(BuildContext ctx, T?, Error? error);
+typedef QueryFunction<T> = Future<T>? Function(ApiClient api);
 
 /// tries to wrap the async query + waiting code into a widget
 /// gets passed a query function which is executed to perform the query and
 /// a builder function which is passed the result of the query when available
-class Querybuilder extends StatefulWidget{
+class Querybuilder<T> extends StatefulWidget {
   const Querybuilder({super.key, required this.query, required this.builder});
 
-  final QueryFunction query;
-  final QueryBuildFunction builder;
+  final QueryFunction<T> query;
+  final QueryBuildFunction<T> builder;
 
   @override
-  State<StatefulWidget> createState() => QuerybuilderState();
+  State<StatefulWidget> createState() => QuerybuilderState<T>();
 }
 
-class QuerybuilderState extends State<Querybuilder> {
+class QuerybuilderState<T> extends State<Querybuilder<T>> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
@@ -31,14 +32,14 @@ class QuerybuilderState extends State<Querybuilder> {
           return spinner;
         }
 
-        return FutureBuilder(
+        return FutureBuilder<T>(
           future: widget.query(state.api),
           builder: (context, snapshot) {
           if(snapshot.hasData) {
               return widget.builder(context, snapshot.data, null);
             } else if (snapshot.hasError) {
               log.e('error finishing query', error: snapshot.error);
-              return widget.builder(context, null, snapshot.error as Exception);
+              return widget.builder(context, null, snapshot.error as Error);
           }
           return spinner;
         });
