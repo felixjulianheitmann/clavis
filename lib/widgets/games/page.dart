@@ -14,7 +14,7 @@ class GamesPage extends StatefulWidget {
 }
 
 class _GamesPageState extends State<GamesPage> {
-  List<int>? activeLetterFilter;
+  List<int>? _activeLetterFilter;
 
   List<GamevaultGame> _filterForLetter(
     List<GamevaultGame> games,
@@ -38,14 +38,18 @@ class _GamesPageState extends State<GamesPage> {
   Widget build(BuildContext context) {
     return Querybuilder(
         query: (api) => GameApi(api).getGames(),
-      builder: (ctx, gameResponse) {
-        final games = (gameResponse as GetGames200Response).data;
+      builder: (ctx, gameResponse, error) {
+        if (error != null) {
+          return Center(child: Card(child: Text(error.toString())));
+        }
+
+        final games = (gameResponse as GetGames200Response?)!.data;
         ctx.read<SearchBloc>().add(SearchGamesAvailableEvent(games: games));
 
         return Column(
           children: [
             _LetterScroller(
-              onPressed: (c) => setState(() => activeLetterFilter = c),
+              onPressed: (c) => setState(() => _activeLetterFilter = c),
             ),
             BlocBuilder<SearchBloc, SearchState>(
               builder: (context, state) {
@@ -56,7 +60,7 @@ class _GamesPageState extends State<GamesPage> {
                 var filteredGames = state.getFiltered();
                 filteredGames = _filterForLetter(
                   filteredGames,
-                  activeLetterFilter,
+                  _activeLetterFilter,
                 );
 
                 return GamesList(games: filteredGames);
