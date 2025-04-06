@@ -18,25 +18,37 @@ import 'package:gamevault_client_sdk/api.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
-class UserState {}
+class UserState {
+  UserState(this._user);
+  final GamevaultUser? _user;
+  GamevaultUser? get user => _user;
+}
 
 class UserReadyState extends UserState {
-  UserReadyState({required this.user});
-  final GamevaultUser user;
+  UserReadyState(GamevaultUser super._user);
+
+  @override
+  GamevaultUser get user => _user!;
 }
 
 class UserUpdatingState extends UserState {
-  UserUpdatingState({required this.user});
-  final GamevaultUser user;
+  UserUpdatingState(GamevaultUser super._user);
+
+  @override
+  GamevaultUser get user => _user!;
 }
 
 class UserUpdateFailedState extends UserState {
-  UserUpdateFailedState({required this.user, required this.error});
+  UserUpdateFailedState(GamevaultUser super._user, {required this.error});
   Object error;
-  final GamevaultUser user;
+
+  @override
+  GamevaultUser get user => _user!;
 }
 
-class UserDeletedState extends UserState {}
+class UserDeletedState extends UserState {
+  UserDeletedState() : super(null);
+}
 
 class UserEvent {}
 
@@ -51,14 +63,36 @@ class UserChangedEvent extends UserEvent {
   final ApiClient api;
 }
 
-class UserDeletedEvent extends UserEvent {}
+class UserDeletedEvent extends UserEvent {
+  UserDeletedEvent({required this.user, required this.api});
+  final GamevaultUser user;
+  final ApiClient api;
+}
 
 class UserBloc extends Bloc<UserEvent, UserState> {
   UserBloc({required GamevaultUser initialUser})
-    : super(UserReadyState(user: initialUser)) {
-    on<UserDeletedEvent>((event, emit) => emit(UserDeletedState()));
+    : super(UserReadyState(initialUser)) {
+    on<UserDeletedEvent>((event, emit) async {
+      emit(UserUpdatingState(state.user!));
+
+      try {
+        final result = await UserApi(
+          event.api,
+        ).deleteUserByUserId(event.user.id);
+        if (result == null) {
+          log.e("delete user returned with null - user-id: ${event.user.id}");
+          emit(UserUpdateFailedState(event.user, error: e));
+        }
+      } catch (e) {
+        log.e("delete user failed: ${event.user.id}", error: e);
+        emit(UserUpdateFailedState(event.user, error: e));
+        return;
+      }
+
+      emit(UserDeletedState());
+    });
     on<UserChangedEvent>((event, emit) async {
-      emit(UserUpdatingState(user: event.user));
+      emit(UserUpdatingState(event.user));
 
       // update user using API
       try {
@@ -70,14 +104,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           Object error =
               "user update returned with null user - user-id: ${event.user.id}";
           log.e(error);
-          emit(UserUpdateFailedState(user: event.user, error: error));
+          emit(UserUpdateFailedState(event.user, error: error));
           return;
         }
 
-        emit(UserReadyState(user: result));
+        emit(UserReadyState(result));
       } catch (e) {
         log.e("user update failed", error: e);
-        emit(UserUpdateFailedState(user: event.user, error: e));
+        emit(UserUpdateFailedState(event.user, error: e));
         return;
       }
     });
@@ -112,20 +146,47 @@ class DetailPage extends StatelessWidget {
             );
             ScaffoldMessenger.of(context).showSnackBar(snack);
           }
+
+          if (state is UserDeletedState) {
+            Navigator.pop(context);
+          }
         },
-        child: ClavisScaffold(
-          title: translate.page_user_details_title,
-          showDrawer: false,
-          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.delete))],
-          body: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [_EditableAvatar()],
-              ),
-              _UserForm(),
-            ],
-          ),
+        child: BlocBuilder<UserBloc, UserState>(
+          builder: (context, userState) {
+            return BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                return ClavisScaffold(
+                  title: translate.page_user_details_title,
+                  showDrawer: false,
+                  actions: [
+                    IconButton(
+                      onPressed: () {
+                        if (userState.user != null &&
+                            authState is AuthSuccessState) {
+                          context.read<UserBloc>().add(
+                            UserDeletedEvent(
+                              user: userState.user!,
+                              api: authState.api,
+                            ),
+                          );
+                        }
+                      },
+                      icon: Icon(Icons.delete),
+                    ),
+                  ],
+                  body: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [_EditableAvatar()],
+                      ),
+                      _UserForm(),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );
@@ -446,7 +507,6 @@ class _EditableAvatar extends StatelessWidget {
           );
         }),
       ],
-
     );
   }
 }
