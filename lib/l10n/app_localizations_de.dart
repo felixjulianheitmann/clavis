@@ -101,4 +101,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_dismiss => 'Dismiss';
+
+  @override
+  String get users_no_users_available => 'No users available';
+
+  @override
+  String get users_unknown_role => 'Unknown Role';
 }

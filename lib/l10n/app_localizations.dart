@@ -262,6 +262,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get action_dismiss;
+
+  /// No description provided for @users_no_users_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No users available'**
+  String get users_no_users_available;
+
+  /// No description provided for @users_unknown_role.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Role'**
+  String get users_unknown_role;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -29,5 +29,7 @@
     "settings_download_dir_not_selected": "No download directory selected, yet",
     "settings_download_dir_select_title": "Select download directory",
     "action_close": "Close",
-    "action_dismiss": "Dismiss"
+    "action_dismiss": "Dismiss",
+    "users_no_users_available": "No users available",
+    "users_unknown_role": "Unknown Role"
 }
