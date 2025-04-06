@@ -107,4 +107,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get users_unknown_role => 'Unknown Role';
+
+  @override
+  String get drawer_admin_area => 'Admin Area';
 }

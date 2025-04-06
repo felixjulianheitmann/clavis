@@ -274,6 +274,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown Role'**
   String get users_unknown_role;
+
+  /// No description provided for @drawer_admin_area.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Area'**
+  String get drawer_admin_area;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

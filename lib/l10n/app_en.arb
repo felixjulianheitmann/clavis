@@ -31,5 +31,6 @@
     "action_close": "Close",
     "action_dismiss": "Dismiss",
     "users_no_users_available": "No users available",
-    "users_unknown_role": "Unknown Role"
+    "users_unknown_role": "Unknown Role",
+    "drawer_admin_area": "Admin Area"
 }

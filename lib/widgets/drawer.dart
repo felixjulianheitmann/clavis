@@ -54,7 +54,9 @@ class SidebarDrawer extends StatelessWidget {
             title: Text(translate.games_title),
             onTap: () => _setPage(context, Constants.gamesPageInfo()),
           ),
-
+          Spacer(),
+          Divider(),
+          Text(translate.drawer_admin_area),
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               final visible =
@@ -71,7 +73,6 @@ class SidebarDrawer extends StatelessWidget {
               );
             },
           ),
-          Spacer(),
           Divider(),
           _UserMeTile(),
           ListTile(
