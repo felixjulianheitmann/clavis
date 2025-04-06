@@ -1,5 +1,6 @@
 import 'package:clavis/blocs/auth_bloc.dart';
 import 'package:clavis/blocs/page_bloc.dart';
+import 'package:clavis/util/helpers.dart';
 import 'package:clavis/widgets/app_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,25 +88,6 @@ class SidebarDrawer extends StatelessWidget {
 class _UserMeTile extends StatelessWidget {
   const _UserMeTile();
 
-  String _userTitle(GamevaultUser user) {
-    if (user.firstName == null && user.lastName == null) {
-      return user.username;
-    } else if (user.firstName != null) {
-      return user.firstName!;
-    } else if (user.lastName != null) {
-      return user.lastName!;
-    } else {
-      return "${user.firstName} ${user.lastName}";
-    }
-  }
-
-  Widget _userIcon(GamevaultUser user) {
-    if (user.avatar?.sourceUrl != null) {
-      return CircleAvatar(child: Image.network(user.avatar!.sourceUrl!));
-    }
-    return Icon(Icons.person);
-  }
-
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
@@ -114,8 +96,8 @@ class _UserMeTile extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthSuccessState) {
           return ListTile(
-            leading: _userIcon(state.me),
-            title: Text(_userTitle(state.me)),
+            leading: Helpers.avatar(state.me),
+            title: Text(Helpers.userTitle(state.me)),
             onTap: () => _setPage(context, Constants.userMePageInfo()),
           );
         }

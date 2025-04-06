@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +6,26 @@ import 'package:path/path.dart' as path;
 
 abstract class Helpers {
   static const _defaultBannerImage = 'assets/Key-Logo_Diagonal.png';
+
+  static CircleAvatar avatar(GamevaultUser user, {double? radius}) {
+    Widget avatar = Icon(Icons.person, size: radius);
+    if (user.avatar?.sourceUrl != null) {
+      avatar = Image.network(user.avatar!.sourceUrl!);
+    }
+    return CircleAvatar(radius: radius, child: avatar);
+  }
+
+  static String userTitle(GamevaultUser user) {
+    if (user.firstName == null && user.lastName == null) {
+      return user.username;
+    } else if (user.firstName != null) {
+      return user.firstName!;
+    } else if (user.lastName != null) {
+      return user.lastName!;
+    } else {
+      return "${user.firstName} ${user.lastName}";
+    }
+  }
 
   static Widget cover(GamevaultGame game, double width) {
     final url = game.metadata?.cover?.sourceUrl;
