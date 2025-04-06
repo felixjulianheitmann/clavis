@@ -36,7 +36,7 @@ class QuerybuilderState<T> extends State<Querybuilder<T>> {
         return FutureBuilder<T>(
           future: widget.query(state.api),
           builder: (context, snapshot) {
-          if(snapshot.hasData) {
+            if (snapshot.hasData) {
               return widget.builder(context, snapshot.data, null);
             } else if (snapshot.hasError) {
               log.e('error finishing query', error: snapshot.error);
@@ -44,9 +44,10 @@ class QuerybuilderState<T> extends State<Querybuilder<T>> {
                 ErrorNewEvent(error: snapshot.error!),
               );
               return widget.builder(context, null, snapshot.error as Error);
-          }
-          return spinner;
-        });
+            }
+            return spinner;
+          },
+        );
       },
     );
   }
