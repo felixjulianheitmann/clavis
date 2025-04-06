@@ -110,4 +110,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get drawer_admin_area => 'Admin Area';
+
+  @override
+  String get dialog_select_avatar_title => 'Select Avatar...';
 }

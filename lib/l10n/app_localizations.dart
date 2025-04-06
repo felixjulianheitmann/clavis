@@ -280,6 +280,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Admin Area'**
   String get drawer_admin_area;
+
+  /// No description provided for @dialog_select_avatar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Avatar...'**
+  String get dialog_select_avatar_title;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
