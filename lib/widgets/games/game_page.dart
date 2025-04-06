@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:clavis/blocs/download_bloc.dart';
 import 'package:clavis/util/helpers.dart';
+import 'package:clavis/util/hoverable.dart';
 import 'package:clavis/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -269,8 +270,6 @@ class _GameCover extends StatefulWidget {
 }
 
 class _GameCoverState extends State<_GameCover> {
-  static const _hoverOpacity = 0.5;
-  static const _animationDur = Duration(milliseconds: 150);
   static const _downloadSize = 64.0;
   bool isHovering = false;
 
@@ -285,27 +284,13 @@ class _GameCoverState extends State<_GameCover> {
     return Card(
       color: Colors.black,
       clipBehavior: Clip.antiAlias,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => isHovering = true),
-        onExit: (_) => setState(() => isHovering = false),
-        child: AnimatedOpacity(
-          duration: _animationDur,
-          opacity: isHovering ? _hoverOpacity : 1.0,
-          child: Stack(
-            alignment: AlignmentDirectional.center,
-            children: [
-              cover,
-              AnimatedOpacity(
-                opacity: isHovering ? 1.0 : 0.0,
-                duration: _animationDur,
-                child: _GameDownloadButton(
-                  widget: widget,
-                  downloadSize: _downloadSize,
-                  translate: translate,
-                ),
-              ),
-            ],
-          ),
+      child: Hoverable(
+        alignment: AlignmentDirectional.center,
+        background: cover,
+        foreground: _GameDownloadButton(
+          game: widget.game,
+          downloadSize: _downloadSize,
+          translate: translate,
         ),
       ),
     );
@@ -314,12 +299,12 @@ class _GameCoverState extends State<_GameCover> {
 
 class _GameDownloadButton extends StatelessWidget {
   const _GameDownloadButton({
-    required this.widget,
+    required this.game,
     required double downloadSize,
     required this.translate,
   }) : _downloadSize = downloadSize;
 
-  final _GameCover widget;
+  final GamevaultGame game;
   final double _downloadSize;
   final AppLocalizations translate;
 
@@ -331,7 +316,7 @@ class _GameDownloadButton extends StatelessWidget {
     } else {
       // use the download queuing mechanism
       ctx.read<DownloadBloc>().add(
-        DownloadsQueuedEvent(ids: [widget.game.id as int]),
+        DownloadsQueuedEvent(ids: [game.id as int]),
       );
     }
   }
@@ -362,13 +347,20 @@ class _GameDownloadButton extends StatelessWidget {
             iconSize: _downloadSize,
             color: Colors.white,
           );
-          label = _GameSizeText(widget: widget, translate: translate);
+          label = _GameSizeText(game: game, translate: translate);
         } else {
-          return Container();
+          return const SizedBox.shrink();
         }
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [actionButton, label],
+
+        return Card(
+          color: Theme.of(context).canvasColor.withAlpha(127),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [actionButton, label],
+            ),
+          ),
         );
       },
     );
@@ -376,15 +368,15 @@ class _GameDownloadButton extends StatelessWidget {
 }
 
 class _GameSizeText extends StatelessWidget {
-  const _GameSizeText({required this.widget, required this.translate});
+  const _GameSizeText({required this.game, required this.translate});
 
-  final _GameCover widget;
+  final GamevaultGame game;
   final AppLocalizations translate;
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      Helpers.sizeInUnit(widget.game.size, translate),
+      Helpers.sizeInUnit(game.size, translate),
       style: TextStyle(fontSize: 24, color: Colors.white),
     );
   }
