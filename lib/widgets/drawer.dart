@@ -97,7 +97,10 @@ class _UserMeTile extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthSuccessState) {
           return ListTile(
-            leading: Helpers.avatar(state.me),
+            leading: SizedBox.square(
+              dimension: 24,
+              child: Helpers.avatar(state.me),
+            ),
             title: Text(Helpers.userTitle(state.me)),
             onTap: () => _setPage(context, Constants.userMePageInfo()),
           );

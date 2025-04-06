@@ -1,9 +1,13 @@
+import 'package:clavis/blocs/auth_bloc.dart';
+import 'package:clavis/blocs/error_bloc.dart';
+import 'package:clavis/blocs/users_bloc.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/util/focusable.dart';
 import 'package:clavis/util/helpers.dart';
 import 'package:clavis/widgets/query_builder.dart';
 import 'package:clavis/widgets/users/detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
 class UsersPage extends StatelessWidget {
@@ -19,7 +23,7 @@ class UsersPage extends StatelessWidget {
     final translate = AppLocalizations.of(context)!;
     return Querybuilder(
       query: (api) => UserApi(api).getUsers(),
-      builder: (ctx, users, error) {
+      builder: (context, users, error) {
         if (users == null) {
           return Align(
             alignment: Alignment.topCenter,
@@ -27,16 +31,42 @@ class UsersPage extends StatelessWidget {
           );
         }
 
-        users.sort((a, b) => a.username.compareTo(b.username));
+        final api = context.select((AuthBloc auth) {
+          if (auth.state is AuthSuccessState) {
+            return (auth.state as AuthSuccessState).api;
+          }
+          return null;
+        });
+        if (api == null) {
+          ErrorBloc.makeError(
+            context,
+            "couldn't find authentication credentials ... y tho?",
+            true,
+          );
+          return Center(child: CircularProgressIndicator());
+        }
 
-        return SizedBox(
-          width: double.maxFinite,
-          child: Wrap(
-            runSpacing: _cardSpacing,
-            spacing: _cardSpacing,
-            alignment: WrapAlignment.spaceEvenly,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: userTiles(users),
+        return BlocProvider(
+          create: (_) => UsersBloc(users: users, api: api),
+          child: BlocBuilder<UsersBloc, UsersState>(
+            builder: (context, state) {
+              state.users.sort((a, b) => a.username.compareTo(b.username));
+
+              if (!state.isInitialized) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              return SizedBox(
+                width: double.maxFinite,
+                child: Wrap(
+                  runSpacing: _cardSpacing,
+                  spacing: _cardSpacing,
+                  alignment: WrapAlignment.spaceEvenly,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: userTiles(state.users),
+                ),
+              );
+            },
           ),
         );
       },
@@ -50,25 +80,31 @@ class UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap:
-          () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => DetailPage(user: user)),
-          ),
-      child: Focusable(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 8,
-              children: [UserAvatar(user), UserDesc(user)],
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        return GestureDetector(
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DetailPage(user: user, initState: state),
+                ),
+              ),
+          child: Focusable(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 8,
+                  children: [UserAvatar(user), UserDesc(user)],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -114,7 +150,7 @@ class UserDesc extends StatelessWidget {
     return Text(Helpers.userTitle(user));
   }
 
-  Widget _userRole(GamevaultUserRoleEnum role, BuildContext ctx) {
+  Widget _userRole(GamevaultUserRoleEnum role, BuildContext context) {
     switch (role) {
       case GamevaultUserRoleEnum.n0:
         return Text("?????");
@@ -125,7 +161,7 @@ class UserDesc extends StatelessWidget {
       case GamevaultUserRoleEnum.n3:
         return Text("admin");
     }
-    return Text(AppLocalizations.of(ctx)!.users_unknown_role);
+    return Text(AppLocalizations.of(context)!.users_unknown_role);
   }
 
   @override

@@ -440,7 +440,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "46fa955f42105fa9c1d1032ba2bed03df20f6aaf"
+      resolved-ref: "427dfec891a2f1104ed6915aaeaea18b7e550b6f"
       url: "https://github.com/felixjulianheitmann/gamevault_client_sdk.git"
     source: git
     version: "0.0.2"
@@ -477,7 +477,7 @@ packages:
     source: hosted
     version: "3.2.2"
   http_parser:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http_parser
       sha256: "178d74305e7866013777bab2c3d8726205dc5a4dd935297175b19a23a2e66571"

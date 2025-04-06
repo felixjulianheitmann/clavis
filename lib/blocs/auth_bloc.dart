@@ -45,7 +45,8 @@ class AuthPendingState extends AuthState {}
 class AuthEmptyState extends AuthState {}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc() : super(AuthPendingState()) {
+  AuthBloc({AuthState? initialState})
+    : super(initialState ?? AuthPendingState()) {
     /**
      * a full-on different authentication state became available
      * usually on application start

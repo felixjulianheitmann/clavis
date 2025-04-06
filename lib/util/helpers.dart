@@ -1,3 +1,7 @@
+import 'dart:typed_data';
+
+import 'package:clavis/util/logger.dart';
+import 'package:clavis/widgets/query_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/l10n/app_localizations.dart';
@@ -7,12 +11,37 @@ import 'package:path/path.dart' as path;
 abstract class Helpers {
   static const _defaultBannerImage = 'assets/Key-Logo_Diagonal.png';
 
-  static CircleAvatar avatar(GamevaultUser user, {double? radius}) {
-    Widget avatar = Icon(Icons.person, size: radius);
-    if (user.avatar?.sourceUrl != null) {
-      avatar = Image.network(user.avatar!.sourceUrl!);
+  static Widget avatar(GamevaultUser user, {double? radius}) {
+    final standardIcon = CircleAvatar(
+      radius: radius,
+      child: Icon(Icons.person, size: radius),
+    );
+    if (user.avatar == null) return standardIcon;
+
+    CircleAvatar wrapper(ImageProvider img) =>
+        CircleAvatar(backgroundImage: img, radius: radius);
+
+    if (user.avatar!.sourceUrl != null) {
+      // query internet resource
+      return wrapper(NetworkImage(user.avatar!.sourceUrl!));
     }
-    return CircleAvatar(radius: radius, child: avatar);
+
+    return Querybuilder(
+      query: (api) => MediaApi(api).getMediaByMediaId("${user.avatar!.id}"),
+      builder: (context, media, error) {
+        if (error != null) {
+          log.e("error querying user avatar", error: error);
+          return standardIcon;
+        }
+        if (media == null) {
+          log.e("avatar query returned null response - user-id: ${user.id}");
+          return standardIcon;
+        }
+         
+        // query server media file
+        return wrapper(MemoryImage(Uint8List.fromList(media.codeUnits)));
+      },
+    );
   }
 
   static String userTitle(GamevaultUser user) {
