@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:clavis/blocs/auth_bloc.dart';
 import 'package:clavis/blocs/error_bloc.dart';
@@ -6,14 +7,82 @@ import 'package:clavis/blocs/users_bloc.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/util/helpers.dart';
 import 'package:clavis/util/hoverable.dart';
+import 'package:clavis/util/logger.dart';
 import 'package:clavis/widgets/clavis_scaffold.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_email_validator/email_validator.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
+
+class UserState {}
+
+class UserReadyState extends UserState {
+  UserReadyState({required this.user});
+  final GamevaultUser user;
+}
+
+class UserUpdatingState extends UserState {
+  UserUpdatingState({required this.user});
+  final GamevaultUser user;
+}
+
+class UserUpdateFailedState extends UserState {
+  UserUpdateFailedState({required this.user, required this.error});
+  Object error;
+  final GamevaultUser user;
+}
+
+class UserDeletedState extends UserState {}
+
+class UserEvent {}
+
+class UserChangedEvent extends UserEvent {
+  UserChangedEvent({
+    required this.user,
+    required this.update,
+    required this.api,
+  });
+  final GamevaultUser user;
+  final UpdateUserDto update;
+  final ApiClient api;
+}
+
+class UserDeletedEvent extends UserEvent {}
+
+class UserBloc extends Bloc<UserEvent, UserState> {
+  UserBloc({required GamevaultUser initialUser})
+    : super(UserReadyState(user: initialUser)) {
+    on<UserDeletedEvent>((event, emit) => emit(UserDeletedState()));
+    on<UserChangedEvent>((event, emit) async {
+      emit(UserUpdatingState(user: event.user));
+
+      // update user using API
+      try {
+        final result = await UserApi(
+          event.api,
+        ).putUserByUserId(event.user.id, event.update);
+
+        if (result == null) {
+          Object error =
+              "user update returned with null user - user-id: ${event.user.id}";
+          log.e(error);
+          emit(UserUpdateFailedState(user: event.user, error: error));
+          return;
+        }
+
+        emit(UserReadyState(user: result));
+      } catch (e) {
+        log.e("user update failed", error: e);
+        emit(UserUpdateFailedState(user: event.user, error: e));
+        return;
+      }
+    });
+  }
+}
 
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key, required this.user, required this.initState});
@@ -23,28 +92,243 @@ class DetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
-    return BlocProvider(
-      create: (context) => AuthBloc(initialState: initState),
-      child: ClavisScaffold(
-        title: translate.page_user_details_title,
-        showDrawer: false,
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.delete))],
-        body: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [_EditableAvatar(user: user)],
-            ),
-          ],
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthBloc(initialState: initState)),
+        BlocProvider(create: (context) => UserBloc(initialUser: user)),
+      ],
+      child: BlocListener<UserBloc, UserState>(
+        listener: (context, state) {
+          final translate = AppLocalizations.of(context)!;
+          if (state is UserUpdateFailedState) {
+            final snack = SnackBar(
+              content: Text(state.error.toString()),
+              action: SnackBarAction(
+                label: translate.action_close,
+                backgroundColor: Theme.of(context).colorScheme.error,
+                onPressed:
+                    () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+              ),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snack);
+          }
+        },
+        child: ClavisScaffold(
+          title: translate.page_user_details_title,
+          showDrawer: false,
+          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.delete))],
+          body: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [_EditableAvatar()],
+              ),
+              _UserForm(),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+class _UserForm extends StatefulWidget {
+  const _UserForm();
+
+  @override
+  State<_UserForm> createState() => _UserFormState();
+}
+
+typedef _UserFormBuilderFunc =
+    Widget Function(
+      BuildContext context,
+      bool readOnly,
+      AuthSuccessState? authState,
+      GamevaultUser user,
+    );
+
+Widget _withBlocs(_UserFormBuilderFunc builder) {
+  return BlocBuilder<AuthBloc, AuthState>(
+    builder: (context, authState) {
+      AuthSuccessState? authSuccess;
+      bool readOnly = true;
+      if (authState is AuthSuccessState) {
+        authSuccess = authState;
+        readOnly = false;
+      }
+
+      return BlocBuilder<UserBloc, UserState>(
+        builder: (context, userState) {
+          if (userState is UserUpdatingState) readOnly = true;
+
+          if (userState is UserReadyState) {
+            return builder(context, readOnly, authSuccess, userState.user);
+          } else if (userState is UserUpdateFailedState) {
+            return builder(context, readOnly, authSuccess, userState.user);
+          } else if (userState is UserUpdatingState) {
+            return builder(context, readOnly, authSuccess, userState.user);
+          }
+
+          log.e("User info is an undefined state", error: userState);
+          return SizedBox.shrink(); // What else is there to do?
+        },
+      );
+    },
+  );
+}
+
+String? Function(String?) _forbidEmpty(String emptyMessage) {
+  return (String? text) {
+    if (text == null || text.isEmpty) {
+      return emptyMessage;
+    }
+    return null;
+  };
+}
+
+String? _validateMail(String? text, invalidMailMessage) {
+  // empty field is allowed
+  if (text == null || text.isEmpty) return null;
+
+  if (!EmailValidator.validate(text)) {
+    return invalidMailMessage;
+  }
+  return null;
+}
+
+class _UserFormState extends State<_UserForm> {
+  @override
+  Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+    return _withBlocs((context, readOnly, authState, user) {
+      return SizedBox(
+        width: min(MediaQuery.of(context).size.width, 400),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              children: [
+                TextEdit(
+                  label: translate.page_user_details_username,
+                  initialValue: user.username,
+                  submitter: (v) => UpdateUserDto(username: v),
+                  valueGetter: (user) => user.username,
+                  validator: _forbidEmpty(
+                    translate.validation_error_field_empty,
+                  ),
+                ),
+                TextEdit(
+                  label: translate.page_user_details_firstname,
+                  initialValue: user.firstName,
+                  submitter: (v) => UpdateUserDto(firstName: v),
+                  valueGetter: (user) => user.firstName,
+                ),
+                TextEdit(
+                  label: translate.page_user_details_lastname,
+                  initialValue: user.lastName,
+                  submitter: (v) => UpdateUserDto(lastName: v),
+                  valueGetter: (user) => user.lastName,
+                ),
+                TextEdit(
+                  label: translate.page_user_details_email,
+                  initialValue: user.email,
+                  submitter: (v) => UpdateUserDto(email: v),
+                  valueGetter: (user) => user.email,
+                  validator:
+                      (v) =>
+                          _validateMail(v, translate.validation_invalid_mail),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
+class TextEdit extends StatefulWidget {
+  const TextEdit({
+    super.key,
+    required this.label,
+    required this.submitter,
+    required this.valueGetter,
+    required this.initialValue,
+    this.validator,
+  });
+
+  final String label;
+  final String? initialValue;
+  final UpdateUserDto Function(String) submitter;
+  final String? Function(GamevaultUser) valueGetter;
+  final String? Function(String? text)? validator;
+
+  @override
+  State<TextEdit> createState() => _TextEditState();
+}
+
+class _TextEditState extends State<TextEdit> {
+  final _ctrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _isModified = false;
+
+  @override
+  void initState() {
+    _ctrl.text = widget.initialValue ?? "";
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _withBlocs((context, readOnly, authState, user) {
+      void onSubmit(UpdateUserDto userUpdate) {
+        context.read<UserBloc>().add(
+          UserChangedEvent(
+            user: user,
+            update: userUpdate,
+            api: authState!.api,
+          ), // authState! mutually exclusive with readOnly
+        );
+      }
+
+      return BlocListener<UserBloc, UserState>(
+        listener: (context, state) {
+          if (state is UserReadyState) {
+            // check on state updates
+            setState(() {
+              final remote = widget.valueGetter(user);
+              _isModified = remote != null && remote != _ctrl.text;
+            });
+          }
+        },
+        child: Form(
+          key: _formKey,
+          child: TextFormField(
+            validator: widget.validator,
+            readOnly: readOnly,
+            controller: _ctrl,
+            onChanged:
+                (v) => setState(
+                  () => _isModified = widget.valueGetter(user) != _ctrl.text,
+                ),
+            onFieldSubmitted: (v) {
+              if (_formKey.currentState!.validate()) {
+                onSubmit(widget.submitter(v));
+              }
+            },
+            decoration: InputDecoration(
+              labelText: widget.label,
+              suffixIcon: _isModified ? Icon(Icons.pending) : null,
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
 class _EditableAvatar extends StatelessWidget {
-  const _EditableAvatar({required this.user});
-  final GamevaultUser user;
+  const _EditableAvatar();
 
   static const _size = 90.0;
 
@@ -136,34 +420,33 @@ class _EditableAvatar extends StatelessWidget {
     return Stack(
       fit: StackFit.passthrough,
       children: [
-        Hoverable(
-          foreground: SizedBox.square(
-            dimension: _size * 2,
-            child: Center(
-              child: BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (state is! AuthSuccessState) {
-                    return const SizedBox.shrink();
-                  }
-                  return FloatingActionButton(
+        _withBlocs((context, readOnly, authState, user) {
+          return Hoverable(
+            foreground: Visibility(
+              visible: !readOnly,
+              child: SizedBox.square(
+                dimension: _size * 2,
+                child: Center(
+                  child: FloatingActionButton(
                     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                     shape: CircleBorder(),
                     onPressed:
                         () async => await _uploadAvatar(
                           context,
                           user.id,
-                          state.api,
-                          state.me,
+                          authState!.api,
+                          authState.me,
                         ),
                     child: Icon(Icons.edit),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
-          ),
-          background: Center(child: Helpers.avatar(user, radius: _size)),
-        ),
+            background: Center(child: Helpers.avatar(user, radius: _size)),
+          );
+        }),
       ],
+
     );
   }
 }

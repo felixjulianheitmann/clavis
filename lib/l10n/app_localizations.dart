@@ -292,6 +292,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User Details'**
   String get page_user_details_title;
+
+  /// No description provided for @page_user_details_username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get page_user_details_username;
+
+  /// No description provided for @page_user_details_firstname.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get page_user_details_firstname;
+
+  /// No description provided for @page_user_details_lastname.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get page_user_details_lastname;
+
+  /// No description provided for @page_user_details_birthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get page_user_details_birthday;
+
+  /// No description provided for @page_user_details_email.
+  ///
+  /// In en, this message translates to:
+  /// **'E-Mail'**
+  String get page_user_details_email;
+
+  /// No description provided for @page_user_details_activated.
+  ///
+  /// In en, this message translates to:
+  /// **'User Enabled'**
+  String get page_user_details_activated;
+
+  /// No description provided for @page_user_details_role.
+  ///
+  /// In en, this message translates to:
+  /// **'User Role'**
+  String get page_user_details_role;
+
+  /// No description provided for @user_roles_admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get user_roles_admin;
+
+  /// No description provided for @user_roles_standard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get user_roles_standard;
+
+  /// No description provided for @validation_invalid_mail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid E-Mail Format'**
+  String get validation_invalid_mail;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

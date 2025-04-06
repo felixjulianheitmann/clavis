@@ -116,4 +116,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get page_user_details_title => 'User Details';
+
+  @override
+  String get page_user_details_username => 'Username';
+
+  @override
+  String get page_user_details_firstname => 'First Name';
+
+  @override
+  String get page_user_details_lastname => 'Last Name';
+
+  @override
+  String get page_user_details_birthday => 'Date of Birth';
+
+  @override
+  String get page_user_details_email => 'E-Mail';
+
+  @override
+  String get page_user_details_activated => 'User Enabled';
+
+  @override
+  String get page_user_details_role => 'User Role';
+
+  @override
+  String get user_roles_admin => 'Admin';
+
+  @override
+  String get user_roles_standard => 'Standard';
+
+  @override
+  String get validation_invalid_mail => 'Invalid E-Mail Format';
 }

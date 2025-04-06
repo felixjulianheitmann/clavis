@@ -34,5 +34,15 @@
     "users_unknown_role": "Unknown Role",
     "drawer_admin_area": "Admin Area",
     "dialog_select_avatar_title": "Select Avatar...",
-    "page_user_details_title": "User Details"
+    "page_user_details_title": "User Details",
+    "page_user_details_username": "Username",
+    "page_user_details_firstname": "First Name",
+    "page_user_details_lastname": "Last Name",
+    "page_user_details_birthday": "Date of Birth",
+    "page_user_details_email": "E-Mail",
+    "page_user_details_activated": "User Enabled",
+    "page_user_details_role": "User Role",
+    "user_roles_admin": "Admin",
+    "user_roles_standard": "Standard",
+    "validation_invalid_mail": "Invalid E-Mail Format"
 }
