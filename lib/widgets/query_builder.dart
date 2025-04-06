@@ -7,7 +7,7 @@ import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/blocs/auth_bloc.dart';
 
 typedef QueryBuildFunction<T> =
-    Widget Function(BuildContext ctx, T?, Error? error);
+    Widget Function(BuildContext context, T?, Object? error);
 typedef QueryFunction<T> = Future<T>? Function(ApiClient api);
 
 /// tries to wrap the async query + waiting code into a widget
@@ -43,7 +43,7 @@ class QuerybuilderState<T> extends State<Querybuilder<T>> {
               context.read<ErrorBloc>().add(
                 ErrorNewEvent(error: snapshot.error!),
               );
-              return widget.builder(context, null, snapshot.error as Error);
+              return widget.builder(context, null, snapshot.error as Object);
             }
             return spinner;
           },
