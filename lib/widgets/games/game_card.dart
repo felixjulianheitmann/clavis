@@ -20,7 +20,7 @@ class GameCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (ctx) => GamePage(game: game)),
+          MaterialPageRoute(builder: (context) => GamePage(game: game)),
         );
       },
       child: Focusable(

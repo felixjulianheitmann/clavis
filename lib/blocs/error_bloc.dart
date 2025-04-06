@@ -23,11 +23,11 @@ class ErrorBloc extends Bloc<ErrorEvent, ErrorState> {
     on<ErrorDismissEvent>((_, emit) => emit(ErrorState()));
   }
 
-  static makeError(BuildContext ctx, Object error, bool dismissable) {
+  static makeError(BuildContext context, Object error, bool dismissable) {
     if(dismissable) {
-      showDialog(context: ctx, builder: (context) => ErrorDialog(error: error,));
+      showDialog(context: context, builder: (context) => ErrorDialog(error: error,));
       return;
     }
-    ctx.read<ErrorBloc>().add(ErrorNewEvent(error: error));
+    context.read<ErrorBloc>().add(ErrorNewEvent(error: error));
   }
 }

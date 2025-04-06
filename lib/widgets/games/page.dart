@@ -38,13 +38,13 @@ class _GamesPageState extends State<GamesPage> {
   Widget build(BuildContext context) {
     return Querybuilder(
         query: (api) => GameApi(api).getGames(),
-      builder: (ctx, gameResponse, error) {
+      builder: (context, gameResponse, error) {
         if (error != null) {
           return Center(child: Card(child: Text(error.toString())));
         }
 
         final games = gameResponse!.data;
-        ctx.read<SearchBloc>().add(SearchGamesAvailableEvent(games: games));
+        context.read<SearchBloc>().add(SearchGamesAvailableEvent(games: games));
 
         return Column(
           children: [

@@ -308,14 +308,14 @@ class _GameDownloadButton extends StatelessWidget {
   final double _downloadSize;
   final AppLocalizations translate;
 
-  void _triggerDownload(BuildContext ctx, ApiClient api) {
+  void _triggerDownload(BuildContext context, ApiClient api) {
     // try and trigger a direct browser download
     if (kIsWeb) {
       log.e("file download not yet supported on web");
       throw Error();
     } else {
       // use the download queuing mechanism
-      ctx.read<DownloadBloc>().add(
+      context.read<DownloadBloc>().add(
         DownloadsQueuedEvent(ids: [game.id as int]),
       );
     }
@@ -391,7 +391,7 @@ class _GameTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (ctx, constraint) {
+      builder: (context, constraint) {
         final title = this.title ?? "missing title";
         final style = TextStyle(fontSize: fontSize);
         final textWidth =
