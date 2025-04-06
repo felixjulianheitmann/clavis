@@ -146,4 +146,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validation_invalid_mail => 'Invalid E-Mail Format';
+
+  @override
+  String get action_deactivate => 'Deactivate';
+
+  @override
+  String get action_delete => 'Delete';
+
+  @override
+  String get action_upload_avatar => 'Upload Avatar';
 }

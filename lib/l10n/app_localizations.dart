@@ -352,6 +352,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid E-Mail Format'**
   String get validation_invalid_mail;
+
+  /// No description provided for @action_deactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get action_deactivate;
+
+  /// No description provided for @action_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get action_delete;
+
+  /// No description provided for @action_upload_avatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Avatar'**
+  String get action_upload_avatar;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

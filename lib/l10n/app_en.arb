@@ -44,5 +44,8 @@
     "page_user_details_role": "User Role",
     "user_roles_admin": "Admin",
     "user_roles_standard": "Standard",
-    "validation_invalid_mail": "Invalid E-Mail Format"
+    "validation_invalid_mail": "Invalid E-Mail Format",
+    "action_deactivate": "Deactivate",
+    "action_delete": "Delete",
+    "action_upload_avatar": "Upload Avatar"
 }

@@ -47,9 +47,9 @@ abstract class Helpers {
   static String userTitle(GamevaultUser user) {
     if (user.firstName == null && user.lastName == null) {
       return user.username;
-    } else if (user.firstName != null) {
+    } else if (user.lastName == null) {
       return user.firstName!;
-    } else if (user.lastName != null) {
+    } else if (user.firstName == null) {
       return user.lastName!;
     } else {
       return "${user.firstName} ${user.lastName}";

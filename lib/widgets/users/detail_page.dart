@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:clavis/blocs/auth_bloc.dart';
 import 'package:clavis/blocs/error_bloc.dart';
+import 'package:clavis/blocs/user_bloc.dart';
 import 'package:clavis/blocs/users_bloc.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/util/helpers.dart';
@@ -18,106 +19,6 @@ import 'package:gamevault_client_sdk/api.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
-class UserState {
-  UserState(this._user);
-  final GamevaultUser? _user;
-  GamevaultUser? get user => _user;
-}
-
-class UserReadyState extends UserState {
-  UserReadyState(GamevaultUser super._user);
-
-  @override
-  GamevaultUser get user => _user!;
-}
-
-class UserUpdatingState extends UserState {
-  UserUpdatingState(GamevaultUser super._user);
-
-  @override
-  GamevaultUser get user => _user!;
-}
-
-class UserUpdateFailedState extends UserState {
-  UserUpdateFailedState(GamevaultUser super._user, {required this.error});
-  Object error;
-
-  @override
-  GamevaultUser get user => _user!;
-}
-
-class UserDeletedState extends UserState {
-  UserDeletedState() : super(null);
-}
-
-class UserEvent {}
-
-class UserChangedEvent extends UserEvent {
-  UserChangedEvent({
-    required this.user,
-    required this.update,
-    required this.api,
-  });
-  final GamevaultUser user;
-  final UpdateUserDto update;
-  final ApiClient api;
-}
-
-class UserDeletedEvent extends UserEvent {
-  UserDeletedEvent({required this.user, required this.api});
-  final GamevaultUser user;
-  final ApiClient api;
-}
-
-class UserBloc extends Bloc<UserEvent, UserState> {
-  UserBloc({required GamevaultUser initialUser})
-    : super(UserReadyState(initialUser)) {
-    on<UserDeletedEvent>((event, emit) async {
-      emit(UserUpdatingState(state.user!));
-
-      try {
-        final result = await UserApi(
-          event.api,
-        ).deleteUserByUserId(event.user.id);
-        if (result == null) {
-          log.e("delete user returned with null - user-id: ${event.user.id}");
-          emit(UserUpdateFailedState(event.user, error: e));
-        }
-      } catch (e) {
-        log.e("delete user failed: ${event.user.id}", error: e);
-        emit(UserUpdateFailedState(event.user, error: e));
-        return;
-      }
-
-      emit(UserDeletedState());
-    });
-    on<UserChangedEvent>((event, emit) async {
-      emit(UserUpdatingState(event.user));
-
-      // update user using API
-      try {
-        final result = await UserApi(
-          event.api,
-        ).putUserByUserId(event.user.id, event.update);
-
-        if (result == null) {
-          Object error =
-              "user update returned with null user - user-id: ${event.user.id}";
-          log.e(error);
-          emit(UserUpdateFailedState(event.user, error: error));
-          return;
-        }
-
-        emit(UserReadyState(result));
-      } catch (e) {
-        log.e("user update failed", error: e);
-        emit(UserUpdateFailedState(event.user, error: e));
-        return;
-      }
-    });
-  }
-}
-
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key, required this.user, required this.initState});
   final GamevaultUser user;
@@ -125,7 +26,6 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final translate = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthBloc(initialState: initState)),
@@ -155,23 +55,34 @@ class DetailPage extends StatelessWidget {
           builder: (context, userState) {
             return BlocBuilder<AuthBloc, AuthState>(
               builder: (context, authState) {
+                final translate = AppLocalizations.of(context)!;
                 return ClavisScaffold(
-                  title: translate.page_user_details_title,
                   showDrawer: false,
                   actions: [
-                    IconButton(
-                      onPressed: () {
-                        if (userState.user != null &&
-                            authState is AuthSuccessState) {
-                          context.read<UserBloc>().add(
-                            UserDeletedEvent(
-                              user: userState.user!,
-                              api: authState.api,
-                            ),
-                          );
-                        }
-                      },
-                      icon: Icon(Icons.delete),
+                    Tooltip(
+                      message: translate.action_deactivate,
+                      child: IconButton(
+                        icon: Icon(Icons.block),
+                        onPressed: () {},
+                      ),
+                    ),
+
+                    Tooltip(
+                      message: translate.action_delete,
+                      child: IconButton(
+                        onPressed: () {
+                          if (userState.user != null &&
+                              authState is AuthSuccessState) {
+                            context.read<UserBloc>().add(
+                              UserDeletedEvent(
+                                user: userState.user!,
+                                api: authState.api,
+                              ),
+                            );
+                          }
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
                     ),
                   ],
                   body: Column(
@@ -482,23 +393,28 @@ class _EditableAvatar extends StatelessWidget {
       fit: StackFit.passthrough,
       children: [
         _withBlocs((context, readOnly, authState, user) {
+          final translate = AppLocalizations.of(context)!;
           return Hoverable(
             foreground: Visibility(
               visible: !readOnly,
               child: SizedBox.square(
                 dimension: _size * 2,
                 child: Center(
-                  child: FloatingActionButton(
-                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    shape: CircleBorder(),
-                    onPressed:
-                        () async => await _uploadAvatar(
-                          context,
-                          user.id,
-                          authState!.api,
-                          authState.me,
-                        ),
-                    child: Icon(Icons.edit),
+                  child: Tooltip(
+                    message: translate.action_upload_avatar,
+                    child: FloatingActionButton(
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
+                      shape: CircleBorder(),
+                      onPressed:
+                          () async => await _uploadAvatar(
+                            context,
+                            user.id,
+                            authState!.api,
+                            authState.me,
+                          ),
+                      child: Icon(Icons.edit),
+                    ),
                   ),
                 ),
               ),
