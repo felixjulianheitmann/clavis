@@ -76,10 +76,15 @@ class _UserMeTile extends StatelessWidget {
   const _UserMeTile();
 
   String _userTitle(GamevaultUser user) {
-    if (user.lastName != null) {
+    if (user.firstName == null && user.lastName == null) {
+      return user.username;
+    } else if (user.firstName != null) {
+      return user.firstName!;
+    } else if (user.lastName != null) {
+      return user.lastName!;
+    } else {
       return "${user.firstName} ${user.lastName}";
     }
-    return user.firstName;
   }
 
   Widget _userIcon(GamevaultUser user) {
