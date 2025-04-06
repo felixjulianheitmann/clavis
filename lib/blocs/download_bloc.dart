@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:clavis/util/logger.dart';
+import 'package:clavis/util/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
+import 'package:path/path.dart';
 
 class DownloadProgress {
   const DownloadProgress({
@@ -129,9 +132,25 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
               queue: readyState.queue,
             ),
           );
+
+          final downloadDir = await Preferences.getDownloadDir();
+          GamevaultGame? game;
+          try {
+            game = await GameApi(
+              readyState.api,
+            ).getGameByGameId(event.ids.first);
+          } catch (e) {
+            log.e("error querying game info", error: e);
+          }
+
+          if (game == null || downloadDir == null) {
+            log.e("cannot download game - directory or game info missing");
+            return;
+          }
+
           final resp = await Dio().download(
             uri,
-            "/dev/null",
+            join(downloadDir, basename(game.filePath)),
             onReceiveProgress: (count, total) {
               if (state is DownloadActiveState) {
                 emit(
