@@ -1,0 +1,25 @@
+app-id: com.felixbruns.clavis
+runtime: org.freedesktop.Platform
+runtime-version: "22.08"
+sdk: org.freedesktop.Sdk
+command: clavis
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --socket=pulseaudio
+  - --share=network
+modules:
+  - name: clavis
+    buildsystem: simple
+    only-arches:
+      - x86_64
+    build-commands:
+      - "flutter build linux"
+    sources:
+      - type: dir
+        path: tmp.cicd/builds-
+      - type: file
+        path: build-flatpak.sh
