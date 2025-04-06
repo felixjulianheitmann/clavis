@@ -9,6 +9,7 @@ class GameCard extends StatefulWidget {
   final GamevaultGame game;
   final double width;
   static const defaultWidth = 150.0;
+  static const aspectRatio = 1.3;
   static const minWidth = 50.0;
   static const maxWidth = 400.0;
 
@@ -41,10 +42,14 @@ class _GameCardState extends State<GameCard> {
             child: AnimatedScale(
               scale: scale,
               duration: _animationDuration,
-              child: Card(
-                clipBehavior: Clip.antiAlias,
-                semanticContainer: true,
-            child: Helpers.cover(widget.game, widget.width),
+          child: SizedBox(
+            height: GameCard.aspectRatio * widget.width,
+            width: widget.width,
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              semanticContainer: true,
+              child: Helpers.cover(widget.game, widget.width),
+            ),
               ),
             ),
       ),
