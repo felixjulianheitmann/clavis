@@ -45,12 +45,12 @@ class _GamesListState extends State<GamesList> {
     return Expanded(
       child: Stack(
         children: [
-          Align(
-            alignment: Alignment.topCenter,
+          SizedBox(
+            width: double.maxFinite,
             child: SingleChildScrollView(
               padding: EdgeInsets.all(16),
               child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
+                alignment: WrapAlignment.spaceEvenly,
                 spacing: GamesList.spacing,
                 children: children,
               ),
