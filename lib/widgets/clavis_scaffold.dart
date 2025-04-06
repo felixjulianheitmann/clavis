@@ -1,3 +1,4 @@
+import 'package:clavis/blocs/error_bloc.dart';
 import 'package:clavis/blocs/page_bloc.dart';
 import 'package:clavis/constants.dart';
 import 'package:clavis/widgets/app_title.dart';
@@ -34,27 +35,35 @@ class ClavisScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PageBloc, PageState>(
-      builder: (context, state) {
-        final scaffold = Scaffold(
-            appBar:
-                showAppBar
-                    ? ClavisAppbar(
-                      actions: actions ?? state.activePage.appbarActions,
-                    )
-                    : null,
-            drawer: showDrawer ? SidebarDrawer() : null,
-          body: body ?? _getBody(state.activePage),
-        );
-        if (state.activePage.blocs.isEmpty) {
-          return scaffold;
+    return BlocBuilder<ErrorBloc, ErrorState>(
+      builder: (context, errorState) {
+        if (errorState.hasError) {
+          return ErrorWidget(errorState.error!);
         }
 
-        final providers =
-            state.activePage.blocs
-                .map((bloc) => BlocProvider(create: (_) => bloc))
-                .toList();
-        return MultiBlocProvider(providers: providers, child: scaffold);
+        return BlocBuilder<PageBloc, PageState>(
+          builder: (context, state) {
+            final scaffold = Scaffold(
+              appBar:
+                  showAppBar
+                      ? ClavisAppbar(
+                        actions: actions ?? state.activePage.appbarActions,
+                      )
+                      : null,
+              drawer: showDrawer ? SidebarDrawer() : null,
+              body: body ?? _getBody(state.activePage),
+            );
+            if (state.activePage.blocs.isEmpty) {
+              return scaffold;
+            }
+
+            final providers =
+                state.activePage.blocs
+                    .map((bloc) => BlocProvider(create: (_) => bloc))
+                    .toList();
+            return MultiBlocProvider(providers: providers, child: scaffold);
+          },
+        );
       },
     );
   }
@@ -70,7 +79,6 @@ class ClavisAppbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(title: AppTitle(), actions: actions
-    );
+    return AppBar(title: AppTitle(), actions: actions);
   }
 }

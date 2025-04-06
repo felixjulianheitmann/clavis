@@ -250,6 +250,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select download directory'**
   String get settings_download_dir_select_title;
+
+  /// No description provided for @action_close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get action_close;
+
+  /// No description provided for @action_dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get action_dismiss;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

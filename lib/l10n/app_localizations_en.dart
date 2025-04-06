@@ -95,4 +95,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_download_dir_select_title => 'Select download directory';
+
+  @override
+  String get action_close => 'Close';
+
+  @override
+  String get action_dismiss => 'Dismiss';
 }

@@ -1,3 +1,4 @@
+import 'package:clavis/blocs/error_bloc.dart';
 import 'package:clavis/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,6 +40,9 @@ class QuerybuilderState<T> extends State<Querybuilder<T>> {
               return widget.builder(context, snapshot.data, null);
             } else if (snapshot.hasError) {
               log.e('error finishing query', error: snapshot.error);
+              context.read<ErrorBloc>().add(
+                ErrorNewEvent(error: snapshot.error!),
+              );
               return widget.builder(context, null, snapshot.error as Error);
           }
           return spinner;

@@ -1,5 +1,6 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:clavis/blocs/download_bloc.dart';
+import 'package:clavis/blocs/error_bloc.dart';
 import 'package:clavis/blocs/page_bloc.dart';
 import 'package:clavis/blocs/search_bloc.dart';
 import 'package:clavis/blocs/settings_bloc.dart';
@@ -22,6 +23,7 @@ void main() {
         BlocProvider(create: (_) => DownloadBloc()),
         BlocProvider(create: (_) => SettingsBloc()),
         BlocProvider(create: (_) => SearchBloc()),
+        BlocProvider(create: (_) => ErrorBloc()),
       ],
       child: Clavis(),
     ),

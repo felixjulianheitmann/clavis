@@ -27,5 +27,7 @@
     "settings_theme_tooltip_dark": "Dark",
     "settings_download_dir_title": "Download Directory",
     "settings_download_dir_not_selected": "No download directory selected, yet",
-    "settings_download_dir_select_title": "Select download directory"
+    "settings_download_dir_select_title": "Select download directory",
+    "action_close": "Close",
+    "action_dismiss": "Dismiss"
 }
