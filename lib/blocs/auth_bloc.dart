@@ -17,11 +17,9 @@ final class AuthChangedEvent extends AuthEvent {
   final AuthState state;
 }
 
-final class AuthRemovedEvent extends AuthEvent {}
-
-final class AuthStateChangedEvent extends AuthEvent {
-  AuthStateChangedEvent({required this.isAuthenticated});
-  final bool isAuthenticated;
+final class AuthMeChangedEvent extends AuthEvent {
+  AuthMeChangedEvent({required this.me});
+  final GamevaultUser me;
 }
 
 abstract class AuthState {
@@ -32,6 +30,9 @@ class AuthSuccessState extends AuthState {
   const AuthSuccessState({required this.api, required this.me});
   final ApiClient api;
   final GamevaultUser me;
+
+  AuthSuccessState copy({ApiClient? api, GamevaultUser? me}) =>
+      AuthSuccessState(api: api ?? this.api, me: me ?? this.me);
 }
 
 class AuthFailedState extends AuthState {
@@ -52,14 +53,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthChangedEvent>((event, emit) {
       log.i("Authentication changed");
       emit(event.state);
-    });
-
-    /**
-     * credentials have been deleted - logout likely
-     */
-    on<AuthRemovedEvent>((event, emit) {
-      log.i("Authentication has been revoked");
-      emit(AuthEmptyState());
     });
 
     /**
@@ -101,6 +94,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } catch (e) {
         log.e("authentication failed - querying user info failed", error: e);
         emit(AuthFailedState(e.toString()));
+        return;
+      }
+    });
+
+    /**
+     * the logged in user has been updated
+     */
+    on<AuthMeChangedEvent>((event, emit) async {
+      if (state is! AuthSuccessState) return;
+      final authState = state as AuthSuccessState;
+
+      try {
+        final result = await UserApi(authState.api).getUsersMe();
+        if (result == null) {
+          log.e("users query returned empty response");
+          return;
+        }
+        emit(authState.copy(me: result));
+      } catch (e) {
+        log.e("couldn't query users", error: e);
         return;
       }
     });

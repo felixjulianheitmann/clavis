@@ -12,7 +12,7 @@ class LogoutAction extends StatelessWidget {
       onPressed: () async {
         await CredentialStore.remove();
         if (context.mounted) {
-          context.read<AuthBloc>().add(AuthRemovedEvent());
+          context.read<AuthBloc>().add(AuthCredChangedEvent());
         }
       },
       icon: Icon(Icons.logout),
