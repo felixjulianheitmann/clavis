@@ -3,6 +3,7 @@ import 'package:clavis/constants.dart';
 import 'package:clavis/widgets/app_title.dart';
 import 'package:clavis/widgets/games/page.dart';
 import 'package:clavis/widgets/settings/settings_page.dart';
+import 'package:clavis/widgets/users/root_page.dart';
 import 'package:flutter/material.dart';
 import 'package:clavis/widgets/drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +24,7 @@ class ClavisScaffold extends StatelessWidget {
 
   Widget _getBody(PageInfo activePage) {
     if (activePage.id == Constants.usersPageInfo().id) {
-      return GamesPage(); // TODO: make it user page
+      return UsersPage();
     } else if (activePage.id == Constants.settingsPageInfo().id) {
       return SettingsPage();
     } else {

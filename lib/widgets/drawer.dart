@@ -53,10 +53,22 @@ class SidebarDrawer extends StatelessWidget {
             title: Text(translate.games_title),
             onTap: () => _setPage(context, Constants.gamesPageInfo()),
           ),
-          ListTile(
-            leading: Icon(Icons.person),
-            title: Text(translate.users_title),
-            onTap: () => _setPage(context, Constants.usersPageInfo()),
+
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final visible =
+                  state is AuthSuccessState &&
+                  state.me.role == GamevaultUserRoleEnum.n3;
+              // admin access
+              return Visibility(
+                visible: visible,
+                child: ListTile(
+                  leading: Icon(Icons.person),
+                  title: Text(translate.users_title),
+                  onTap: () => _setPage(context, Constants.usersPageInfo()),
+                ),
+              );
+            },
           ),
           Spacer(),
           Divider(),
