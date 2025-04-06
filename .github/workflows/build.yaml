@@ -10,7 +10,6 @@ on:
     branches:
       - main
 
-      
 jobs:
   build:
     strategy:
@@ -139,6 +138,8 @@ jobs:
           path: build/windows
   
   package:
+    permissions: 
+      packages: write
 
     strategy:
       matrix:
@@ -157,5 +158,19 @@ jobs:
         name: build-${{ matrix.platform }}-${{ needs.build.outputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
 
+    - name: build docker
+      if: ${{ matrix.platform }} == web
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        registry: ghcr.io/felixjulianheitmann
+        image: clavis
+        tags: ${{ needs.build.outputs.tag }} latest
+
     - name: package installers
-      run: echo packaging
+      run: 
+        echo packaging
+        # if [ "${{ matrix.platform }}" == "web" ]; then
+        #   flutter build web --release
+        # elif [ "${{ matrix.platform }}" == "linux" ]; then
+        #   flutter build linux --release  
+        # fi
