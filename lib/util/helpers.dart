@@ -2,12 +2,21 @@ import 'package:flutter/widgets.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 
 abstract class Helpers {
-  static Image cover(GamevaultGame game, double width) {
+  static const _defaultBannerImage = 'assets/Key-Logo_Diagonal.png';
+
+  static Widget cover(GamevaultGame game, double width) {
     final url = game.metadata?.cover?.sourceUrl;
     if (url == null) {
-      return Image.asset("Key-Logo_Diagonal.png", width: width);
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(_defaultBannerImage, fit: BoxFit.cover),
+          Text(game.title ?? path.basenameWithoutExtension(game.filePath)),
+        ],
+      );
     }
     return Image.network(url, width: width);
   }
