@@ -113,4 +113,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dialog_select_avatar_title => 'Select Avatar...';
+
+  @override
+  String get page_user_details_title => 'User Details';
 }

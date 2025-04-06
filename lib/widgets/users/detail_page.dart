@@ -22,9 +22,11 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => AuthBloc(initialState: initState),
       child: ClavisScaffold(
+        title: translate.page_user_details_title,
         showDrawer: false,
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.delete))],
         body: Column(

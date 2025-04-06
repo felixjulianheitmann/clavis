@@ -14,6 +14,7 @@ class ClavisScaffold extends StatelessWidget {
     super.key,
     this.body,
     this.actions,
+    this.title,
     this.showDrawer = true,
     this.showAppBar = true,
   });
@@ -22,6 +23,7 @@ class ClavisScaffold extends StatelessWidget {
   final bool showDrawer;
   final Widget? body;
   final List<Widget>? actions;
+  final String? title;
 
   Widget _getBody(PageInfo activePage) {
     if (activePage.id == Constants.usersPageInfo().id) {
@@ -47,6 +49,7 @@ class ClavisScaffold extends StatelessWidget {
               appBar:
                   showAppBar
                       ? ClavisAppbar(
+                        title: title,
                         actions: actions ?? state.activePage.appbarActions,
                       )
                       : null,
@@ -70,15 +73,19 @@ class ClavisScaffold extends StatelessWidget {
 }
 
 class ClavisAppbar extends StatelessWidget implements PreferredSizeWidget {
-  const ClavisAppbar({super.key, required this.actions});
+  const ClavisAppbar({super.key, required this.actions, this.title});
 
   final List<Widget> actions;
+  final String? title;
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(title: AppTitle(), actions: actions);
+    Widget titleWidget = AppTitle();
+    if (title != null) titleWidget = Text(title!);
+
+    return AppBar(title: titleWidget, actions: actions);
   }
 }

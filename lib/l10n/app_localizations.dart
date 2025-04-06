@@ -286,6 +286,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Avatar...'**
   String get dialog_select_avatar_title;
+
+  /// No description provided for @page_user_details_title.
+  ///
+  /// In en, this message translates to:
+  /// **'User Details'**
+  String get page_user_details_title;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

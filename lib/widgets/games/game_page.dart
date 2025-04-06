@@ -42,6 +42,7 @@ class GamePage extends StatelessWidget {
       ];
     }
     return ClavisScaffold(
+      title: game.title,
       body: _GameTitleBoard(game),
       showDrawer: false,
       actions: actions,
