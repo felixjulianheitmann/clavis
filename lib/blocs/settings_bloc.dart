@@ -2,22 +2,21 @@ import 'package:clavis/util/preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsEvent {}
-class SettingsChangedEvent extends SettingsEvent {
-  SettingsChangedEvent({required this.settings});
-  final AppSettings settings;
-}
+class Subscribe extends SettingsEvent {}
 
 class SettingsState {}
-class SettingsLoadingState extends SettingsState {}
-class SettingsLoadedState extends SettingsState{
-  SettingsLoadedState({required this.settings});
+class Unknown extends SettingsState {}
+class Ready extends SettingsState {
+  Ready({required this.settings});
   final AppSettings settings;
 }
 
+
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  SettingsBloc() : super(SettingsLoadingState()) {
-    on<SettingsChangedEvent>((event, emit) async {
-      emit(SettingsLoadedState(settings: event.settings));
+  SettingsBloc() : super(Unknown()) {
+    on<Subscribe>((event, emit) {
+      emit.onEach()
+      emit(Ready(settings: event.settings));
       await Preferences.setAppSettings(event.settings);
     });
   }

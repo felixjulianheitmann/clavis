@@ -26,7 +26,7 @@ class AppSettings {
   }
 }
 
-class Preferences {
+class SettingsRepository {
   static Future<T?> _get<T>(String key) async {
     final store = await SharedPreferences.getInstance();
     if(T == String) {

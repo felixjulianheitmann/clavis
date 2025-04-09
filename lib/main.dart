@@ -4,6 +4,9 @@ import 'package:clavis/blocs/error_bloc.dart';
 import 'package:clavis/blocs/page_bloc.dart';
 import 'package:clavis/blocs/search_bloc.dart';
 import 'package:clavis/blocs/settings_bloc.dart';
+import 'package:clavis/src/blocs/auth_bloc.dart';
+import 'package:clavis/src/repositories/auth_repository.dart';
+import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/util/logger.dart';
 import 'package:clavis/util/preferences.dart';
 import 'package:clavis/widgets/home.dart';
@@ -11,21 +14,35 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:clavis/blocs/auth_bloc.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 
 void main() {
   runApp(
-    MultiBlocProvider(
+    MultiRepositoryProvider(
       providers: [
-        BlocProvider(create: (_) => AuthBloc()),
-        BlocProvider(create: (_) => PageBloc()),
-        BlocProvider(create: (_) => DownloadBloc()),
-        BlocProvider(create: (_) => SettingsBloc()),
-        BlocProvider(create: (_) => SearchBloc()),
-        BlocProvider(create: (_) => ErrorBloc()),
+        RepositoryProvider(
+          create: (_) => AuthRepository(),
+          dispose: (repo) => repo.dispose(),
+        ),
+        RepositoryProvider(create: (_) => UserRepository()),
       ],
-      child: Clavis(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create:
+                (ctx) => AuthBloc(
+                  authRepo: ctx.read<AuthRepository>(),
+                  userRepo: ctx.read<UserRepository>(),
+                )..add(AuthSubscriptionRequested()),
+          ),
+          BlocProvider(create: (_) => PageBloc()),
+          BlocProvider(create: (_) => SettingsBloc()),
+          BlocProvider(create: (_) => SearchBloc()),
+          BlocProvider(create: (_) => ErrorBloc()),
+          BlocProvider(create: (_) => DownloadBloc()),
+        ],
+        child: Clavis(),
+      ),
     ),
   );
 }
@@ -36,8 +53,6 @@ class Clavis extends StatelessWidget {
   Future<Widget> _initApp(BuildContext context) async {
     await Log.initLog();
     log.i("Starting application");
-    final settings = await Preferences.getAppSettings();
-    final authState = await AuthBloc.initialize();
 
     if (context.mounted) {
       log.i("Setting global states");
