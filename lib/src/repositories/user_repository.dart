@@ -5,11 +5,13 @@ import 'package:gamevault_client_sdk/api.dart';
 
 class UserRepository {
   final _userMeController = StreamController<GamevaultUser?>();
-  final _usersController = StreamController<List<GamevaultUser?>>();
+  final _usersController = StreamController<List<GamevaultUser>?>();
 
   Stream<GamevaultUser?> get userMe async* {
     yield* _userMeController.stream;
-    
+  }
+  Stream<List<GamevaultUser>?> get users async* {
+    yield* _usersController.stream;
   }
 
   Future<void> reloadUsers(ApiClient api) async {

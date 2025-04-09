@@ -5,6 +5,7 @@ import 'package:clavis/blocs/page_bloc.dart';
 import 'package:clavis/blocs/search_bloc.dart';
 import 'package:clavis/blocs/settings_bloc.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
+import 'package:clavis/src/blocs/user_me_bloc.dart';
 import 'package:clavis/src/repositories/auth_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/util/logger.dart';
@@ -30,18 +31,27 @@ void main() {
         providers: [
           BlocProvider(
             create:
-                (ctx) => AuthBloc(
-                  authRepo: ctx.read<AuthRepository>(),
-                  userRepo: ctx.read<UserRepository>(),
-                )..add(AuthSubscriptionRequested()),
+                (ctx) =>
+                    AuthBloc(ctx.read<AuthRepository>())
+                      ..add(AuthSubscriptionRequested()),
           ),
           BlocProvider(create: (_) => PageBloc()),
           BlocProvider(create: (_) => SettingsBloc()),
           BlocProvider(create: (_) => SearchBloc()),
           BlocProvider(create: (_) => ErrorBloc()),
           BlocProvider(create: (_) => DownloadBloc()),
+          BlocProvider(
+            create:
+                (ctx) =>
+                    UserMeBloc(ctx.read<UserRepository>(), ctx.read<AuthRepository>())
+                      ..add(UserMeSubscribe()),
+          ),
         ],
-        child: Clavis(),
+        child: MultiBlocProvider(
+          providers: [
+          ],
+          child: Clavis(),
+        ),
       ),
     ),
   );

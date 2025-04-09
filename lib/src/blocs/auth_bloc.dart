@@ -25,7 +25,7 @@ class Authenticated extends AuthState {
 }
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc({required AuthRepository authRepo})
+  AuthBloc(AuthRepository authRepo)
     : _authRepo = authRepo,
       super(Unknown()) {
     on<AuthSubscriptionRequested>(_onAuthSubscription);
