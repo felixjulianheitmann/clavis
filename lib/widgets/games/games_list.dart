@@ -1,4 +1,4 @@
-import 'package:clavis/util/preferences.dart';
+import 'package:clavis/src/repositories/pref_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/widgets/games/game_card.dart';

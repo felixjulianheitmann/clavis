@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:clavis/model/credentials.dart';
-import 'package:clavis/util/credential_store.dart';
 import 'package:clavis/util/logger.dart';
-import 'package:clavis/util/preferences.dart';
+import 'package:clavis/src/repositories/pref_repository.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
@@ -16,14 +14,12 @@ class AuthRepository {
     yield* _controller.stream;
   }
 
-  Future<void> checkAuth() async {
-    final host = await SettingsRepository.getHostname();
-    final creds = await CredentialStore.read();
-    if (host == null || creds == null) {
+  Future<void> checkAuth(String? host, Credentials creds) async {
+    if (host == null || creds.user == null || creds.pass == null) {
       return _controller.add((AuthStatus.unauthenticated, null));
     }
 
-    final auth = HttpBasicAuth(password: creds.pass, username: creds.user);
+    final auth = HttpBasicAuth(password: creds.pass!, username: creds.user!);
     final api = ApiClient(basePath: host, authentication: auth);
     if (await UserApi(api).getUsersMe() == null) {
       _controller.add((AuthStatus.unauthenticated, null));
@@ -46,8 +42,6 @@ class AuthRepository {
         return;
       }
 
-      await SettingsRepository.setHostname(host);
-      await CredentialStore.write(Credentials(user: user, pass: pass));
       _controller.add((AuthStatus.authenticated, api));
     } catch (e) {
       log.e("authentication failed - querying user info failed", error: e);
@@ -57,7 +51,6 @@ class AuthRepository {
   }
 
   Future<void> logout() async {
-    await CredentialStore.remove();
     _controller.add((AuthStatus.unauthenticated, null));
   }
 

@@ -3,13 +3,13 @@ import 'package:clavis/blocs/download_bloc.dart';
 import 'package:clavis/blocs/error_bloc.dart';
 import 'package:clavis/blocs/page_bloc.dart';
 import 'package:clavis/blocs/search_bloc.dart';
-import 'package:clavis/blocs/settings_bloc.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
+import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/blocs/user_me_bloc.dart';
 import 'package:clavis/src/repositories/auth_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/util/logger.dart';
-import 'package:clavis/util/preferences.dart';
+import 'package:clavis/src/repositories/pref_repository.dart';
 import 'package:clavis/widgets/home.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +26,7 @@ void main() {
           dispose: (repo) => repo.dispose(),
         ),
         RepositoryProvider(create: (_) => UserRepository()),
+        RepositoryProvider(create: (_) => PrefRepo()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -35,8 +36,11 @@ void main() {
                     AuthBloc(ctx.read<AuthRepository>())
                       ..add(AuthSubscriptionRequested()),
           ),
+          BlocProvider(
+            create:
+                (ctx) => PrefBloc(ctx.read<PrefRepo>())..add(PrefSubscribe()),
+          ),
           BlocProvider(create: (_) => PageBloc()),
-          BlocProvider(create: (_) => SettingsBloc()),
           BlocProvider(create: (_) => SearchBloc()),
           BlocProvider(create: (_) => ErrorBloc()),
           BlocProvider(create: (_) => DownloadBloc()),
@@ -61,34 +65,18 @@ class Clavis extends StatelessWidget {
   const Clavis({super.key});
 
   Future<Widget> _initApp(BuildContext context) async {
-    await Log.initLog();
+    final opts = context.select((PrefBloc p) => p.state.prefs.logOpts);
+    Log.initLog(opts);
     log.i("Starting application");
 
-    if (context.mounted) {
-      log.i("Setting global states");
-      context.read<SettingsBloc>().add(
-        SettingsChangedEvent(settings: settings),
-      );
-      log.i(
-        "Valid authentication credentials available: ${authState is AuthSuccessState}",
-      );
-      context.read<AuthBloc>().add(AuthChangedEvent(state: authState));
-      if (authState is AuthSuccessState) {
-        context.read<DownloadBloc>().add(
-          DownloadAuthReceivedEvent(authState.api),
-        );
-      }
-    }
-
-    log.i("initialization finished");
     return ClavisHome();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.select((SettingsBloc s) {
-      if (s.state is SettingsLoadedState) {
-        return (s.state as SettingsLoadedState).settings.theme;
+    final theme = context.select((PrefBloc pref) {
+      if (pref.state.status == Status.ready) {
+        return pref.state.prefs.theme;
       }
       return ThemeMode.system;
     });

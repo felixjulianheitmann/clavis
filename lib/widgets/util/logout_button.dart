@@ -1,5 +1,5 @@
 import 'package:clavis/blocs/auth_bloc.dart';
-import 'package:clavis/util/credential_store.dart';
+import 'package:clavis/src/repositories/credential_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:clavis/util/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -36,8 +35,7 @@ class Log extends Logger {
     return FileOutput(file: File(outFile));
   }
 
-  static Future<void> initLog() async {
-    final opts = await Preferences.getLogOpts();
+  static void initLog(LogOpts opts) {
     Log.instance = Log(opts);
   }
 
