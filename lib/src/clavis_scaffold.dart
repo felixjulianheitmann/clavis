@@ -1,5 +1,6 @@
 import 'package:clavis/src/blocs/error_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
+import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/constants.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/util/app_title.dart';
@@ -27,7 +28,9 @@ class ClavisScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final String? title;
 
-  Widget _getBody(PageInfo activePage) {
+  Widget _getBody(PageInfo activePage, bool isReady) {
+    if (!isReady) return Center(child: CircularProgressIndicator());
+
     if (activePage.id == Constants.usersPageInfo().id) {
       return UsersPage();
     } else if (activePage.id == Constants.settingsPageInfo().id) {
@@ -54,6 +57,11 @@ class ClavisScaffold extends StatelessWidget {
       return LoginPage();
     }
 
+    final userMeLoaded = context.select((UserMeBloc u) => u.state is Ready);
+    if (!userMeLoaded) {
+      context.read<UserMeBloc>().add(Reload(api: authState.api));
+    }
+
     return BlocBuilder<PageBloc, PageState>(
       builder: (context, state) {
         final scaffold = Scaffold(
@@ -65,7 +73,7 @@ class ClavisScaffold extends StatelessWidget {
                   )
                   : null,
           drawer: showDrawer ? SidebarDrawer() : null,
-          body: body ?? _getBody(state.activePage),
+          body: body ?? _getBody(state.activePage, userMeLoaded),
         );
         if (state.activePage.blocs.isEmpty) {
           return scaffold;

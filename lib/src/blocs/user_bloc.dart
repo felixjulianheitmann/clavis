@@ -6,7 +6,10 @@ import 'package:gamevault_client_sdk/api.dart';
 sealed class UserEvent {}
 
 final class Subscribe extends UserEvent {}
-
+final class Reload extends UserEvent {
+  Reload({required this.api});
+  final ApiClient api;
+}
 final class Delete extends UserEvent {
   Delete({required this.api});
   final ApiClient api;
@@ -51,6 +54,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         onData: (user) => emit(Ready(user: user)),
       );
     });
+    on<Reload>((event, emit) => _userRepo.getUser(event.api, id));
     on<Delete>((event, emit) => _userRepo.deleteUser(event.api, id));
     on<Deactivate>((event, emit) => _userRepo.deactivateUser(event.api, id));
     on<UploadAvatar>((event, emit) => _userRepo.uploadAvatar(event.api, id, event.fileStream, event.file));
@@ -70,6 +74,7 @@ class UserMeBloc extends Bloc<UserEvent, UserState> {
         onData: (user) => emit(Ready(user: user)),
       );
     });
+    on<Reload>((event, emit) => _userRepo.getUserMe(event.api));
   }
 
   final UserRepository _userRepo;

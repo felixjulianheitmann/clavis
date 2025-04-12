@@ -55,25 +55,7 @@ class SidebarDrawer extends StatelessWidget {
             onTap: () => _setPage(context, Constants.gamesPageInfo()),
           ),
           Spacer(),
-          Divider(),
-          Text(translate.drawer_admin_area),
-          BlocBuilder<UserMeBloc, UserState>(
-            builder: (context, state) {
-              // admin access
-              final isAdmin =
-                  state is Ready &&
-                  state.user.user.role == GamevaultUserRoleEnum.n3;
-
-              return Visibility(
-                visible: isAdmin,
-                child: ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text(translate.users_title),
-                  onTap: () => _setPage(context, Constants.usersPageInfo()),
-                ),
-              );
-            },
-          ),
+          _AdminArea(),
           Divider(),
           _UserMeTile(),
           ListTile(
@@ -83,6 +65,36 @@ class SidebarDrawer extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AdminArea extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserMeBloc, UserState>(
+      builder: (context, state) {
+        final translate = AppLocalizations.of(context)!;
+        
+        // admin access
+        final isAdmin =
+            state is Ready && state.user.user.role == GamevaultUserRoleEnum.n3;
+
+        return Visibility(
+          visible: isAdmin,
+          child: Column(
+            children: [
+              Divider(),
+              Text(translate.drawer_admin_area),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text(translate.users_title),
+                onTap: () => _setPage(context, Constants.usersPageInfo()),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
