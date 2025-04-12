@@ -376,6 +376,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add User'**
   String get action_add_user;
+
+  /// No description provided for @action_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get action_cancel;
+
+  /// No description provided for @action_continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get action_continue;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

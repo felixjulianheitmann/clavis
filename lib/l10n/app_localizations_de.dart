@@ -158,4 +158,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_add_user => 'Add User';
+
+  @override
+  String get action_cancel => 'Cancel';
+
+  @override
+  String get action_continue => 'Continue';
 }

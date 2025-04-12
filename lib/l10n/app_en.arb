@@ -48,5 +48,7 @@
     "action_deactivate": "Deactivate",
     "action_delete": "Delete",
     "action_upload_avatar": "Upload Avatar",
-    "action_add_user": "Add User"
+    "action_add_user": "Add User",
+    "action_cancel": "Cancel",
+    "action_continue": "Continue"
 }
