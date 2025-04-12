@@ -164,4 +164,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_continue => 'Continue';
+
+  @override
+  String get action_signup => 'Signup';
+
+  @override
+  String get action_register => 'Register';
 }

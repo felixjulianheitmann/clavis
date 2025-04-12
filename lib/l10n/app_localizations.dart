@@ -388,6 +388,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get action_continue;
+
+  /// No description provided for @action_signup.
+  ///
+  /// In en, this message translates to:
+  /// **'Signup'**
+  String get action_signup;
+
+  /// No description provided for @action_register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get action_register;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

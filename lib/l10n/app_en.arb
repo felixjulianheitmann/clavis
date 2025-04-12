@@ -50,5 +50,7 @@
     "action_upload_avatar": "Upload Avatar",
     "action_add_user": "Add User",
     "action_cancel": "Cancel",
-    "action_continue": "Continue"
+    "action_continue": "Continue",
+    "action_signup": "Signup",
+    "action_register": "Register"
 }

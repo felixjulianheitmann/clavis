@@ -34,8 +34,6 @@ class DetailPage extends StatelessWidget {
               return Center(child: CircularProgressIndicator());
             }
 
-
-
             final user = userState.user;
 
             return Column(
@@ -44,7 +42,7 @@ class DetailPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [EditableAvatar(user: user)],
                 ),
-                UserForm(user: user.user),
+                UserForm(type: UserFormType.editExisting),
               ],
             );
           },
