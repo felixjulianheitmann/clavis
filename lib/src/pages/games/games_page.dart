@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:clavis/src/blocs/search_bloc.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/games_list_bloc.dart';
@@ -52,10 +54,7 @@ class GamesPanel extends StatelessWidget {
 
     return Column(
       children: [
-        _LetterScroller(
-          onPressed:
-              (c) => context.read<SearchBloc>().add(LetterChanged(letter: c)),
-        ),
+        _LetterScroller(),
         GamesList(games: filtered),
       ],
     );
@@ -63,10 +62,8 @@ class GamesPanel extends StatelessWidget {
 }
 
 class _LetterScroller extends StatefulWidget {
-  const _LetterScroller({required this.onPressed});
-  final void Function(int? c) onPressed;
-
-  static const letterSize = 48.0;
+  static const letterSizeMin = 24.0;
+  static const letterSizeMax = 40.0;
 
   @override
   State<_LetterScroller> createState() => __LetterScrollerState();
@@ -81,29 +78,39 @@ class __LetterScrollerState extends State<_LetterScroller> {
     final active = !_toggleStates[idx];
     setState(() {
       _toggleStates = List<bool>.filled(_letters.length, false);
-      _toggleStates[idx] = !active;
+      _toggleStates[idx] = active;
     });
 
-    if (active) {
+    final int? letter;
+    if (!active) {
       // letters are all untoggled
-      widget.onPressed(null);
+      letter = null;
     } else {
       // search for specific letter
-      widget.onPressed(_letters.runes.elementAt(idx));
+      letter = _letters.runes.elementAt(idx);
     }
+    context.read<SearchBloc>().add(LetterChanged(letter: letter));
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final buttonWidth = clampDouble(
+      screenWidth / _letters.length * 0.95,
+      _LetterScroller.letterSizeMin,
+      _LetterScroller.letterSizeMax,
+    );
+
     final List<Widget> letterToggles =
-        _letters.runes.map((c) => Text(String.fromCharCode(c))).toList();
+        _letters.runes.map((c) {
+          return Text(String.fromCharCode(c));
+        }).toList();
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: ToggleButtons(
+        constraints: BoxConstraints.tight(Size.square(buttonWidth)),
         isSelected: _toggleStates,
-        constraints: BoxConstraints.tight(
-          Size.square(_LetterScroller.letterSize),
-        ),
         onPressed: _onPressed,
         children: letterToggles,
       ),

@@ -38,7 +38,7 @@ class SearchBloc extends Bloc<GameFilterEvent, GameFilterState> {
     on<Closed>((event, emit) => emit(state.copyWith(open: false, content: '')));
     on<TextChanged>((event, emit) => emit(state.copyWith(content: event.text)));
     on<LetterChanged>(
-      (event, emit) => emit(state.copyWith(letter: state.letter)),
+      (event, emit) => emit(state.copyWith(letter: event.letter)),
     );
   }
 
@@ -48,7 +48,9 @@ class SearchBloc extends Bloc<GameFilterEvent, GameFilterState> {
   }
 
   GamevaultGames filter(GamevaultGames games) {
-    if (!state.open || state.content.isEmpty) return games;
+    bool searchBarInvalid = !state.open || state.content.isEmpty;
+    bool letterFilterInactive = state.letter == null;
+    if (searchBarInvalid && letterFilterInactive) return games;
 
     // filter by searchbar
     final searchFiltered =
