@@ -1,13 +1,10 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:clavis/blocs/download_bloc.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/hoverable.dart';
-import 'package:clavis/src/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/src/clavis_scaffold.dart';
@@ -25,20 +22,20 @@ class GamePage extends StatelessWidget {
     var actions = <Widget>[];
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       actions += [
-        BlocBuilder<DownloadBloc, DownloadState>(
-          builder: (context, state) {
-            return IconButton(
-              icon: Icon(Icons.download),
-              onPressed: () {
-                if (state is DownloadReadyState) {
-                  context.read<DownloadBloc>().add(
-                    DownloadsQueuedEvent(ids: [game.id as int]),
-                  );
-                }
-              },
-            );
-          },
-        ),
+        // BlocBuilder<DownloadBloc, DownloadState>(
+        //   builder: (context, state) {
+        //     return IconButton(
+        //       icon: Icon(Icons.download),
+        //       onPressed: () {
+        //         if (state is DownloadReadyState) {
+        //           context.read<DownloadBloc>().add(
+        //             DownloadsQueuedEvent(ids: [game.id as int]),
+        //           );
+        //         }
+        //       },
+        //     );
+        //   },
+        // ),
       ];
     }
     return ClavisScaffold(
@@ -309,61 +306,38 @@ class _GameDownloadButton extends StatelessWidget {
   final double _downloadSize;
   final AppLocalizations translate;
 
-  void _triggerDownload(BuildContext context) {
-    // try and trigger a direct browser download
-    if (kIsWeb) {
-      log.e("file download not yet supported on web");
-      throw Error();
-    } else {
-      // use the download queuing mechanism
-      context.read<DownloadBloc>().add(
-        DownloadsQueuedEvent(ids: [game.id as int]),
-      );
-    }
-  }
+  // void _triggerDownload(BuildContext context) {
+  //   // try and trigger a direct browser download
+  //   if (kIsWeb) {
+  //     log.e("file download not yet supported on web");
+  //     throw Error();
+  //   } else {
+  //     // use the download queuing mechanism
+  //     context.read<DownloadBloc>().add(
+  //       DownloadsQueuedEvent(ids: [game.id as int]),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DownloadBloc, DownloadState>(
-      builder: (context, state) {
-        IconButton actionButton;
-        Widget label;
-        if (state is DownloadActiveState) {
-          actionButton = IconButton(
-            icon: Icon(Icons.cancel),
-            onPressed: () {
-              context.read<DownloadBloc>().add(DownloadCancelEvent());
-            },
-            iconSize: _downloadSize,
-            color: Colors.white,
-          );
-          label = CircularProgressIndicator(
-            color: Colors.white,
-            value: state.progress.bytesRead / state.progress.bytesTotal,
-          );
-        } else if (state is DownloadReadyState) {
-          actionButton = IconButton(
-            icon: Icon(Icons.download),
-            onPressed: () => _triggerDownload(context),
-            iconSize: _downloadSize,
-            color: Colors.white,
-          );
-          label = _GameSizeText(game: game, translate: translate);
-        } else {
-          return const SizedBox.shrink();
-        }
+    final actionButton = IconButton(
+      icon: Icon(Icons.download),
+      onPressed: null,
+      iconSize: _downloadSize,
+      color: Colors.white,
+    );
+    final label = _GameSizeText(game: game, translate: translate);
 
-        return Card(
-          color: Theme.of(context).canvasColor.withAlpha(127),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [actionButton, label],
-            ),
-          ),
-        );
-      },
+    return Card(
+      color: Theme.of(context).canvasColor.withAlpha(127),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [actionButton, label],
+        ),
+      ),
     );
   }
 }

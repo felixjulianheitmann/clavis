@@ -1,5 +1,4 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:clavis/blocs/download_bloc.dart';
 import 'package:clavis/src/blocs/error_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/search_bloc.dart';
@@ -47,7 +46,6 @@ void main() {
           BlocProvider(create: (_) => PageBloc()),
           BlocProvider(create: (_) => SearchBloc()),
           BlocProvider(create: (_) => ErrorBloc()),
-          BlocProvider(create: (_) => DownloadBloc()),
           BlocProvider(
             create: (ctx) {
               return UserMeBloc(ctx.read<UserRepository>())..add(Subscribe());
