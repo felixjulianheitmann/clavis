@@ -43,6 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   final AuthRepository _authRepo;
   final PrefRepo _prefRepo;
+  Timer? _authCheckTimer;
 
   Future<void> _onAuthSubscription(
     AuthSubscriptionRequested event,
@@ -67,6 +68,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // check if the user is already authenticated and set the initial state
     await _authRepo.checkAuth(creds);
 
+    void startNewAuthCheckTimer() {
+      if (_authCheckTimer != null) _authCheckTimer!.cancel();
+      _authCheckTimer = Timer.periodic(
+        _authCheckInterval,
+        (_) async => await _authRepo.checkAuth(creds),
+      );
+    }
+
     await emit.onEach(
       _authRepo.status,
       onData: (status) async {
@@ -76,11 +85,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           case AuthStatus.unauthenticated:
             return emit(Unauthenticated());
           case AuthStatus.authenticated:
-            Timer.periodic(
-              _authCheckInterval,
-              (_) async =>
-                  await _authRepo.checkAuth(creds),
-            );
+            startNewAuthCheckTimer();
             return emit(Authenticated(api: status.$2!));
         }
       },
@@ -101,4 +106,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     _authRepo.logout();
   }
+
 }
