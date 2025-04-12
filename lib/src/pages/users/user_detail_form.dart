@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:clavis/l10n/app_localizations.dart';
+import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,11 @@ String? Function(String?) _validateMail(AppLocalizations translate) {
 }
 
 class _UserFormState extends State<UserForm> {
+  Edited _userSubmit(String input, BuildContext context, ApiClient api) {
+    context.read<PrefBloc>().add(SetUsername(username: input));
+    return Edited(api: api, username: input);
+  }
+  
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
@@ -47,7 +53,7 @@ class _UserFormState extends State<UserForm> {
     
     final usernameField = TextEdit(
       label: translate.page_user_details_username,
-      submitter: (v) => Edited(api: api, username: v),
+      submitter: (v) => _userSubmit(v, context, api),
       valueGetter: (user) => user.username,
       validator: _forbidEmpty(translate),
     );

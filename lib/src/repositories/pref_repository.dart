@@ -144,6 +144,13 @@ class PrefRepo {
     await store.write(key: _keyPassword, value: creds.pass);
   }
 
+  Future<void> writeUsername(String username) async {
+    final store = FlutterSecureStorage();
+    _creds.update(user: username);
+    _credCtrl.add(_creds);
+    await store.write(key: _keyUsername, value: username);
+  }
+
   Future<void> remove() async {
     final store = FlutterSecureStorage();
     _creds.clear();

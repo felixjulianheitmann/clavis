@@ -20,6 +20,11 @@ final class SetLaunchOnBoot extends PrefEvent {
   final bool launchOnBoot;
 }
 
+final class SetUsername extends PrefEvent {
+  SetUsername({required this.username});
+  final String username;
+}
+
 enum Status { loading, ready }
 class PrefState {
   PrefState({required Preferences preferences, this.status = Status.loading }) : _prefs = preferences;
@@ -42,6 +47,7 @@ class PrefBloc extends Bloc<PrefEvent, PrefState> {
     on<SetDownloadDir>((e, _) => _prefRepo.setDownloadDir(e.downloadDir));
     on<SetTheme>((e, _) => _prefRepo.setTheme(e.theme));
     on<SetLaunchOnBoot>((e, _) => _prefRepo.setLaunchOnBoot(e.launchOnBoot));
+    on<SetUsername>((e, _) => _prefRepo.writeUsername(e.username));
   }
 
   Future<void> _onPrefSubscribe(

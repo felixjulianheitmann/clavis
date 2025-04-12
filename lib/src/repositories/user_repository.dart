@@ -176,6 +176,13 @@ class UserRepository {
       throw UserRepoException("user update returned with null");
     }
 
+    // username has been updated and will be needed for authentication
+    if (update.username != null) {
+      (api.authentication as HttpBasicAuth).username = update.username!;
+    }
+    if (update.password != null) {
+      (api.authentication as HttpBasicAuth).password = update.password!;
+    }
     await getUser(api, id); // reload user list
   }
 
