@@ -148,6 +148,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get validation_invalid_mail => 'Invalid E-Mail Format';
 
   @override
+  String get validation_invalid_name => 'Field may only contain the letters a-zA-Z';
+
+  @override
   String get action_deactivate => 'Deactivate';
 
   @override

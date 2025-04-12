@@ -353,6 +353,12 @@ abstract class AppLocalizations {
   /// **'Invalid E-Mail Format'**
   String get validation_invalid_mail;
 
+  /// No description provided for @validation_invalid_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Field may only contain the letters a-zA-Z'**
+  String get validation_invalid_name;
+
   /// No description provided for @action_deactivate.
   ///
   /// In en, this message translates to:

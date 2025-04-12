@@ -11,37 +11,23 @@ import 'package:gamevault_client_sdk/api.dart';
 
 enum UserFormType { addNew, editExisting }
 
+typedef ValidateFunc = bool Function();
+typedef ActionButtonBuilderFunc = Widget Function(BuildContext, ValidateFunc);
+
 class UserForm extends StatefulWidget {
-  const UserForm({super.key, required this.type});
+  const UserForm({super.key, required this.type, this.actionButtonBuilder});
 
   final UserFormType type;
+  final ActionButtonBuilderFunc? actionButtonBuilder;
 
   @override
   State<UserForm> createState() => _UserFormState();
 }
 
-String? Function(String?) _forbidEmpty(AppLocalizations translate) {
-  return (String? text) {
-    if (text == null || text.isEmpty) {
-      return translate.validation_error_field_empty;
-    }
-    return null;
-  };
-}
-
-String? Function(String?) _validateMail(AppLocalizations translate) {
-  return (String? text) {
-    final emptyErr = _forbidEmpty(translate)(text);
-    if (emptyErr != null) return emptyErr;
-
-    if (!EmailValidator.validate(text!)) {
-      return translate.validation_invalid_mail;
-    }
-    return null;
-  };
-}
 
 class _UserFormState extends State<UserForm> {
+  final _formKey = GlobalKey<FormState>();
+
   Edited _userSubmit(String input, BuildContext context, ApiClient api) {
     context.read<PrefBloc>().add(SetUsername(username: input));
     return Edited(api: api, username: input);
@@ -71,33 +57,37 @@ class _UserFormState extends State<UserForm> {
     }
 
     final usernameField = TextEdit(
+      formKey: _formKey,
       label: translate.page_user_details_username,
       remoteValue: remoteUsername,
       type: widget.type,
       submitter: (v) => _userSubmit(v, context, api),
       valueGetter: (user) => user.username,
-      validator: _forbidEmpty(translate),
+      validator: _validateName(translate),
     );
 
     final firstnameField = TextEdit(
+      formKey: _formKey,
       label: translate.page_user_details_firstname,
       remoteValue: remoteFirstName,
       type: widget.type,
       submitter: (v) => Edited(api: api, firstName: v),
       valueGetter: (user) => user.firstName,
-      validator: _forbidEmpty(translate),
+      validator: _validateName(translate),
     );
 
     final lastnameField = TextEdit(
+      formKey: _formKey,
       label: translate.page_user_details_lastname,
       remoteValue: remoteLastName,
       type: widget.type,
       submitter: (v) => Edited(api: api, lastName: v),
       valueGetter: (user) => user.lastName,
-      validator: _forbidEmpty(translate),
+      validator: _validateName(translate),
     );
 
     final emailField = TextEdit(
+      formKey: _formKey,
       label: translate.page_user_details_email,
       remoteValue: remoteEmail,
       type: widget.type,
@@ -106,18 +96,26 @@ class _UserFormState extends State<UserForm> {
       validator: _validateMail(translate),
     );
 
+    bool validate() => _formKey.currentState!.validate();
+
     return SizedBox(
       width: min(MediaQuery.of(context).size.width, 400),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Column(
-            children: [
-              usernameField,
-              firstnameField,
-              lastnameField,
-              emailField,
-            ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                usernameField,
+                firstnameField,
+                lastnameField,
+                emailField,
+                widget.actionButtonBuilder != null
+                    ? widget.actionButtonBuilder!(context, validate)
+                    : const SizedBox.shrink(),
+              ],
+            ),
           ),
         ),
       ),
@@ -128,6 +126,7 @@ class _UserFormState extends State<UserForm> {
 class TextEdit extends StatefulWidget {
   const TextEdit({
     super.key,
+    required this.formKey,
     required this.label,
     required this.remoteValue,
     required this.type,
@@ -136,6 +135,7 @@ class TextEdit extends StatefulWidget {
     this.validator,
   });
 
+  final GlobalKey<FormState> formKey;
   final String label;
   final String? remoteValue;
   final UserFormType type;
@@ -149,7 +149,6 @@ class TextEdit extends StatefulWidget {
 
 class _TextEditState extends State<TextEdit> {
   final _ctrl = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   bool _isModified = false;
 
   @override
@@ -169,24 +168,21 @@ class _TextEditState extends State<TextEdit> {
     void Function(String)? onFieldSubmitted;
     if (widget.type == UserFormType.editExisting) {
       onFieldSubmitted = (v) {
-        if (_formKey.currentState!.validate()) {
+        if (widget.formKey.currentState!.validate()) {
           final userUpdate = widget.submitter(v);
           context.read<UserBloc>().add(userUpdate);
         }
       };
     }
 
-    final form = Form(
-      key: _formKey,
-      child: TextFormField(
-        validator: widget.validator,
-        controller: _ctrl,
-        onChanged: onChanged,
-        onFieldSubmitted: onFieldSubmitted,
-        decoration: InputDecoration(
-          labelText: widget.label,
-          suffixIcon: _isModified ? Icon(Icons.pending) : null,
-        ),
+    final field = TextFormField(
+      validator: widget.validator,
+      controller: _ctrl,
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        suffixIcon: _isModified ? Icon(Icons.pending) : null,
       ),
     );
 
@@ -201,11 +197,49 @@ class _TextEditState extends State<TextEdit> {
             });
           }
         },
-        child: form,
+        child: field,
       );
     } else {
-      return form;
+      return field;
     }
   }
+}
 
+/// Form validator functions
+
+String? Function(String?) _forbidEmpty(AppLocalizations translate) {
+  return (String? text) {
+    if (text == null || text.isEmpty) {
+      return translate.validation_error_field_empty;
+    }
+    return null;
+  };
+}
+
+const legalChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+String? Function(String?) _validateName(AppLocalizations translate) {
+  return (String? text) {
+    final emptyErr = _forbidEmpty(translate)(text);
+    if (emptyErr != null) return emptyErr;
+
+    final containsIllegalChars = text!.runes.any((c) {
+      return !legalChars.contains(String.fromCharCode(c));
+    });
+    if (containsIllegalChars) return translate.validation_invalid_name;
+
+    return null;
+  };
+}
+
+String? Function(String?) _validateMail(AppLocalizations translate) {
+  return (String? text) {
+    final emptyErr = _forbidEmpty(translate)(text);
+    if (emptyErr != null) return emptyErr;
+
+    if (!EmailValidator.validate(text!)) {
+      return translate.validation_invalid_mail;
+    }
+    return null;
+  };
 }

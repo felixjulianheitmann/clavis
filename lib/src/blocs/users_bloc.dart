@@ -10,6 +10,11 @@ final class Reload extends UsersEvent {
   Reload({required this.api});
   ApiClient api;
 }
+final class Add extends UsersEvent {
+  Add({required this.api, required this.user});
+  ApiClient api;
+  GamevaultUser user;
+}
 
 class UsersState {}
 
