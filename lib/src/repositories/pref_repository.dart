@@ -59,8 +59,8 @@ class Preferences {
 }
 
 class PrefRepo {
-  final _prefCtrl = StreamController<Preferences>();
-  final _credCtrl = StreamController<Credentials>();
+  final _prefCtrl = StreamController<Preferences>.broadcast();
+  final _credCtrl = StreamController<Credentials>.broadcast();
   final Preferences _prefs = Preferences();
   final Credentials _creds = Credentials.empty();
 

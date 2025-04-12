@@ -9,7 +9,10 @@ class GamesListState {
 
 sealed class GamesListEvent {}
 final class Subscribe extends GamesListEvent {}
-final class Update extends GamesListEvent {}
+final class Reload extends GamesListEvent {
+  Reload({required this.api});
+  final ApiClient api;
+}
 
 class GamesListBloc extends Bloc<GamesListEvent, GamesListState> {
   final GameRepository _gameRepo;
@@ -20,6 +23,7 @@ class GamesListBloc extends Bloc<GamesListEvent, GamesListState> {
   _gameRepo = gameRepo,
   super(GamesListState()) {
     on<Subscribe>(_onSubscribe);
+    on<Reload>((event, _) => _gameRepo.getGames(event.api));
   }
 
   Future<void> _onSubscribe(Subscribe state, Emitter<GamesListState> emit) async {
@@ -30,5 +34,7 @@ class GamesListBloc extends Bloc<GamesListEvent, GamesListState> {
     },);
 
   }
+
+
 
 }

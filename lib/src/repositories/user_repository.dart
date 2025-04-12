@@ -28,8 +28,8 @@ typedef UserBundles = List<UserBundle>;
 class UserRepository {
   UserBundle? _userMe;
   UserBundles? _users;
-  final _userMeController = StreamController<UserBundle>();
-  final _usersController = StreamController<List<UserBundle>>();
+  final _userMeController = StreamController<UserBundle>.broadcast();
+  final _usersController = StreamController<List<UserBundle>>.broadcast();
 
   UserRepository() {
     Future(() async {
@@ -53,6 +53,7 @@ class UserRepository {
     if (_users != null) yield _users!;
     yield* _usersController.stream;
   }
+
   Stream<UserBundle> user(num id) async* {
     if (_users != null) {
       final user = _users!.firstWhereOrNull((u) => u.user.id == id);

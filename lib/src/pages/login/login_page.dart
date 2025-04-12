@@ -1,6 +1,10 @@
+import 'package:clavis/src/blocs/login_form_bloc.dart';
 import 'package:clavis/src/pages/login/login_form.dart';
+import 'package:clavis/src/repositories/auth_repository.dart';
+import 'package:clavis/src/repositories/pref_repository.dart';
 import 'package:clavis/src/util/app_title.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Login page that is displayed whenever authentication couldn't be performed
 class LoginPage extends StatelessWidget {
@@ -11,14 +15,21 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Center(
-            child: LoginPanel(
-              errorMessage: errorMessage,
-              loginFormWidth: loginFormWidth,
+    return BlocProvider(
+      create:
+          (ctx) => LoginFormBloc(
+            prefRepo: ctx.read<PrefRepo>(),
+            authRepo: ctx.read<AuthRepository>(),
+          ),
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: Center(
+              child: LoginPanel(
+                errorMessage: errorMessage,
+                loginFormWidth: loginFormWidth,
+              ),
             ),
           ),
         ),

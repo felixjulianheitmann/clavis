@@ -52,7 +52,7 @@ class PrefBloc extends Bloc<PrefEvent, PrefState> {
     await emit.onEach(
       _prefRepo.prefStream,
       onData: (preferences) {
-      emit(PrefState(preferences: preferences));
+        emit(PrefState(preferences: preferences, status: Status.ready));
     });
   }
 }

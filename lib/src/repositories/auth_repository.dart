@@ -14,7 +14,14 @@ class AuthRepoException implements Exception {
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
 class AuthRepository {
-  final _controller = StreamController<(AuthStatus, ApiClient?)>();
+  AuthRepository() {
+    Future(() async {
+      await for (final state in _controller.stream) {
+        _api = state.$2;
+      }
+    });
+  }
+  final _controller = StreamController<(AuthStatus, ApiClient?)>.broadcast();
   ApiClient? _api;
 
   Stream<(AuthStatus, ApiClient?)> get status async* {
@@ -36,6 +43,13 @@ class AuthRepository {
     final api = ApiClient(basePath: creds.host!, authentication: auth);
     if (await UserApi(api).getUsersMe() == null) {
       _controller.add((AuthStatus.unauthenticated, null));
+    } else {
+      // if this I was unauthenticated before, authenticate me
+      // don't always push to stream to not update the authentication state
+      // continuously
+      if (_api == null) {
+        _controller.add((AuthStatus.authenticated, api));
+      }
     }
   }
 

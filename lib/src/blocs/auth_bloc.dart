@@ -55,7 +55,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     await emit.onEach(
       _prefRepo.credStream,
-      onData: (creds) => emit(Unknown(creds)),
+      onData: (creds) => _doSubscription(event, emit, creds),
     );
   }
 

@@ -6,8 +6,8 @@ import 'package:gamevault_client_sdk/api.dart';
 
 class GameRepository {
   GameRepository()
-    : _gamesListCtrl = StreamController<GamevaultGames>(),
-      _activeGameCtrl = StreamController<GamevaultGame>() {
+    : _gamesListCtrl = StreamController<GamevaultGames>.broadcast(),
+      _activeGameCtrl = StreamController<GamevaultGame>.broadcast() {
     Future(() async {
       await for (final g in _activeGameCtrl.stream) {
         _activeGame = g;

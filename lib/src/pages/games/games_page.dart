@@ -12,20 +12,29 @@ class GamesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final creds = context.select((AuthBloc b) => b.state.creds);
-    if (creds == null) return Center(child: CircularProgressIndicator());
 
     return BlocProvider(
       create: (ctx) {
         return GamesListBloc(gameRepo: ctx.read<GameRepository>())
           ..add(Subscribe());
       },
-      child: BlocBuilder<GamesListBloc, GamesListState>(
+      child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          if (state.games == null) {
+          if (state is! Authenticated) {
             return Center(child: CircularProgressIndicator());
           }
-          return GamesPanel(games: state.games!);
+          final api = state.api;
+
+          return BlocBuilder<GamesListBloc, GamesListState>(
+            builder: (context, state) {
+              if (state.games == null) {
+                final gamesListBloc = context.read<GamesListBloc>();
+                Future(() => gamesListBloc.add(Reload(api: api)));
+                return Center(child: CircularProgressIndicator());
+              }
+              return GamesPanel(games: state.games!);
+            },
+          );
         },
       ),
     );
@@ -44,7 +53,8 @@ class GamesPanel extends StatelessWidget {
     return Column(
       children: [
         _LetterScroller(
-          onPressed: (c) => context.read<SearchBloc>().add(LetterChanged(letter: c)),
+          onPressed:
+              (c) => context.read<SearchBloc>().add(LetterChanged(letter: c)),
         ),
         GamesList(games: filtered),
       ],
