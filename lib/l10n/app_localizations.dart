@@ -370,6 +370,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload Avatar'**
   String get action_upload_avatar;
+
+  /// No description provided for @action_add_user.
+  ///
+  /// In en, this message translates to:
+  /// **'Add User'**
+  String get action_add_user;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

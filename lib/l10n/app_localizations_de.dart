@@ -155,4 +155,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get action_upload_avatar => 'Upload Avatar';
+
+  @override
+  String get action_add_user => 'Add User';
 }
