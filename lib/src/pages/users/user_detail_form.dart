@@ -12,7 +12,8 @@ import 'package:gamevault_client_sdk/api.dart';
 enum UserFormType { addNew, editExisting }
 
 typedef ValidateFunc = bool Function();
-typedef ActionButtonBuilderFunc = Widget Function(BuildContext, ValidateFunc);
+typedef ActionButtonBuilderFunc =
+    Widget Function(BuildContext context, ValidateFunc validateForm);
 
 class UserForm extends StatefulWidget {
   const UserForm({super.key, required this.type, this.actionButtonBuilder});

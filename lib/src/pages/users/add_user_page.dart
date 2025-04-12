@@ -19,11 +19,15 @@ class AddUserPage extends StatelessWidget {
       body = Center(
         child: Column(
           children: [
-            UserForm(type: UserFormType.addNew),
-            FilledButton(
-              style: ButtonStyle(),
-              onPressed: () {},
-              child: Text(translate.action_register),
+            UserForm(
+              type: UserFormType.addNew,
+              actionButtonBuilder: (context, validateForm) {
+                return FilledButton(
+                  style: ButtonStyle(),
+                  onPressed: () {},
+                  child: Text(translate.action_register),
+                );
+              },
             ),
           ],
         ),

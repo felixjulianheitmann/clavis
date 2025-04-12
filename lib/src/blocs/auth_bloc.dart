@@ -10,23 +10,22 @@ sealed class AuthEvent {}
 
 final class AuthSubscriptionRequested extends AuthEvent {}
 final class Logout extends AuthEvent {}
-
-class AuthState {
-  AuthState(this.creds);
-  Credentials? creds;
+final class Login extends AuthEvent {
+  Login({required this.creds});
+  final Credentials creds;
 }
 
-class Unknown extends AuthState {
-  Unknown(super.creds);
-}
+class AuthState {}
+
+class Unknown extends AuthState {}
 
 class Unauthenticated extends AuthState {
-  Unauthenticated({this.message, Credentials? creds}) : super(creds);
+  Unauthenticated({this.message}) : super();
   final String? message;
 }
 
 class Authenticated extends AuthState {
-  Authenticated({required this.api, Credentials? creds}) : super(creds);
+  Authenticated({required this.api}) : super();
   final ApiClient api;
 }
 
@@ -34,9 +33,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(AuthRepository authRepo, PrefRepo prefRepo)
     : _authRepo = authRepo,
       _prefRepo = prefRepo,
-      super(Unknown(prefRepo.creds)) {
+      super(Unknown()) {
     on<AuthSubscriptionRequested>(_onAuthSubscription);
     on<Logout>(_onLogout);
+    on<Login>(_onLogin);
   }
 
   static const _authCheckInterval = Duration(seconds: 10);
@@ -72,7 +72,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (_authCheckTimer != null) _authCheckTimer!.cancel();
       _authCheckTimer = Timer.periodic(
         _authCheckInterval,
-        (_) async => await _authRepo.checkAuth(creds),
+        (_) async {
+        await _authRepo.checkAuth(state.creds!);
+      },
       );
     }
 
@@ -81,7 +83,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       onData: (status) async {
         switch (status.$1) {
           case AuthStatus.unknown:
-            return emit(Unknown(creds));
+            return emit(Unknown());
           case AuthStatus.unauthenticated:
             return emit(Unauthenticated());
           case AuthStatus.authenticated:
@@ -106,6 +108,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     if (_authCheckTimer != null) _authCheckTimer!.cancel();
     _authRepo.logout();
+  }
+
+  Future<void> _onLogin(Login event, Emitter<AuthState> emit) async {
+    if (_authCheckTimer != null) _authCheckTimer!.cancel();
+    _authRepo.login(event.creds);
   }
 
 }

@@ -1,4 +1,5 @@
 import 'package:clavis/l10n/app_localizations.dart';
+import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/login_form_bloc.dart';
 import 'package:clavis/src/repositories/auth_repository.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
@@ -27,8 +28,8 @@ class LoginFormState extends State<LoginForm> {
     final user = _userEditCtrl.text;
     final pass = _passEditCtrl.text;
     if (context.mounted) {
-      context.read<LoginFormBloc>().add(
-        Submit(host: host, user: user, pass: pass),
+      context.read<AuthBloc>().add(
+        Login(creds: Credentials(host: host, user: user, pass: pass))
       );
     }
   }

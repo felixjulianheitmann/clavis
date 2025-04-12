@@ -25,10 +25,10 @@ class AuthRepository {
   ApiClient? _api;
 
   Stream<(AuthStatus, ApiClient?)> get status async* {
-    if (_api == null) {
-      yield (AuthStatus.unknown, null);
-    } else {
+    if (_api != null) {
       yield (AuthStatus.authenticated, _api);
+    } else {
+      yield (AuthStatus.unauthenticated, null);
     }
     yield* _controller.stream;
   }

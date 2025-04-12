@@ -13,29 +13,13 @@ class LoginFormBlocState {
 class LoginFormEvent {}
 class SubscribeSettings extends LoginFormEvent {}
 
-class Submit extends LoginFormEvent {
-  Submit({required this.host, required this.user, required this.pass});
-  final String host;
-  final String user;
-  final String pass;
-}
-
-class Failed extends LoginFormEvent {
-  Failed({this.message});
-  String? message;
-}
-
 class LoginFormBloc extends Bloc<LoginFormEvent, LoginFormBlocState> {
   final PrefRepo _prefRepo;
-  final AuthRepository _authRepo;
 
   LoginFormBloc({required PrefRepo prefRepo, required AuthRepository authRepo})
     : _prefRepo = prefRepo,
-      _authRepo = authRepo,
       super(LoginFormBlocState()) {
     on<SubscribeSettings>(_onSubscribe);
-    on<Submit>(_onSubmit);
-    on<Failed>(_onFailed);
   }
 
   Future<void> _onSubscribe(
@@ -64,13 +48,5 @@ class LoginFormBloc extends Bloc<LoginFormEvent, LoginFormBlocState> {
             ),
           ),
     );
-  }
-  Future<void> _onSubmit(Submit state, Emitter<LoginFormBlocState> emit) async {
-    _authRepo.login(
-      Credentials(host: state.host, user: state.user, pass: state.pass),
-    );
-  }
-  Future<void> _onFailed(Failed state, Emitter<LoginFormBlocState> emit) async {
-        
   }
 }
