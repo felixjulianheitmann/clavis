@@ -57,7 +57,7 @@ class SearchBloc extends Bloc<GameFilterEvent, GameFilterState> {
 
     // also filter by starting letter
     var letterSet = String.fromCharCode(state.letter!);
-    if (state.letter == '#') {
+    if (state.letter == '#'.codeUnits.first) {
       // search for all digits
       letterSet = '0123456789';
     }
