@@ -1,4 +1,5 @@
 import 'package:clavis/l10n/app_localizations.dart';
+import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/users_bloc.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/focusable.dart';
@@ -20,10 +21,19 @@ class UsersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
     return BlocProvider(
-      create: (ctx) => UsersBloc(ctx.read<UserRepository>()),
+      create: (ctx) => UsersBloc(ctx.read<UserRepository>())..add(Subscribe()),
       child: BlocBuilder<UsersBloc, UsersState>(
         builder: (context, state) {
+          final api = context.select((AuthBloc a) {
+            if (a.state is Authenticated) {
+              return (a.state as Authenticated).api;
+            }
+          });
+
           if (state is! Ready) {
+            if (api != null) {
+              context.read<UsersBloc>().add(Reload(api: api));
+            }
             return Center(child: CircularProgressIndicator());
           }
 

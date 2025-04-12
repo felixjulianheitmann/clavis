@@ -72,6 +72,10 @@ class UserRepository {
       throw UserRepoException("users reload returned with null");
     }
 
+    for(final u in users) {
+      getAvatar(api, u);
+    }
+
     final bundles = users.map((u) => UserBundle(user: u)).toList();
     _usersController.add(bundles);
   }
