@@ -15,9 +15,11 @@ class LoginPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(32),
-          child: LoginPanel(
-            errorMessage: errorMessage,
-            loginFormWidth: loginFormWidth,
+          child: Center(
+            child: LoginPanel(
+              errorMessage: errorMessage,
+              loginFormWidth: loginFormWidth,
+            ),
           ),
         ),
       ),

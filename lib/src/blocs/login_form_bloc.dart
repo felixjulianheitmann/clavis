@@ -53,7 +53,17 @@ class LoginFormBloc extends Bloc<LoginFormEvent, LoginFormBlocState> {
     } else {
       await _prefRepo.init();
     }
-    emit.onEach(_prefRepo.credStream, onData: (prefs) => emit(LoginFormBlocState(host: prefs.host ?? '', user: prefs.user ?? '', pass: prefs.pass ?? '')));
+    await emit.onEach(
+      _prefRepo.credStream,
+      onData:
+          (prefs) => emit(
+            LoginFormBlocState(
+              host: prefs.host ?? '',
+              user: prefs.user ?? '',
+              pass: prefs.pass ?? '',
+            ),
+          ),
+    );
   }
   Future<void> _onSubmit(Submit state, Emitter<LoginFormBlocState> emit) async {
     _authRepo.login(

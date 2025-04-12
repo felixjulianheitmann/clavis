@@ -49,7 +49,7 @@ class PrefBloc extends Bloc<PrefEvent, PrefState> {
     Emitter<PrefState> emit,
   ) async {
     _prefRepo.init();
-    emit.onEach(
+    await emit.onEach(
       _prefRepo.prefStream,
       onData: (preferences) {
       emit(PrefState(preferences: preferences));

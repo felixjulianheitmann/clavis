@@ -23,7 +23,9 @@ class GamesListBloc extends Bloc<GamesListEvent, GamesListState> {
   }
 
   Future<void> _onSubscribe(Subscribe state, Emitter<GamesListState> emit) async {
-    emit.onEach(_gameRepo.gameListStream, onData: (games) {
+    await emit.onEach(
+      _gameRepo.gameListStream,
+      onData: (games) {
       emit(GamesListState(games: games));
     },);
 

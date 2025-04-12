@@ -53,7 +53,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       return _doSubscription(event, emit, _prefRepo.creds!);
     }
 
-    emit.onEach(_prefRepo.credStream, onData: (creds) => emit(Unknown(creds)));
+    await emit.onEach(
+      _prefRepo.credStream,
+      onData: (creds) => emit(Unknown(creds)),
+    );
   }
 
   Future<void> _doSubscription(
@@ -64,7 +67,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // check if the user is already authenticated and set the initial state
     await _authRepo.checkAuth(creds);
 
-    emit.onEach(
+    await emit.onEach(
       _authRepo.status,
       onData: (status) async {
         switch (status.$1) {

@@ -45,8 +45,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   UserBloc(UserRepository userRepo, this.id)
     : _userRepo = userRepo,
       super(Unavailable()) {
-    on<Subscribe>((_, emit) {
-      emit.onEach(
+    on<Subscribe>((_, emit) async {
+      await emit.onEach(
         _userRepo.user(id),
         onData: (user) => emit(Ready(user: user)),
       );
@@ -64,8 +64,11 @@ class UserMeBloc extends Bloc<UserEvent, UserState> {
   UserMeBloc(UserRepository userRepo)
     : _userRepo = userRepo,
       super(Unavailable()) {
-    on<Subscribe>((_, emit) {
-      emit.onEach(_userRepo.userMe, onData: (user) => emit(Ready(user: user)));
+    on<Subscribe>((_, emit) async {
+      await emit.onEach(
+        _userRepo.userMe,
+        onData: (user) => emit(Ready(user: user)),
+      );
     });
   }
 
