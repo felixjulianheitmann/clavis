@@ -1,9 +1,24 @@
 import 'package:clavis/src/repositories/pref_repository.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 sealed class PrefEvent {}
 
 final class PrefSubscribe extends PrefEvent {}
+final class SetTheme extends PrefEvent {
+  SetTheme({required this.theme});
+  final ThemeMode theme;
+}
+
+final class SetDownloadDir extends PrefEvent {
+  SetDownloadDir({required this.downloadDir});
+  final String downloadDir;
+}
+
+final class SetLaunchOnBoot extends PrefEvent {
+  SetLaunchOnBoot({required this.launchOnBoot});
+  final bool launchOnBoot;
+}
 
 enum Status { loading, ready }
 class PrefState {
@@ -24,6 +39,9 @@ class PrefBloc extends Bloc<PrefEvent, PrefState> {
 
   PrefBloc(PrefRepo prefRepo) : _prefRepo = prefRepo, super(PrefState(preferences: Preferences(), status: Status.loading)) {
     on<PrefSubscribe>(_onPrefSubscribe);
+    on<SetDownloadDir>((e, _) => _prefRepo.setDownloadDir(e.downloadDir));
+    on<SetTheme>((e, _) => _prefRepo.setTheme(e.theme));
+    on<SetLaunchOnBoot>((e, _) => _prefRepo.setLaunchOnBoot(e.launchOnBoot));
   }
 
   Future<void> _onPrefSubscribe(
@@ -31,7 +49,9 @@ class PrefBloc extends Bloc<PrefEvent, PrefState> {
     Emitter<PrefState> emit,
   ) async {
     _prefRepo.init();
-    emit.onEach(_prefRepo.stream, onData: (preferences) {
+    emit.onEach(
+      _prefRepo.prefStream,
+      onData: (preferences) {
       emit(PrefState(preferences: preferences));
     });
   }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:clavis/util/logger.dart';
+import 'package:clavis/src/util/logger.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

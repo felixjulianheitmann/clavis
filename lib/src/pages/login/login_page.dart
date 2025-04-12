@@ -1,5 +1,5 @@
 import 'package:clavis/src/pages/login/login_form.dart';
-import 'package:clavis/widgets/app_title.dart';
+import 'package:clavis/src/util/app_title.dart';
 import 'package:flutter/material.dart';
 
 /// Login page that is displayed whenever authentication couldn't be performed

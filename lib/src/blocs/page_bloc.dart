@@ -1,5 +1,19 @@
-import 'package:clavis/constants.dart';
+import 'package:clavis/src/constants.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+enum PageId { games, users, userMe, settings }
+
+class PageInfo {
+  const PageInfo({
+    required this.id,
+    this.appbarActions = const [],
+    this.blocs = const [],
+  });
+  final PageId id;
+  final List<Widget> appbarActions;
+  final List<Bloc> blocs;
+}
 
 class PageState{
   PageState(this.activePage);

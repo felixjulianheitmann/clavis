@@ -1,14 +1,14 @@
-import 'package:clavis/blocs/auth_bloc.dart';
-import 'package:clavis/blocs/error_bloc.dart';
-import 'package:clavis/blocs/page_bloc.dart';
-import 'package:clavis/constants.dart';
-import 'package:clavis/widgets/app_title.dart';
-import 'package:clavis/widgets/games/page.dart';
-import 'package:clavis/widgets/settings/settings_page.dart';
+import 'package:clavis/src/blocs/error_bloc.dart';
+import 'package:clavis/src/blocs/page_bloc.dart';
+import 'package:clavis/src/constants.dart';
+import 'package:clavis/src/blocs/auth_bloc.dart';
+import 'package:clavis/src/util/app_title.dart';
+import 'package:clavis/src/pages/games/games_page.dart';
+import 'package:clavis/src/pages/settings/settings_page.dart';
 import 'package:clavis/src/pages/login/login_page.dart';
-import 'package:clavis/widgets/users/root_page.dart';
+import 'package:clavis/src/pages/users/users_page.dart';
 import 'package:flutter/material.dart';
-import 'package:clavis/widgets/drawer.dart';
+import 'package:clavis/src/drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ClavisScaffold extends StatelessWidget {
@@ -47,8 +47,8 @@ class ClavisScaffold extends StatelessWidget {
     }
 
     final authState = context.select((AuthBloc a) => a.state);
-    if (authState is! AuthSuccessState) {
-      if (authState is AuthFailedState) {
+    if (authState is! Authenticated) {
+      if (authState is Unauthenticated) {
         return LoginPage(errorMessage: authState.message);
       }
       return LoginPage();

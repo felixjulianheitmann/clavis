@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:clavis/util/logger.dart';
+import 'package:clavis/src/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';

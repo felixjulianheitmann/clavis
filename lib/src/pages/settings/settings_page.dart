@@ -1,5 +1,5 @@
-import 'package:clavis/widgets/settings/app_settings.dart';
-import 'package:clavis/widgets/settings/gamevault_settings.dart';
+import 'package:clavis/src/pages/settings/app_settings.dart';
+import 'package:clavis/src/pages/settings/gamevault_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 

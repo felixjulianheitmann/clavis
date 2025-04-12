@@ -1,16 +1,17 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:clavis/blocs/download_bloc.dart';
-import 'package:clavis/blocs/error_bloc.dart';
-import 'package:clavis/blocs/page_bloc.dart';
-import 'package:clavis/blocs/search_bloc.dart';
+import 'package:clavis/src/blocs/error_bloc.dart';
+import 'package:clavis/src/blocs/page_bloc.dart';
+import 'package:clavis/src/blocs/search_bloc.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
-import 'package:clavis/src/blocs/user_me_bloc.dart';
+import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/auth_repository.dart';
+import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
-import 'package:clavis/util/logger.dart';
+import 'package:clavis/src/util/logger.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
-import 'package:clavis/widgets/home.dart';
+import 'package:clavis/src/home.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,35 +28,33 @@ void main() {
         ),
         RepositoryProvider(create: (_) => UserRepository()),
         RepositoryProvider(create: (_) => PrefRepo()),
+        RepositoryProvider(create: (_) => GameRepository()),
+        RepositoryProvider(create: (_) => UserRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create:
-                (ctx) =>
-                    AuthBloc(ctx.read<AuthRepository>())
-                      ..add(AuthSubscriptionRequested()),
+            create: (ctx) {
+              return AuthBloc(ctx.read<AuthRepository>(), ctx.read<PrefRepo>())
+                ..add(AuthSubscriptionRequested());
+            },
           ),
           BlocProvider(
-            create:
-                (ctx) => PrefBloc(ctx.read<PrefRepo>())..add(PrefSubscribe()),
+            create: (ctx) {
+              return PrefBloc(ctx.read<PrefRepo>())..add(PrefSubscribe());
+            },
           ),
           BlocProvider(create: (_) => PageBloc()),
           BlocProvider(create: (_) => SearchBloc()),
           BlocProvider(create: (_) => ErrorBloc()),
           BlocProvider(create: (_) => DownloadBloc()),
           BlocProvider(
-            create:
-                (ctx) =>
-                    UserMeBloc(ctx.read<UserRepository>(), ctx.read<AuthRepository>())
-                      ..add(UserMeSubscribe()),
+            create: (ctx) {
+              return UserMeBloc(ctx.read<UserRepository>())..add(Subscribe());
+            },
           ),
         ],
-        child: MultiBlocProvider(
-          providers: [
-          ],
-          child: Clavis(),
-        ),
+        child: Clavis(),
       ),
     ),
   );

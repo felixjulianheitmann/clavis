@@ -1,4 +1,4 @@
-import 'package:clavis/util/logger.dart';
+import 'package:clavis/src/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 

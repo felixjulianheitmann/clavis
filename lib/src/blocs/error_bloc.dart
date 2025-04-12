@@ -1,4 +1,4 @@
-import 'package:clavis/widgets/error.dart';
+import 'package:clavis/src/util/error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:clavis/blocs/download_bloc.dart';
-import 'package:clavis/util/helpers.dart';
-import 'package:clavis/util/hoverable.dart';
-import 'package:clavis/util/logger.dart';
+import 'package:clavis/src/util/helpers.dart';
+import 'package:clavis/src/util/hoverable.dart';
+import 'package:clavis/src/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:clavis/widgets/clavis_scaffold.dart';
+import 'package:clavis/src/clavis_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:clavis/l10n/app_localizations.dart';
@@ -309,7 +309,7 @@ class _GameDownloadButton extends StatelessWidget {
   final double _downloadSize;
   final AppLocalizations translate;
 
-  void _triggerDownload(BuildContext context, ApiClient api) {
+  void _triggerDownload(BuildContext context) {
     // try and trigger a direct browser download
     if (kIsWeb) {
       log.e("file download not yet supported on web");
@@ -344,7 +344,7 @@ class _GameDownloadButton extends StatelessWidget {
         } else if (state is DownloadReadyState) {
           actionButton = IconButton(
             icon: Icon(Icons.download),
-            onPressed: () => _triggerDownload(context, state.api),
+            onPressed: () => _triggerDownload(context),
             iconSize: _downloadSize,
             color: Colors.white,
           );

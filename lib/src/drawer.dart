@@ -1,11 +1,11 @@
-import 'package:clavis/blocs/auth_bloc.dart';
-import 'package:clavis/blocs/page_bloc.dart';
-import 'package:clavis/util/helpers.dart';
-import 'package:clavis/widgets/app_title.dart';
+import 'package:clavis/src/blocs/page_bloc.dart';
+import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/util/helpers.dart';
+import 'package:clavis/src/util/app_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clavis/l10n/app_localizations.dart';
-import 'package:clavis/constants.dart';
+import 'package:clavis/src/constants.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
 void _setPage(BuildContext context, PageInfo page) {
@@ -57,14 +57,15 @@ class SidebarDrawer extends StatelessWidget {
           Spacer(),
           Divider(),
           Text(translate.drawer_admin_area),
-          BlocBuilder<AuthBloc, AuthState>(
+          BlocBuilder<UserMeBloc, UserState>(
             builder: (context, state) {
-              final visible =
-                  state is AuthSuccessState &&
-                  state.me.role == GamevaultUserRoleEnum.n3;
               // admin access
+              final isAdmin =
+                  state is Ready &&
+                  state.user.user.role == GamevaultUserRoleEnum.n3;
+
               return Visibility(
-                visible: visible,
+                visible: isAdmin,
                 child: ListTile(
                   leading: Icon(Icons.person),
                   title: Text(translate.users_title),
@@ -93,23 +94,25 @@ class _UserMeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
 
-    return BlocBuilder<AuthBloc, AuthState>(
+    return BlocBuilder<UserMeBloc, UserState>(
       builder: (context, state) {
-        if (state is AuthSuccessState) {
-          return ListTile(
+        var userMeTile = ListTile(
+          leading: Icon(Icons.login),
+          title: Text(translate.action_login),
+        );
+
+        if (state is Ready) {
+          userMeTile = ListTile(
             leading: SizedBox.square(
               dimension: 24,
-              child: Helpers.avatar(state.me),
+              child: Helpers.avatar(state.user.avatar),
             ),
-            title: Text(Helpers.userTitle(state.me)),
+            title: Text(Helpers.userTitle(state.user.user)),
             onTap: () => _setPage(context, Constants.userMePageInfo()),
           );
         }
 
-        return ListTile(
-          leading: Icon(Icons.login),
-          title: Text(translate.action_login),
-        );
+        return userMeTile;
       },
     );
   }

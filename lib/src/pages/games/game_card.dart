@@ -1,8 +1,8 @@
-import 'package:clavis/util/focusable.dart';
-import 'package:clavis/util/helpers.dart';
+import 'package:clavis/src/util/focusable.dart';
+import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:gamevault_client_sdk/api.dart';
-import 'package:clavis/widgets/games/game_page.dart';
+import 'package:clavis/src/pages/games/game_page.dart';
 
 class GameCard extends StatelessWidget {
   const GameCard({super.key, required this.game, this.width = defaultWidth});

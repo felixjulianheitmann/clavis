@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:clavis/blocs/search_bloc.dart';
+import 'package:clavis/src/blocs/search_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,18 +8,18 @@ class GamesSearch extends StatefulWidget {
   const GamesSearch({super.key});
 
   @override
-  State<GamesSearch> createState() => _GamesSearchState();
+  State<GamesSearch> createState() => _GamesGameFilterState();
 }
 
-class _GamesSearchState extends State<GamesSearch> {
+class _GamesGameFilterState extends State<GamesSearch> {
   TextEditingController textCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SearchBloc, SearchState>(
+    return BlocBuilder<SearchBloc, GameFilterState>(
       builder: (context, state) {
         Widget search = IconButton(
-          onPressed: () => context.read<SearchBloc>().add(SearchOpenedEvent()),
+          onPressed: () => context.read<SearchBloc>().add(Opened()),
           icon: Icon(Icons.search),
         );
         if (state.open) {
@@ -34,13 +34,13 @@ class _GamesSearchState extends State<GamesSearch> {
                   leading: Icon(Icons.search),
                   onChanged:
                       (value) => context.read<SearchBloc>().add(
-                        SearchChangedEvent(text: textCtrl.text),
+                        TextChanged(text: textCtrl.text),
                       ),
                   trailing: [
                     IconButton(
                       onPressed: () {
                         setState(() => textCtrl.value = TextEditingValue.empty);
-                        context.read<SearchBloc>().add(SearchClosedEvent());
+                        context.read<SearchBloc>().add(Closed());
                       },
                       icon: Icon(Icons.clear),
                     ),
