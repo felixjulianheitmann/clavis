@@ -15,23 +15,30 @@ class DetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserBloc(context.read<UserRepository>(), id),
-      child: BlocBuilder<UserBloc, UserState>(
-        builder: (context, userState) {
-          final translate = AppLocalizations.of(context)!;
-          if (userState is! Ready) {
-            return Center(child: CircularProgressIndicator());
-          }
+      create:
+          (context) =>
+              UserBloc(context.read<UserRepository>(), id)..add(Subscribe()),
+      child: ClavisScaffold(
+        showDrawer: false,
+        actions: [DeactivateButton(id: id), DeleteButton(id: id)],
+        body: BlocBuilder<UserBloc, UserState>(
+          builder: (context, userState) {
+            final api = context.select((AuthBloc a) {
+              if (a.state is Authenticated) {
+                return (a.state as Authenticated).api;
+              }
+            });
 
-          final user = userState.user;
+            if (userState is! Ready) {
+              if (api != null) context.read<UserBloc>().add(Reload(api: api));
+              return Center(child: CircularProgressIndicator());
+            }
 
-          return ClavisScaffold(
-            showDrawer: false,
-            actions: [
-              DeactivateButton(translate: translate, id: id),
-              DeleteButton(translate: translate, id: id),
-            ],
-            body: Column(
+
+
+            final user = userState.user;
+
+            return Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -39,18 +46,17 @@ class DetailPage extends StatelessWidget {
                 ),
                 UserForm(user: user.user),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
 class DeleteButton extends StatelessWidget {
-  const DeleteButton({super.key, required this.translate, required this.id});
+  const DeleteButton({super.key, required this.id});
 
-  final AppLocalizations translate;
   final num id;
 
   @override
@@ -67,20 +73,15 @@ class DeleteButton extends StatelessWidget {
     }
 
     return Tooltip(
-      message: translate.action_delete,
+      message: AppLocalizations.of(context)!.action_delete,
       child: IconButton(onPressed: onPress, icon: Icon(Icons.delete)),
     );
   }
 }
 
 class DeactivateButton extends StatelessWidget {
-  const DeactivateButton({
-    super.key,
-    required this.translate,
-    required this.id,
-  });
+  const DeactivateButton({super.key, required this.id});
 
-  final AppLocalizations translate;
   final num id;
 
   @override
@@ -95,7 +96,7 @@ class DeactivateButton extends StatelessWidget {
     }
 
     return Tooltip(
-      message: translate.action_deactivate,
+      message: AppLocalizations.of(context)!.action_deactivate,
       child: IconButton(icon: Icon(Icons.block), onPressed: onPress),
     );
   }
