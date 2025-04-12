@@ -32,6 +32,7 @@ class AuthRepository {
     }
     yield* _controller.stream;
   }
+
   ApiClient? get api => _api;
 
   Future<void> checkAuth(Credentials creds) async {
@@ -41,7 +42,14 @@ class AuthRepository {
 
     final auth = HttpBasicAuth(password: creds.pass!, username: creds.user!);
     final api = ApiClient(basePath: creds.host!, authentication: auth);
-    if (await UserApi(api).getUsersMe() == null) {
+    GamevaultUser? me;
+    try {
+      me = await UserApi(api).getUsersMe();
+    } catch (e) {
+      return _controller.add((AuthStatus.unauthenticated, null));
+    }
+
+    if (me == null) {
       _controller.add((AuthStatus.unauthenticated, null));
     } else {
       // if this I was unauthenticated before, authenticate me
