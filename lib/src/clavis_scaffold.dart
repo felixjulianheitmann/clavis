@@ -2,12 +2,11 @@ import 'package:clavis/src/blocs/error_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/constants.dart';
-import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/util/app_title.dart';
 import 'package:clavis/src/pages/games/games_page.dart';
 import 'package:clavis/src/pages/settings/settings_page.dart';
-import 'package:clavis/src/pages/login/login_page.dart';
 import 'package:clavis/src/pages/users/users_page.dart';
+import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:clavis/src/drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,18 +48,15 @@ class ClavisScaffold extends StatelessWidget {
       return ErrorWidget(errorState.error!);
     }
 
-    final authState = context.select((AuthBloc a) => a.state);
-    if (authState is! Authenticated) {
-      if (authState is Unauthenticated) {
-        return LoginPage(errorMessage: authState.message);
-      }
-      return LoginPage();
-    }
+    final api = Helpers.getApi(context);
+    final apiLoaded = api != null;
 
     final userMeLoaded = context.select((UserMeBloc u) => u.state is Ready);
-    if (!userMeLoaded) {
-      context.read<UserMeBloc>().add(Reload(api: authState.api));
+    if (!userMeLoaded && apiLoaded) {
+      context.read<UserMeBloc>().add(Reload(api: api));
     }
+
+    bool isReady = userMeLoaded && apiLoaded;
 
     return BlocBuilder<PageBloc, PageState>(
       builder: (context, state) {
@@ -73,7 +69,7 @@ class ClavisScaffold extends StatelessWidget {
                   )
                   : null,
           drawer: showDrawer ? SidebarDrawer() : null,
-          body: body ?? _getBody(state.activePage, userMeLoaded),
+          body: body ?? _getBody(state.activePage, isReady),
         );
         if (state.activePage.blocs.isEmpty) {
           return scaffold;
