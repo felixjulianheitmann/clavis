@@ -17,23 +17,25 @@ class UserForm extends StatefulWidget {
   State<UserForm> createState() => _UserFormState();
 }
 
-String? Function(String?) _forbidEmpty(String emptyMessage) {
+String? Function(String?) _forbidEmpty(AppLocalizations translate) {
   return (String? text) {
     if (text == null || text.isEmpty) {
-      return emptyMessage;
+      return translate.validation_error_field_empty;
     }
     return null;
   };
 }
 
-String? _validateMail(String? text, invalidMailMessage) {
-  // empty field is allowed
-  if (text == null || text.isEmpty) return null;
+String? Function(String?) _validateMail(AppLocalizations translate) {
+  return (String? text) {
+    final emptyErr = _forbidEmpty(translate)(text);
+    if (emptyErr != null) return emptyErr;
 
-  if (!EmailValidator.validate(text)) {
-    return invalidMailMessage;
-  }
-  return null;
+    if (!EmailValidator.validate(text!)) {
+      return translate.validation_invalid_mail;
+    }
+    return null;
+  };
 }
 
 class _UserFormState extends State<UserForm> {
@@ -47,26 +49,28 @@ class _UserFormState extends State<UserForm> {
       label: translate.page_user_details_username,
       submitter: (v) => Edited(api: api, username: v),
       valueGetter: (user) => user.username,
-      validator: _forbidEmpty(translate.validation_error_field_empty),
+      validator: _forbidEmpty(translate),
     );
 
     final firstnameField = TextEdit(
       label: translate.page_user_details_firstname,
       submitter: (v) => Edited(api: api, firstName: v),
       valueGetter: (user) => user.firstName,
+      validator: _forbidEmpty(translate),
     );
 
     final lastnameField = TextEdit(
       label: translate.page_user_details_lastname,
       submitter: (v) => Edited(api: api, lastName: v),
       valueGetter: (user) => user.lastName,
+      validator: _forbidEmpty(translate),
     );
 
     final emailField = TextEdit(
       label: translate.page_user_details_email,
       submitter: (v) => Edited(api: api, email: v),
       valueGetter: (user) => user.email,
-      validator: (v) => _validateMail(v, translate.validation_invalid_mail),
+      validator: _validateMail(translate),
     );
 
     return SizedBox(
