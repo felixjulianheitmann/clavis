@@ -1,4 +1,6 @@
+import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -69,5 +71,14 @@ abstract class Helpers {
     } else {
       return translate.size_terabytes(f.format(size / bytesPerTera));
     }
+  }
+
+  static ApiClient? getApi(BuildContext context) {
+    return context.select((AuthBloc a) {
+      if (a.state is Authenticated) {
+        return (a.state as Authenticated).api;
+      }
+      return null;
+    });
   }
 }

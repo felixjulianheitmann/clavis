@@ -28,7 +28,14 @@ final class UploadAvatar extends UserEvent {
 }
 
 final class Edited extends UserEvent {
-  Edited({this.username, this.firstName, this.lastName, this.email});
+  Edited({
+    required this.api,
+    this.username,
+    this.firstName,
+    this.lastName,
+    this.email,
+  });
+  ApiClient api;
   String? username;
   String? firstName;
   String? lastName;
@@ -54,10 +61,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         onData: (user) => emit(Ready(user: user)),
       );
     });
-    on<Reload>((event, emit) => _userRepo.getUser(event.api, id));
-    on<Delete>((event, emit) => _userRepo.deleteUser(event.api, id));
-    on<Deactivate>((event, emit) => _userRepo.deactivateUser(event.api, id));
-    on<UploadAvatar>((event, emit) => _userRepo.uploadAvatar(event.api, id, event.fileStream, event.file));
+    on<Reload>((e, _) => _userRepo.getUser(e.api, id));
+    on<Delete>((e, _) => _userRepo.deleteUser(e.api, id));
+    on<Deactivate>((e, _) => _userRepo.deactivateUser(e.api, id));
+    on<UploadAvatar>(
+      (e, _) => _userRepo.uploadAvatar(e.api, id, e.fileStream, e.file),
+    );
+    on<Edited>((e, _) {
+      final update = UpdateUserDto(
+        username: e.username,
+        firstName: e.firstName,
+        lastName: e.lastName,
+        email: e.email,
+      );
+      _userRepo.updateUser(e.api, id, update);
+    });
   }
 
   final UserRepository _userRepo;

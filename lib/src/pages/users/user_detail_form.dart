@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_email_validator/email_validator.dart';
@@ -39,30 +40,32 @@ class _UserFormState extends State<UserForm> {
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
-
+    final api = Helpers.getApi(context);
+    if (api == null) return Center(child: CircularProgressIndicator());
+    
     final usernameField = TextEdit(
       label: translate.page_user_details_username,
-      submitter: (v) => Edited(username: v),
-      valueGetter: (user) => widget.user.username,
+      submitter: (v) => Edited(api: api, username: v),
+      valueGetter: (user) => user.username,
       validator: _forbidEmpty(translate.validation_error_field_empty),
     );
 
     final firstnameField = TextEdit(
       label: translate.page_user_details_firstname,
-      submitter: (v) => Edited(firstName: v),
-      valueGetter: (user) => widget.user.firstName,
+      submitter: (v) => Edited(api: api, firstName: v),
+      valueGetter: (user) => user.firstName,
     );
 
     final lastnameField = TextEdit(
       label: translate.page_user_details_lastname,
-      submitter: (v) => Edited(lastName: v),
-      valueGetter: (user) => widget.user.lastName,
+      submitter: (v) => Edited(api: api, lastName: v),
+      valueGetter: (user) => user.lastName,
     );
 
     final emailField = TextEdit(
       label: translate.page_user_details_email,
-      submitter: (v) => Edited(email: v),
-      valueGetter: (user) => widget.user.email,
+      submitter: (v) => Edited(api: api, email: v),
+      valueGetter: (user) => user.email,
       validator: (v) => _validateMail(v, translate.validation_invalid_mail),
     );
 
@@ -111,11 +114,14 @@ class _TextEditState extends State<TextEdit> {
   @override
   Widget build(BuildContext context) {
     final user = context.select((UserBloc u) {
-      if (u is Ready) return (u.state as Ready).user.user;
+      if (u.state is Ready) return (u.state as Ready).user.user;
     });
 
     void Function(String)? onChanged;
     if (user != null) {
+      if (_ctrl.text == '' && !_isModified) {
+        _ctrl.text = widget.valueGetter(user) ?? '';
+      }
       onChanged =
           (v) => setState(
             () => _isModified = widget.valueGetter(user) != _ctrl.text,
