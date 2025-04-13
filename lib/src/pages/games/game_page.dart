@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/hoverable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/src/clavis_scaffold.dart';
@@ -193,32 +195,77 @@ class _GameScreenshots extends StatefulWidget {
 class _GameScreenshotsState extends State<_GameScreenshots> {
   final controller = CarouselSliderController();
 
-  static const _imageHeight = 200.0;
-
   @override
   Widget build(BuildContext context) {
     if (widget.screenShotUrls == null) {
       return Container();
     }
 
-    final images =
-        widget.screenShotUrls!.map((url) {
-          var img = Image.network(url);
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [Card(clipBehavior: Clip.antiAlias, child: img)],
-          );
-        }).toList();
+    final screenW = MediaQuery.of(context).size.width;
 
-    return CarouselSlider(
-      items: images,
-      options: CarouselOptions(
-        viewportFraction: 0.3,
-        enlargeCenterPage: true,
-        enlargeStrategy: CenterPageEnlargeStrategy.scale,
-        height: _imageHeight,
-      ),
-      carouselController: controller,
+    final opts = ExpandableCarouselOptions(
+      autoPlay: true,
+      viewportFraction: min(0.8, 500 / screenW),
+      enableInfiniteScroll: true,
+      enlargeCenterPage: true,
+    );
+
+    return ExpandableCarousel.builder(
+      options: opts,
+      itemCount: widget.screenShotUrls!.length,
+      itemBuilder: (context, index, realIndex) {
+        final img = Image.network(widget.screenShotUrls![index]);
+        final fullScreenDialog = Dialog.fullscreen(
+          child: FullScreenImg(widget.screenShotUrls!, index),
+        );
+
+        return GestureDetector(
+          onTap: () {
+            showDialog(context: context, builder: (_) => fullScreenDialog);
+          },
+          child: Card(clipBehavior: Clip.antiAlias, child: img),
+        );
+      },
+    );
+  }
+}
+
+class FullScreenImg extends StatelessWidget {
+  const FullScreenImg(this.urls, this.initialIdx, {super.key});
+
+  final List<String> urls;
+  final int initialIdx;
+
+  @override
+  Widget build(BuildContext context) {
+    final imgs = urls.map((url) => Image.network(url)).toList();
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 32),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: FloatingActionButton(
+              backgroundColor: Theme.of(context).splashColor,
+              onPressed: () => Navigator.pop(context),
+              child: Icon(Icons.close),
+            ),
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ExpandableCarousel(
+              items: imgs,
+              options: ExpandableCarouselOptions(
+                viewportFraction: 1.0,
+                initialPage: initialIdx,
+                enableInfiniteScroll: true,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
