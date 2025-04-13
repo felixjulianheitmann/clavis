@@ -82,11 +82,11 @@ class Ready extends UserState {
   }
 }
 
-class UserBloc extends Bloc<UserEvent, UserState> {
+class UserBaseBloc extends Bloc<UserEvent, UserState> {
   final UserRepository _userRepo;
   final num? id;
 
-  UserBloc(UserRepository userRepo, this.id)
+  UserBaseBloc(UserRepository userRepo, this.id)
     : _userRepo = userRepo,
       super(Unavailable()) {
     on<Subscribe>((_, emit) async {
@@ -155,6 +155,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 }
 
 // a different type makes the bloc lookup a lot easier
-class UserMeBloc extends UserBloc {
+class UserMeBloc extends UserBaseBloc {
   UserMeBloc(UserRepository userRepo) : super(userRepo, null);
+}
+class UserBloc extends UserBaseBloc {
+  UserBloc(super.userRepo, super.id);
 }

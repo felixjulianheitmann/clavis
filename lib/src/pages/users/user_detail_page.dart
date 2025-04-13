@@ -5,7 +5,6 @@ import 'package:clavis/src/pages/users/user_editable_avatar.dart';
 import 'package:clavis/src/clavis_scaffold.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key, this.id});
@@ -21,28 +20,21 @@ class DetailPage extends StatelessWidget {
         return Center(child: CircularProgressIndicator());
       }
 
-      Helpers.getUserSpecificBloc(context, id).add(Reload(api: api));
-
-      final user = userState.user;
-
       return Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [EditableAvatar(user: user)],
+            children: [EditableAvatar(userId: id)],
           ),
           UserForm(id: id),
         ],
       );
     }
 
-    return BlocProvider(
-      create: (ctx) => Helpers.getUserSpecificBloc(ctx, id)..add(Subscribe()),
-      child: ClavisScaffold(
-        showDrawer: false,
-        actions: [ActivationButton(id: id), DeletionButton(id: id)],
-        body: UserSpecificBlocBuilder(id: id, builder: builder),
-      ),
+    return ClavisScaffold(
+      showDrawer: false,
+      actions: [ActivationButton(id: id), DeletionButton(id: id)],
+      body: UserSpecificBlocBuilder(id: id, builder: builder),
     );
   }
 }

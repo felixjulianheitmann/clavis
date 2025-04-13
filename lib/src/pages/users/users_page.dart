@@ -1,5 +1,6 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
+import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/blocs/users_bloc.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/focusable.dart';
@@ -21,7 +22,8 @@ class UsersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
     return BlocProvider(
-      create: (ctx) => UsersBloc(ctx.read<UserRepository>())..add(Subscribe()),
+      create:
+          (ctx) => UsersBloc(ctx.read<UserRepository>())..add(UsersSubscribe()),
       child: BlocBuilder<UsersBloc, UsersState>(
         builder: (context, state) {
           final api = context.select((AuthBloc a) {
@@ -30,9 +32,9 @@ class UsersPage extends StatelessWidget {
             }
           });
 
-          if (state is! Ready) {
+          if (state is! UsersReady) {
             if (api != null) {
-              context.read<UsersBloc>().add(Reload(api: api));
+              context.read<UsersBloc>().add(UsersReload(api: api));
             }
             return Center(child: CircularProgressIndicator());
           }
@@ -119,7 +121,17 @@ class UserTile extends StatelessWidget {
       onTap:
           () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => DetailPage(id: user.user.id)),
+            MaterialPageRoute(
+              builder: (_) {
+                return BlocProvider(
+                  create: (ctx) {
+                    return UserBloc(ctx.read<UserRepository>(), user.user.id)
+                      ..add(Subscribe());
+                  },
+                  child: DetailPage(id: user.user.id),
+                );
+              },
+            ),
           ),
       child: Focusable(
         child: SizedBox(

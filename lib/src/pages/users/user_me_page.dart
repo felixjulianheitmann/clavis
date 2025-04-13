@@ -17,7 +17,10 @@ class UserMePage extends StatelessWidget {
       child: BlocBuilder<UserMeBloc, UserState>(
         builder: (context, state) {
           if (state is! Ready) return CircularProgressIndicator();
-          return Column(children: [Helpers.avatar(state.user.avatar)]);
+          return Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(children: [Helpers.avatar(state.user.avatar,)]),
+          );
         },
       ),
     );

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
-import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/hoverable.dart';
 import 'package:file_picker/file_picker.dart';
@@ -12,31 +11,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditableAvatar extends StatelessWidget {
-  const EditableAvatar({super.key, required this.user});
-
-  final UserBundle user;
+  const EditableAvatar({super.key, required this.userId});
+  final num? userId;
 
   static const _size = 90.0;
+  
 
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
-    return Stack(
-      fit: StackFit.passthrough,
-      children: [
-        Hoverable(
-          foreground: SizedBox.square(
-            dimension: _size * 2,
-            child: Center(
-              child: Tooltip(
-                message: translate.action_upload_avatar,
-                child: _UploadAvatarButton(userId: user.user.id),
+    return UserSpecificBlocBuilder(
+      id: userId,
+      builder: (context, state) {
+        if (state is! Ready) return Center(child: CircularProgressIndicator());
+
+        return Stack(
+          fit: StackFit.passthrough,
+          children: [
+            Hoverable(
+              foreground: SizedBox.square(
+                dimension: _size * 2,
+                child: Center(
+                  child: Tooltip(
+                    message: translate.action_upload_avatar,
+                    child: _UploadAvatarButton(userId: userId),
+                  ),
+                ),
+              ),
+              background: Center(
+                child: Helpers.avatar(state.user.avatar, radius: _size),
               ),
             ),
-          ),
-          background: Center(child: Helpers.avatar(user.avatar, radius: _size)),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
@@ -44,7 +52,7 @@ class EditableAvatar extends StatelessWidget {
 class _UploadAvatarButton extends StatelessWidget {
   const _UploadAvatarButton({required this.userId});
 
-  final num userId;
+  final num? userId;
 
   Future<(Stream<List<int>>, PlatformFile)?> _selectAvatar(
     BuildContext context,
@@ -86,7 +94,7 @@ class _UploadAvatarButton extends StatelessWidget {
         final fileSelection = await _selectAvatar(context);
         if (fileSelection == null) return;
         if (context.mounted) {
-          context.read<UserBloc>().add(
+          Helpers.getUserSpecificBloc(context, userId).add(
             UploadAvatar(
               api: api,
               fileStream: fileSelection.$1,

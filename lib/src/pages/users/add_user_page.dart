@@ -33,7 +33,8 @@ class AddUserPage extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (ctx) => UsersBloc(ctx.read<UserRepository>())..add(Subscribe()),
+      create:
+          (ctx) => UsersBloc(ctx.read<UserRepository>())..add(UsersSubscribe()),
       child: ClavisScaffold(
         title: translate.action_add_user,
         showDrawer: false,
@@ -115,14 +116,14 @@ class _AddUserFormState extends State<AddUserForm> {
 
     return BlocListener<UsersBloc, UsersState>(
       listener: (context, state) {
-        if (state is Added) {
+        if (state is UsersAdded) {
           Navigator.pop(context);
         }
       },
       child: BlocBuilder<UsersBloc, UsersState>(
         builder: (context, state) {
           Widget buttonContent = Text(translate.action_register);
-          if (state is Adding) {
+          if (state is UsersAdding) {
             buttonContent = CircularProgressIndicator();
           }
           return Form(

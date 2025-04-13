@@ -4,10 +4,10 @@ import 'package:gamevault_client_sdk/api.dart';
 
 sealed class UsersEvent {}
 
-final class Subscribe extends UsersEvent {}
+final class UsersSubscribe extends UsersEvent {}
 
-final class Reload extends UsersEvent {
-  Reload({required this.api});
+final class UsersReload extends UsersEvent {
+  UsersReload({required this.api});
   ApiClient api;
 }
 
@@ -26,14 +26,14 @@ class UsersState {
   }
 }
 
-class Unavailable extends UsersState {}
+class UsersUnavailable extends UsersState {}
 
-class Ready extends UsersState {
-  Ready({required this.users, super.error, super.stack});
+class UsersReady extends UsersState {
+  UsersReady({required this.users, super.error, super.stack});
   final UserBundles users;
   @override
-  Ready copyWith({UserBundles? users, Object? error, StackTrace? stack}) {
-    return Ready(
+  UsersReady copyWith({UserBundles? users, Object? error, StackTrace? stack}) {
+    return UsersReady(
       users: users ?? this.users,
       error: error ?? this.error,
       stack: stack ?? this.stack,
@@ -41,32 +41,32 @@ class Ready extends UsersState {
   }
 }
 
-class Adding extends Ready {
-  Adding({required super.users, super.error, super.stack});
+class UsersAdding extends UsersReady {
+  UsersAdding({required super.users, super.error, super.stack});
 }
 
-class Added extends Ready {
-  Added({required super.users, super.error, super.stack});
+class UsersAdded extends UsersReady {
+  UsersAdded({required super.users, super.error, super.stack});
 }
 
 class UsersBloc extends Bloc<UsersEvent, UsersState> {
   UsersBloc(UserRepository userRepo)
     : _userRepo = userRepo,
-      super(Unavailable()) {
-    on<Subscribe>((event, emit) async {
+      super(UsersUnavailable()) {
+    on<UsersSubscribe>((event, emit) async {
       await emit.onEach(
         _userRepo.users,
-        onData: (users) => emit(Ready(users: users)),
+        onData: (users) => emit(UsersReady(users: users)),
         onError: (error, stackTrace) {
           emit(state.copyWith(error: error, stack: stackTrace));
         },
       );
     });
-    on<Reload>((event, emit) => _userRepo.reloadUsers(event.api));
+    on<UsersReload>((event, emit) => _userRepo.reloadUsers(event.api));
     on<Add>((event, emit) async {
-      emit(Adding(users: (state as Ready).users));
+      emit(UsersAdding(users: (state as UsersReady).users));
       await _userRepo.addUser(event.api, event.registration);
-      emit(Added(users: (state as Ready).users));
+      emit(UsersAdded(users: (state as UsersReady).users));
     });
   }
 

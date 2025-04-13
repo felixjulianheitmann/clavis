@@ -168,7 +168,14 @@ class UserRepository {
       throw UserRepoException("user me update returned with null");
     }
 
-    _userMeController.add(UserBundle(user: updatedMe));
+    // username has been updated and will be needed for authentication
+    if (update.username != null) {
+      (api.authentication as HttpBasicAuth).username = update.username!;
+    }
+    if (update.password != null) {
+      (api.authentication as HttpBasicAuth).password = update.password!;
+    }
+    await getUserMe(api); // reload user list
   }
 
   Future<void> updateUser(ApiClient api, num id, UpdateUserDto update) async {

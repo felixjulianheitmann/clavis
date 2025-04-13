@@ -19,7 +19,6 @@ abstract class Helpers {
     if (avatar == null) return standardIcon;
 
     return CircleAvatar(backgroundImage: avatar, radius: radius);
-
   }
 
   static String userTitle(GamevaultUser user) {
@@ -84,8 +83,7 @@ abstract class Helpers {
     });
   }
 
-
-static Bloc getUserSpecificBloc(BuildContext context, num? id) {
+  static Bloc getUserSpecificBloc(BuildContext context, num? id) {
     if (id == null) return UserMeBloc(context.read<UserRepository>());
     return UserBloc(context.read<UserRepository>(), id);
   }
