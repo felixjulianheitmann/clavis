@@ -60,9 +60,7 @@ class DeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final api = context.select((AuthBloc a) {
-      if (a is Authenticated) return (a as Authenticated).api;
-    });
+    final api = Helpers.getApi(context);
 
     void Function()? onPress;
     if (api != null) {
@@ -71,9 +69,25 @@ class DeleteButton extends StatelessWidget {
       };
     }
 
-    return Tooltip(
-      message: AppLocalizations.of(context)!.action_delete,
-      child: IconButton(onPressed: onPress, icon: Icon(Icons.delete)),
+    return BlocListener<UserBloc, UserState>(
+      listener: (context, state) {
+        if (state is Deleted) Navigator.pop(context);
+      },
+      child: BlocBuilder<UserBloc, UserState>(
+        builder: (context, state) {
+          Widget button = IconButton(
+            onPressed: onPress,
+            icon: Icon(Icons.delete),
+          );
+
+          if (state is Deleting) button = CircularProgressIndicator();
+
+          return Tooltip(
+            message: AppLocalizations.of(context)!.action_delete,
+            child: button,
+          );
+        },
+      ),
     );
   }
 }

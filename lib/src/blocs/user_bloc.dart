@@ -68,6 +68,13 @@ class Ready extends UserState {
     return Ready(user: user ?? this.user, error: error ?? this.error, stack: stack ?? this.stack);
   }
 }
+final class Deleting extends Ready {
+  Deleting({required super.user});
+}
+
+final class Deleted extends Ready {
+  Deleted({required super.user});
+}
 
 class UserBloc extends Bloc<UserEvent, UserState> {
   UserBloc(UserRepository userRepo, this.id)
@@ -83,7 +90,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       );
     });
     on<Reload>((e, _) => _userRepo.getUser(e.api, id));
-    on<Delete>((e, _) => _userRepo.deleteUser(e.api, id));
+    on<Delete>((event, emit) async {
+      emit(Deleting(user: (state as Ready).user));
+      await _userRepo.deleteUser(event.api, id);
+      emit(Deleted(user: (state as Ready).user));
+    });
     on<Activate>((e, _) => _userRepo.activateUser(e.api, id));
     on<Deactivate>((e, _) => _userRepo.deactivateUser(e.api, id));
     on<UploadAvatar>(
