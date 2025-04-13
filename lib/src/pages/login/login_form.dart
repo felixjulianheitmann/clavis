@@ -78,7 +78,7 @@ class LoginFormState extends State<LoginForm> {
           (context) => LoginFormBloc(
             authRepo: context.read<AuthRepository>(),
             prefRepo: context.read<PrefRepo>(),
-          ),
+          )..add(SubscribeSettings()),
       child: BlocListener<LoginFormBloc, LoginFormBlocState>(
         listener: (context, state) {
           if (_hostEditCtrl.text.isEmpty) _hostEditCtrl.text = state.host;

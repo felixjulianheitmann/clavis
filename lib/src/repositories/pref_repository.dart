@@ -22,7 +22,6 @@ class Credentials {
     this.pass = pass ?? this.pass;
   }
   void clear() {
-    host = null;
     user = null;
     pass = null;
   }

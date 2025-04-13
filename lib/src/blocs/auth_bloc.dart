@@ -107,6 +107,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (_authCheckTimer != null) _authCheckTimer!.cancel();
+    _prefRepo.remove();
     _authRepo.logout();
   }
 
