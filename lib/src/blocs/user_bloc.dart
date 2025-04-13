@@ -42,18 +42,27 @@ final class Edited extends UserEvent {
   String? email;
 }
 
-final class Add extends UserEvent {
-  Add({required this.api, required this.user});
-  ApiClient api;
-  GamevaultUser user;
+class UserState {
+  UserState({this.error, this.stack});
+  Object? error;
+  StackTrace? stack;
+  UserState copyWith({Object? error, StackTrace? stack}) {
+    return UserState(
+      error: error ?? this.error,
+      stack: stack ?? this.stack,
+    );
+  }
 }
-class UserState {}
 
 class Unavailable extends UserState {}
 
 class Ready extends UserState {
-  Ready({required this.user});
+  Ready({required this.user, super.error, super.stack});
   final UserBundle user;
+  @override
+  Ready copyWith({UserBundle? user,  Object? error, StackTrace? stack}) {
+    return Ready(user: user ?? this.user, error: error ?? this.error, stack: stack ?? this.stack);
+  }
 }
 
 class UserBloc extends Bloc<UserEvent, UserState> {
@@ -64,6 +73,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       await emit.onEach(
         _userRepo.user(id),
         onData: (user) => emit(Ready(user: user)),
+        onError: (error, stackTrace) {
+          emit(state.copyWith(error: error, stack: stackTrace));
+        },
       );
     });
     on<Reload>((e, _) => _userRepo.getUser(e.api, id));

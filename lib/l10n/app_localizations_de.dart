@@ -27,6 +27,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get password_label => 'Password';
 
   @override
+  String get password_confirm_label => 'Password Confirm';
+
+  @override
   String get hostname_label => 'Hostname';
 
   @override
@@ -149,6 +152,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get validation_invalid_name => 'Field may only contain the letters a-zA-Z';
+
+  @override
+  String get validation_password_confirm_different => 'The two entered passwords don\'t match';
+
+  @override
+  String get validation_password_too_short => 'Password must be at least 8 characters';
 
   @override
   String get action_deactivate => 'Deactivate';

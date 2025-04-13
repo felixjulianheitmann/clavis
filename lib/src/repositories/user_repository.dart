@@ -240,4 +240,22 @@ class UserRepository {
     final userUpdate = UpdateUserDto(avatarId: uploaded.id);
     await updateUser(api, id, userUpdate);
   }
+
+  Future<void> addUser(ApiClient api, RegisterUserDto registration) async {
+    GamevaultUser? addedUser;
+    try {
+      addedUser = await UserApi(api).postUserRegister(registration);
+    } catch (e) {
+      _usersController.addError(
+        UserRepoException("user registration failed: $e"),
+      );
+    }
+    if (addedUser == null) {
+      _usersController.addError(
+        UserRepoException("user registration returned with null"),
+      );
+    }
+
+    await reloadUsers(api);
+  }
 }

@@ -131,6 +131,12 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get password_label;
 
+  /// No description provided for @password_confirm_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Confirm'**
+  String get password_confirm_label;
+
   /// No description provided for @hostname_label.
   ///
   /// In en, this message translates to:
@@ -358,6 +364,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Field may only contain the letters a-zA-Z'**
   String get validation_invalid_name;
+
+  /// No description provided for @validation_password_confirm_different.
+  ///
+  /// In en, this message translates to:
+  /// **'The two entered passwords don\'t match'**
+  String get validation_password_confirm_different;
+
+  /// No description provided for @validation_password_too_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get validation_password_too_short;
 
   /// No description provided for @action_deactivate.
   ///

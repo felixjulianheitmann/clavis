@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/util/form_validators.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_email_validator/email_validator.dart';
 
 import 'package:gamevault_client_sdk/api.dart';
 
@@ -63,7 +63,7 @@ class _UserFormState extends State<UserForm> {
       remoteValue: remoteUsername,
       submitter: (v) => _userSubmit(v, context, api),
       valueGetter: (user) => user.username,
-      validator: _validateName(translate),
+      validator: FormValidators.nonNullEmptyAlphabet(translate),
     );
 
     final firstnameField = TextEdit(
@@ -73,7 +73,7 @@ class _UserFormState extends State<UserForm> {
       remoteValue: remoteFirstName,
       submitter: (v) => Edited(api: api, firstName: v),
       valueGetter: (user) => user.firstName,
-      validator: _validateName(translate),
+      validator: FormValidators.nonNullEmptyAlphabet(translate),
     );
 
     final lastnameField = TextEdit(
@@ -83,7 +83,7 @@ class _UserFormState extends State<UserForm> {
       remoteValue: remoteLastName,
       submitter: (v) => Edited(api: api, lastName: v),
       valueGetter: (user) => user.lastName,
-      validator: _validateName(translate),
+      validator: FormValidators.nonNullEmptyAlphabet(translate),
     );
 
     final emailField = TextEdit(
@@ -93,7 +93,7 @@ class _UserFormState extends State<UserForm> {
       remoteValue: remoteEmail,
       submitter: (v) => Edited(api: api, email: v),
       valueGetter: (user) => user.email,
-      validator: _validateMail(translate),
+      validator: FormValidators.nonNullEmptyMail(translate),
     );
 
     return SizedBox(
@@ -189,43 +189,4 @@ class _TextEditState extends State<TextEdit> {
       child: field,
     );
   }
-}
-
-/// Form validator functions
-
-String? Function(String?) _forbidEmpty(AppLocalizations translate) {
-  return (String? text) {
-    if (text == null || text.isEmpty) {
-      return translate.validation_error_field_empty;
-    }
-    return null;
-  };
-}
-
-const legalChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-String? Function(String?) _validateName(AppLocalizations translate) {
-  return (String? text) {
-    final emptyErr = _forbidEmpty(translate)(text);
-    if (emptyErr != null) return emptyErr;
-
-    final containsIllegalChars = text!.runes.any((c) {
-      return !legalChars.contains(String.fromCharCode(c));
-    });
-    if (containsIllegalChars) return translate.validation_invalid_name;
-
-    return null;
-  };
-}
-
-String? Function(String?) _validateMail(AppLocalizations translate) {
-  return (String? text) {
-    final emptyErr = _forbidEmpty(translate)(text);
-    if (emptyErr != null) return emptyErr;
-
-    if (!EmailValidator.validate(text!)) {
-      return translate.validation_invalid_mail;
-    }
-    return null;
-  };
 }
