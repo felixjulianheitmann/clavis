@@ -1,6 +1,7 @@
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
+import 'package:clavis/src/util/cache_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
@@ -44,7 +45,7 @@ abstract class Helpers {
         ],
       );
     }
-    return Image.network(url, width: width);
+    return CacheImage(imageUrl: url, width: width);
   }
 
   static String sizeInUnit(String sizeBytes, AppLocalizations translate) {

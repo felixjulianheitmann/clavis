@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/hoverable.dart';
 import 'package:flutter/foundation.dart';
@@ -211,7 +212,7 @@ class _GameScreenshotsState extends State<_GameScreenshots> {
       options: opts,
       itemCount: widget.screenShotUrls!.length,
       itemBuilder: (context, index, realIndex) {
-        final img = Image.network(widget.screenShotUrls![index]);
+        final img = CacheImage(imageUrl: widget.screenShotUrls![index]);
         final fullScreenDialog = Dialog.fullscreen(
           child: FullScreenImg(widget.screenShotUrls!, index),
         );
@@ -235,20 +236,9 @@ class FullScreenImg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imgs = urls.map((url) => Image.network(url)).toList();
+    final imgs = urls.map((url) => CacheImage(imageUrl: url)).toList();
     return Stack(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 32),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: FloatingActionButton(
-              backgroundColor: Theme.of(context).splashColor,
-              onPressed: () => Navigator.pop(context),
-              child: Icon(Icons.close),
-            ),
-          ),
-        ),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -261,6 +251,17 @@ class FullScreenImg extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 32),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: FloatingActionButton(
+              backgroundColor: Theme.of(context).splashColor,
+              onPressed: () => Navigator.pop(context),
+              child: Icon(Icons.close),
+            ),
+          ),
         ),
       ],
     );
@@ -298,7 +299,7 @@ class _GameBanner extends StatelessWidget {
     if (url == null) {
       return Image.asset(_defaultBannerImage, fit: BoxFit.cover);
     }
-    return Image.network(url!, fit: BoxFit.cover);
+    return CacheImage(imageUrl: url!, fit: BoxFit.cover);
   }
 }
 
