@@ -99,7 +99,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         },
       );
     });
-    on<Reload>((e, _) {
+    on<Reload>((e, emit) {
+      emit(Unavailable());
       if (id != null) {
         _userRepo.getUser(e.api, id!);
       } else {
