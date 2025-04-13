@@ -68,12 +68,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // check if the user is already authenticated and set the initial state
     await _authRepo.checkAuth(creds);
 
-    void startNewAuthCheckTimer() {
+    void startNewAuthCheckTimer(Credentials creds) {
       if (_authCheckTimer != null) _authCheckTimer!.cancel();
       _authCheckTimer = Timer.periodic(
         _authCheckInterval,
         (_) async {
-        await _authRepo.checkAuth(state.creds!);
+        await _authRepo.checkAuth(creds);
       },
       );
     }
@@ -87,7 +87,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           case AuthStatus.unauthenticated:
             return emit(Unauthenticated());
           case AuthStatus.authenticated:
-            startNewAuthCheckTimer();
+            startNewAuthCheckTimer(creds);
             return emit(Authenticated(api: status.$2!));
         }
       },

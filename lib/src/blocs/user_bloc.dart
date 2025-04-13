@@ -42,6 +42,11 @@ final class Edited extends UserEvent {
   String? email;
 }
 
+final class Add extends UserEvent {
+  Add({required this.api, required this.user});
+  ApiClient api;
+  GamevaultUser user;
+}
 class UserState {}
 
 class Unavailable extends UserState {}

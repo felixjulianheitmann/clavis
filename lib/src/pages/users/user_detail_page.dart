@@ -42,7 +42,7 @@ class DetailPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [EditableAvatar(user: user)],
                 ),
-                UserForm(type: UserFormType.editExisting),
+                UserForm(),
               ],
             );
           },

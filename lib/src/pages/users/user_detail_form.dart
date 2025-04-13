@@ -6,22 +6,17 @@ import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_email_validator/email_validator.dart';import 'package:gamevault_cl
+import 'package:flutter_email_validator/email_validator.dart';
 
-import 'package:gamevault_client_sdk/api.dart';ient_sdk/api.dart';
+import 'package:gamevault_client_sdk/api.dart';
 
-enum UserFormType { addNew, editExisting }
 
 typedef ValidateFunc = bool Function();
 typedef ActionButtonBuilderFunc =
     Widget Function(BuildContext context, ValidateFunc validateForm, GamevaultUser user);
 
 class UserForm extends StatefulWidget {
-  const UserForm({super.key, required this.type, this.actionButtonBuilder});
-
-  final UserFormType type;
-  final ActionButtonBuilderFunc? actionButtonBuilder;
-
+  const UserForm({super.key});
   @override
   State<UserForm> createState() => _UserFormState();
 }
@@ -49,24 +44,23 @@ class _UserFormState extends State<UserForm> {
     String? remoteFirstName;
     String? remoteLastName;
     String? remoteEmail;
-    if (widget.type == UserFormType.editExisting) {
-      // this is an edit user dialog -> update widget with remote values
-      final user = context.select((UserBloc u) {
-        if (u.state is Ready) return (u.state as Ready).user.user;
-      });
-      if (user != null) {
-        remoteUsername = user.username;
-        remoteFirstName = user.firstName;
-        remoteLastName = user.lastName;
-        remoteEmail = user.email;
-      }
+
+    final user = context.select((UserBloc u) {
+      if (u.state is Ready) return (u.state as Ready).user.user;
+    });
+
+    if (user != null) {
+      remoteUsername = user.username;
+      remoteFirstName = user.firstName;
+      remoteLastName = user.lastName;
+      remoteEmail = user.email;
     }
 
     final usernameField = TextEdit(
       formKey: _formKey,
+      controller: _usernameCtrl,
       label: translate.page_user_details_username,
       remoteValue: remoteUsername,
-      type: widget.type,
       submitter: (v) => _userSubmit(v, context, api),
       valueGetter: (user) => user.username,
       validator: _validateName(translate),
@@ -74,9 +68,9 @@ class _UserFormState extends State<UserForm> {
 
     final firstnameField = TextEdit(
       formKey: _formKey,
+      controller: _firstNameCtrl,
       label: translate.page_user_details_firstname,
       remoteValue: remoteFirstName,
-      type: widget.type,
       submitter: (v) => Edited(api: api, firstName: v),
       valueGetter: (user) => user.firstName,
       validator: _validateName(translate),
@@ -84,9 +78,9 @@ class _UserFormState extends State<UserForm> {
 
     final lastnameField = TextEdit(
       formKey: _formKey,
+      controller: _lastNameCtrl,
       label: translate.page_user_details_lastname,
       remoteValue: remoteLastName,
-      type: widget.type,
       submitter: (v) => Edited(api: api, lastName: v),
       valueGetter: (user) => user.lastName,
       validator: _validateName(translate),
@@ -94,15 +88,13 @@ class _UserFormState extends State<UserForm> {
 
     final emailField = TextEdit(
       formKey: _formKey,
+      controller: _emailCtrl,
       label: translate.page_user_details_email,
       remoteValue: remoteEmail,
-      type: widget.type,
       submitter: (v) => Edited(api: api, email: v),
       valueGetter: (user) => user.email,
       validator: _validateMail(translate),
     );
-
-    bool validate() => _formKey.currentState!.validate();
 
     return SizedBox(
       width: min(MediaQuery.of(context).size.width, 400),
@@ -117,9 +109,6 @@ class _UserFormState extends State<UserForm> {
                 firstnameField,
                 lastnameField,
                 emailField,
-                widget.actionButtonBuilder != null
-                    ? widget.actionButtonBuilder!(context, validate)
-                    : const SizedBox.shrink(),
               ],
             ),
           ),
@@ -133,18 +122,18 @@ class TextEdit extends StatefulWidget {
   const TextEdit({
     super.key,
     required this.formKey,
+    required this.controller,
     required this.label,
     required this.remoteValue,
-    required this.type,
     required this.submitter,
     required this.valueGetter,
     this.validator,
   });
 
   final GlobalKey<FormState> formKey;
+  final TextEditingController controller;
   final String label;
   final String? remoteValue;
-  final UserFormType type;
   final Edited Function(String) submitter;
   final String? Function(GamevaultUser) valueGetter;
   final String? Function(String? text)? validator;
@@ -161,52 +150,44 @@ class _TextEditState extends State<TextEdit> {
 
     void Function(String)? onChanged;
     if (widget.remoteValue != null) {
-      if (_ctrl.text == '' && !_isModified) {
-        _ctrl.text = widget.remoteValue ?? '';
+      if (widget.controller.text == '' && !_isModified) {
+        widget.controller.text = widget.remoteValue ?? '';
       }
       onChanged =
           (v) => setState(
-            () => _isModified = widget.remoteValue != _ctrl.text,
+            () => _isModified = widget.remoteValue != widget.controller.text,
           );
     }
     
-    void Function(String)? onFieldSubmitted;
-    if (widget.type == UserFormType.editExisting) {
-      onFieldSubmitted = (v) {
+    final field = TextFormField(
+      validator: widget.validator,
+      controller: widget.controller,
+      onChanged: onChanged,
+      onFieldSubmitted: (v) {
         if (widget.formKey.currentState!.validate()) {
           final userUpdate = widget.submitter(v);
           context.read<UserBloc>().add(userUpdate);
         }
-      };
-    }
-
-    final field = TextFormField(
-      validator: widget.validator,
-      controller: _ctrl,
-      onChanged: onChanged,
-      onFieldSubmitted: onFieldSubmitted,
+      },
       decoration: InputDecoration(
         labelText: widget.label,
         suffixIcon: _isModified ? Icon(Icons.pending) : null,
       ),
     );
 
-    if (widget.type == UserFormType.editExisting) {
-      return BlocListener<UserBloc, UserState>(
-        listener: (context, state) {
-          if (state is Ready) {
-            // check on state updates
-            setState(() {
-              final remote = widget.valueGetter(state.user.user);
-              _isModified = remote != null && remote != _ctrl.text;
-            });
-          }
-        },
-        child: field,
-      );
-    } else {
-      return field;
-    }
+
+    return BlocListener<UserBloc, UserState>(
+      listener: (context, state) {
+        if (state is Ready) {
+          // check on state updates
+          setState(() {
+            final remote = widget.valueGetter(state.user.user);
+            _isModified = remote != null && remote != widget.controller.text;
+          });
+        }
+      },
+      child: field,
+    );
   }
 }
 
