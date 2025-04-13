@@ -169,6 +169,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_delete => 'Delete';
 
   @override
+  String get action_restore => 'Restore';
+
+  @override
   String get action_upload_avatar => 'Upload Avatar';
 
   @override

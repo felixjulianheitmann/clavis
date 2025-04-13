@@ -52,6 +52,7 @@
     "action_activate": "Activate",
     "action_deactivate": "Deactivate",
     "action_delete": "Delete",
+    "action_restore": "Restore",
     "action_upload_avatar": "Upload Avatar",
     "action_add_user": "Add User",
     "action_cancel": "Cancel",

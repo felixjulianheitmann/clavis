@@ -21,7 +21,7 @@ class DetailPage extends StatelessWidget {
               UserBloc(context.read<UserRepository>(), id)..add(Subscribe()),
       child: ClavisScaffold(
         showDrawer: false,
-        actions: [ActivationButton(id: id), DeleteButton(id: id)],
+        actions: [ActivationButton(id: id), DeletionButton(id: id)],
         body: BlocBuilder<UserBloc, UserState>(
           builder: (context, userState) {
             final api = context.select((AuthBloc a) {
@@ -53,41 +53,40 @@ class DetailPage extends StatelessWidget {
   }
 }
 
-class DeleteButton extends StatelessWidget {
-  const DeleteButton({super.key, required this.id});
+class DeletionButton extends StatelessWidget {
+  const DeletionButton({super.key, required this.id});
 
   final num id;
 
   @override
   Widget build(BuildContext context) {
     final api = Helpers.getApi(context);
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (context, state) {
+        if (state is! Ready || api == null) return CircularProgressIndicator();
+        String tooltip;
+        IconData icon;
+        UserEvent buttonEvent;
 
-    void Function()? onPress;
-    if (api != null) {
-      onPress = () {
-        context.read<UserBloc>().add(Delete(api: api));
-      };
-    }
+        if (state.user.user.deletedAt == null) {
+          tooltip = AppLocalizations.of(context)!.action_delete;
+          icon = Icons.delete;
+          buttonEvent = Delete(api: api);
+        } else {
+          tooltip = AppLocalizations.of(context)!.action_restore;
+          icon = Icons.restore;
+          buttonEvent = Restore(api: api);
+        }
+    
 
-    return BlocListener<UserBloc, UserState>(
-      listener: (context, state) {
-        if (state is Deleted) Navigator.pop(context);
+        return Tooltip(
+          message: tooltip,
+          child: IconButton(
+            onPressed: () => context.read<UserBloc>().add(buttonEvent),
+            icon: Icon(icon),
+          ),
+        );
       },
-      child: BlocBuilder<UserBloc, UserState>(
-        builder: (context, state) {
-          Widget button = IconButton(
-            onPressed: onPress,
-            icon: Icon(Icons.delete),
-          );
-
-          if (state is Deleting) button = CircularProgressIndicator();
-
-          return Tooltip(
-            message: AppLocalizations.of(context)!.action_delete,
-            child: button,
-          );
-        },
-      ),
     );
   }
 }

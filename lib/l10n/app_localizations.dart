@@ -395,6 +395,12 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get action_delete;
 
+  /// No description provided for @action_restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get action_restore;
+
   /// No description provided for @action_upload_avatar.
   ///
   /// In en, this message translates to:

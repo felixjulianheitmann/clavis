@@ -191,6 +191,22 @@ class UserRepository {
     try {
       res = await UserApi(api).deleteUserByUserId(id);
     } catch (e) {
+      throw UserRepoException("error restoring user: $e");
+    }
+    if (res == null) {
+      throw UserRepoException(
+        "user restoration returned null response - user-id: $id",
+      );
+    }
+
+    await reloadUsers(api);
+  }
+
+  Future<void> restoreUser(ApiClient api, num id) async {
+    GamevaultUser? res;
+    try {
+      res = await UserApi(api).postUserRecoverByUserId(id);
+    } catch (e) {
       throw UserRepoException("error deleting user: $e");
     }
     if (res == null) {
@@ -199,10 +215,7 @@ class UserRepository {
       );
     }
 
-    if (_users != null) {
-      _users!.removeWhere((u) => u.user.id == id);
-      _usersController.add(_users!);
-    }
+    await reloadUsers(api);
   }
 
   Future<void> activateUser(ApiClient api, num id) async {
