@@ -38,27 +38,65 @@ class UsersPage extends StatelessWidget {
           }
 
           final users = state.users;
-          
-          if (users.isEmpty) { // when would that happen?
+
+          if (users.isEmpty) {
+            // when would that happen?
             return Align(
               alignment: Alignment.topCenter,
               child: Text(translate.users_no_users_available),
             );
           }
 
-          return SizedBox(
-            width: double.maxFinite,
-            child: Wrap(
-              runSpacing: _cardSpacing,
-              spacing: _cardSpacing,
-              alignment: WrapAlignment.spaceEvenly,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: userTiles(users),
+          final deletedUsers = users.where((u) => u.user.deletedAt != null);
+          final availableUsers = users.where((u) => u.user.deletedAt == null);
+          final activeUsers = availableUsers.where((u) => u.user.activated);
+          final inactiveUsers = availableUsers.where((u) => !u.user.activated);
+
+          Widget userTileList(List<UserBundle> users) {
+            return SizedBox(
+              width: double.maxFinite,
+              child: Wrap(
+                runSpacing: _cardSpacing,
+                spacing: _cardSpacing,
+                alignment: WrapAlignment.start,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: userTiles(users),
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                userTileList(activeUsers.toList()),
+                Headline('Inactive Users'),
+                Divider(),
+                userTileList(inactiveUsers.toList()),
+                Headline('Deleted Users'),
+                Divider(),
+                userTileList(deletedUsers.toList()),
+              ],
             ),
           );
-
         },
       ),
+    );
+  }
+}
+
+class Headline extends StatelessWidget {
+  const Headline(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 16),
+          child: Text(text, style: TextStyle(fontSize: 18)),
+        ),
+      ],
     );
   }
 }
@@ -67,25 +105,28 @@ class UserTile extends StatelessWidget {
   const UserTile({super.key, required this.user});
   final UserBundle user;
 
+  static const width = 300.0;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap:
           () => Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => DetailPage(id: user.user.id),
-            ),
+            MaterialPageRoute(builder: (_) => DetailPage(id: user.user.id)),
           ),
       child: Focusable(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 8,
-              children: [UserAvatar(user), UserDesc(user.user)],
+        child: SizedBox(
+          width: UserTile.width,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 8,
+                children: [UserAvatar(user), UserDesc(user.user)],
+              ),
             ),
           ),
         ),
@@ -102,14 +143,17 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    IconData? icon;
+    if (!user.user.activated) icon = Icons.close;
+    if (user.user.deletedAt != null) icon = Icons.delete;
     return Stack(
       children: [
         Helpers.avatar(user.avatar, radius: size),
         Visibility(
-          visible: !user.user.activated,
+          visible: icon != null,
           child: Opacity(
             opacity: 0.7,
-            child: Icon(Icons.close, size: size * 2),
+            child: Icon(icon ?? Icons.check, size: size * 2),
           ),
         ),
       ],
