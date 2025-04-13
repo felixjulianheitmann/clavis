@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/hoverable.dart';
 import 'package:flutter/foundation.dart';
@@ -193,8 +192,6 @@ class _GameScreenshots extends StatefulWidget {
 }
 
 class _GameScreenshotsState extends State<_GameScreenshots> {
-  final controller = CarouselSliderController();
-
   @override
   Widget build(BuildContext context) {
     if (widget.screenShotUrls == null) {
