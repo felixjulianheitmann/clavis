@@ -5,6 +5,7 @@ import 'package:clavis/src/pages/users/user_detail_form.dart';
 import 'package:clavis/src/pages/users/user_editable_avatar.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/clavis_scaffold.dart';
+import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,7 +21,7 @@ class DetailPage extends StatelessWidget {
               UserBloc(context.read<UserRepository>(), id)..add(Subscribe()),
       child: ClavisScaffold(
         showDrawer: false,
-        actions: [DeactivateButton(id: id), DeleteButton(id: id)],
+        actions: [ActivationButton(id: id), DeleteButton(id: id)],
         body: BlocBuilder<UserBloc, UserState>(
           builder: (context, userState) {
             final api = context.select((AuthBloc a) {
@@ -77,25 +78,42 @@ class DeleteButton extends StatelessWidget {
   }
 }
 
-class DeactivateButton extends StatelessWidget {
-  const DeactivateButton({super.key, required this.id});
+class ActivationButton extends StatelessWidget {
+  const ActivationButton({super.key, required this.id});
 
   final num id;
 
   @override
   Widget build(BuildContext context) {
-    final api = context.select((AuthBloc a) {
-      if (a is Authenticated) return (a as Authenticated).api;
-    });
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (context, state) {
+        final api = Helpers.getApi(context);
+        if (state is! Ready || api == null) return CircularProgressIndicator();
 
-    void Function()? onPress;
-    if (api != null) {
-      onPress = () {};
-    }
+        String tooltip;
+        IconData icon;
+        UserEvent buttonEvent;
 
-    return Tooltip(
-      message: AppLocalizations.of(context)!.action_deactivate,
-      child: IconButton(icon: Icon(Icons.block), onPressed: onPress),
+        if (!state.user.user.activated) {
+          tooltip = AppLocalizations.of(context)!.action_activate;
+          icon = Icons.how_to_reg;
+          buttonEvent = Activate(api: api);
+        } else {
+          tooltip = AppLocalizations.of(context)!.action_deactivate;
+          icon = Icons.block;
+          buttonEvent = Deactivate(api: api);
+        }
+
+        return Tooltip(
+          message: tooltip,
+          child: IconButton(
+            icon: Icon(icon),
+            onPressed: () {
+              context.read<UserBloc>().add(buttonEvent);
+            },
+          ),
+        );
+      },
     );
   }
 }

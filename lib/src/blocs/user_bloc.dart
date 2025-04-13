@@ -15,6 +15,10 @@ final class Delete extends UserEvent {
   final ApiClient api;
 }
 
+final class Activate extends UserEvent {
+  Activate({required this.api});
+  final ApiClient api;
+}
 final class Deactivate extends UserEvent {
   Deactivate({required this.api});
   final ApiClient api;
@@ -80,6 +84,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     });
     on<Reload>((e, _) => _userRepo.getUser(e.api, id));
     on<Delete>((e, _) => _userRepo.deleteUser(e.api, id));
+    on<Activate>((e, _) => _userRepo.activateUser(e.api, id));
     on<Deactivate>((e, _) => _userRepo.deactivateUser(e.api, id));
     on<UploadAvatar>(
       (e, _) => _userRepo.uploadAvatar(e.api, id, e.fileStream, e.file),

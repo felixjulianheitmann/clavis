@@ -205,6 +205,11 @@ class UserRepository {
     }
   }
 
+  Future<void> activateUser(ApiClient api, num id) async {
+    final update = UpdateUserDto(activated: true);
+    await updateUser(api, id, update);
+  }
+
   Future<void> deactivateUser(ApiClient api, num id) async {
     final update = UpdateUserDto(activated: false);
     await updateUser(api, id, update);

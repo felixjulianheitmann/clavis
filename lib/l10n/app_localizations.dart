@@ -377,6 +377,12 @@ abstract class AppLocalizations {
   /// **'Password must be at least 8 characters'**
   String get validation_password_too_short;
 
+  /// No description provided for @action_activate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get action_activate;
+
   /// No description provided for @action_deactivate.
   ///
   /// In en, this message translates to:

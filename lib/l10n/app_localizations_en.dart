@@ -160,6 +160,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_password_too_short => 'Password must be at least 8 characters';
 
   @override
+  String get action_activate => 'Activate';
+
+  @override
   String get action_deactivate => 'Deactivate';
 
   @override
