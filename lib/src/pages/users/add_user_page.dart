@@ -1,8 +1,11 @@
 import 'package:clavis/l10n/app_localizations.dart';
+import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/blocs/users_bloc.dart';
 import 'package:clavis/src/clavis_scaffold.dart';
 import 'package:clavis/src/pages/users/user_detail_form.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddUserPage extends StatelessWidget {
   const AddUserPage({super.key});
@@ -21,10 +24,13 @@ class AddUserPage extends StatelessWidget {
           children: [
             UserForm(
               type: UserFormType.addNew,
-              actionButtonBuilder: (context, validateForm) {
+              actionButtonBuilder: (context, validateForm, user) {
                 return FilledButton(
                   style: ButtonStyle(),
-                  onPressed: () {},
+                  onPressed: () {
+                    if(!validateForm()) return;
+                    context.read<UserBloc>().add(Add(api: api, user: user))
+                  },
                   child: Text(translate.action_register),
                 );
               },

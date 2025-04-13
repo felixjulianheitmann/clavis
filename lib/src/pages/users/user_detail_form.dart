@@ -6,14 +6,15 @@ import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_email_validator/email_validator.dart';
-import 'package:gamevault_client_sdk/api.dart';
+import 'package:flutter_email_validator/email_validator.dart';import 'package:gamevault_cl
+
+import 'package:gamevault_client_sdk/api.dart';ient_sdk/api.dart';
 
 enum UserFormType { addNew, editExisting }
 
 typedef ValidateFunc = bool Function();
 typedef ActionButtonBuilderFunc =
-    Widget Function(BuildContext context, ValidateFunc validateForm);
+    Widget Function(BuildContext context, ValidateFunc validateForm, GamevaultUser user);
 
 class UserForm extends StatefulWidget {
   const UserForm({super.key, required this.type, this.actionButtonBuilder});
@@ -28,6 +29,10 @@ class UserForm extends StatefulWidget {
 
 class _UserFormState extends State<UserForm> {
   final _formKey = GlobalKey<FormState>();
+  final _usernameCtrl = TextEditingController();
+  final _firstNameCtrl = TextEditingController();
+  final _lastNameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
 
   Edited _userSubmit(String input, BuildContext context, ApiClient api) {
     context.read<PrefBloc>().add(SetUsername(username: input));
@@ -149,7 +154,6 @@ class TextEdit extends StatefulWidget {
 }
 
 class _TextEditState extends State<TextEdit> {
-  final _ctrl = TextEditingController();
   bool _isModified = false;
 
   @override
