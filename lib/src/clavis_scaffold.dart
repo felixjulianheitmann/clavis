@@ -2,6 +2,7 @@ import 'package:clavis/src/blocs/error_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/constants.dart';
+import 'package:clavis/src/pages/user_me/user_me_page.dart';
 import 'package:clavis/src/util/app_title.dart';
 import 'package:clavis/src/pages/games/games_page.dart';
 import 'package:clavis/src/pages/settings/settings_page.dart';
@@ -35,7 +36,7 @@ class ClavisScaffold extends StatelessWidget {
     } else if (activePage.id == Constants.settingsPageInfo().id) {
       return SettingsPage();
     } else if (activePage.id == Constants.userMePageInfo().id) {
-      return UsersPage();
+      return UserMePage();
     } else {
       return GamesPage();
     }
@@ -77,7 +78,7 @@ class ClavisScaffold extends StatelessWidget {
 
         final providers =
             state.activePage.blocs
-                .map((bloc) => BlocProvider(create: (_) => bloc))
+                .map((bloc) => BlocProvider(create: bloc))
                 .toList();
         return MultiBlocProvider(providers: providers, child: scaffold);
       },

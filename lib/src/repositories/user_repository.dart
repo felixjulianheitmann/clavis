@@ -78,6 +78,13 @@ class UserRepository {
 
     final bundles = users.map((u) => UserBundle(user: u)).toList();
     _usersController.add(bundles);
+
+    if (_userMe != null) {
+      final user = bundles.firstWhereOrNull(
+        (u) => u.user.id == _userMe!.user.id,
+      );
+      if (user != null) _userMeController.add(user);
+    }
   }
 
   void _updateUserEntry(GamevaultUser user) {
@@ -191,12 +198,25 @@ class UserRepository {
     try {
       res = await UserApi(api).deleteUserByUserId(id);
     } catch (e) {
-      throw UserRepoException("error restoring user: $e");
+      throw UserRepoException("error deleting user: $e");
     }
     if (res == null) {
       throw UserRepoException(
-        "user restoration returned null response - user-id: $id",
+        "user deletion returned null response - user-id: $id",
       );
+    }
+
+    await reloadUsers(api);
+  }
+  Future<void> deleteUserMe(ApiClient api) async {
+    GamevaultUser? res;
+    try {
+      res = await UserApi(api).deleteUserMe();
+    } catch (e) {
+      throw UserRepoException("error deleting user me: $e");
+    }
+    if (res == null) {
+      throw UserRepoException("user me deletion returned null response");
     }
 
     await reloadUsers(api);
@@ -207,11 +227,11 @@ class UserRepository {
     try {
       res = await UserApi(api).postUserRecoverByUserId(id);
     } catch (e) {
-      throw UserRepoException("error deleting user: $e");
+      throw UserRepoException("error restoring user: $e");
     }
     if (res == null) {
       throw UserRepoException(
-        "user deletion returned null response - user-id: $id",
+        "user restoration returned null response - user-id: $id",
       );
     }
 
@@ -228,9 +248,13 @@ class UserRepository {
     await updateUser(api, id, update);
   }
 
-  Future<void> uploadAvatar(
+  Future<void> deactivateUserMe(ApiClient api) async {
+    final update = UpdateUserDto(activated: false);
+    await updateUserMe(api, update);
+  }
+
+  Future<num?> uploadAvatar(
     ApiClient api,
-    num id,
     Stream<List<int>> fileStream,
     PlatformFile file,
   ) async {
@@ -251,12 +275,11 @@ class UserRepository {
 
     if (uploaded == null) {
       throw UserRepoException(
-        "upload of avatar returned with null: userId: $id",
+        "upload of avatar returned with null",
       );
     }
 
-    final userUpdate = UpdateUserDto(avatarId: uploaded.id);
-    await updateUser(api, id, userUpdate);
+    return uploaded.id;
   }
 
   Future<void> addUser(ApiClient api, RegisterUserDto registration) async {

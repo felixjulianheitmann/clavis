@@ -16,7 +16,9 @@ typedef ActionButtonBuilderFunc =
     Widget Function(BuildContext context, ValidateFunc validateForm, GamevaultUser user);
 
 class UserForm extends StatefulWidget {
-  const UserForm({super.key});
+  const UserForm({super.key, this.id});
+  final num? id;
+
   @override
   State<UserForm> createState() => _UserFormState();
 }
@@ -45,9 +47,16 @@ class _UserFormState extends State<UserForm> {
     String? remoteLastName;
     String? remoteEmail;
 
-    final user = context.select((UserBloc u) {
+    final user;
+    if (widget.id == null) {
+      user = context.select((UserMeBloc u) {
       if (u.state is Ready) return (u.state as Ready).user.user;
     });
+    } else {
+      user = context.select((UserBloc u) {
+        if (u.state is Ready) return (u.state as Ready).user.user;
+      });
+    }
 
     if (user != null) {
       remoteUsername = user.username;
@@ -58,6 +67,7 @@ class _UserFormState extends State<UserForm> {
 
     final usernameField = TextEdit(
       formKey: _formKey,
+      userId: widget.id,
       controller: _usernameCtrl,
       label: translate.page_user_details_username,
       remoteValue: remoteUsername,
@@ -68,6 +78,7 @@ class _UserFormState extends State<UserForm> {
 
     final firstnameField = TextEdit(
       formKey: _formKey,
+      userId: widget.id,
       controller: _firstNameCtrl,
       label: translate.page_user_details_firstname,
       remoteValue: remoteFirstName,
@@ -78,6 +89,7 @@ class _UserFormState extends State<UserForm> {
 
     final lastnameField = TextEdit(
       formKey: _formKey,
+      userId: widget.id,
       controller: _lastNameCtrl,
       label: translate.page_user_details_lastname,
       remoteValue: remoteLastName,
@@ -88,6 +100,7 @@ class _UserFormState extends State<UserForm> {
 
     final emailField = TextEdit(
       formKey: _formKey,
+      userId: widget.id,
       controller: _emailCtrl,
       label: translate.page_user_details_email,
       remoteValue: remoteEmail,
@@ -121,6 +134,7 @@ class _UserFormState extends State<UserForm> {
 class TextEdit extends StatefulWidget {
   const TextEdit({
     super.key,
+    required this.userId,
     required this.formKey,
     required this.controller,
     required this.label,
@@ -131,6 +145,7 @@ class TextEdit extends StatefulWidget {
   });
 
   final GlobalKey<FormState> formKey;
+  final num? userId;
   final TextEditingController controller;
   final String label;
   final String? remoteValue;
@@ -166,7 +181,7 @@ class _TextEditState extends State<TextEdit> {
       onFieldSubmitted: (v) {
         if (widget.formKey.currentState!.validate()) {
           final userUpdate = widget.submitter(v);
-          context.read<UserBloc>().add(userUpdate);
+          Helpers.getUserSpecificBloc(context, widget.userId).add(userUpdate);
         }
       },
       decoration: InputDecoration(
@@ -176,7 +191,8 @@ class _TextEditState extends State<TextEdit> {
     );
 
 
-    return BlocListener<UserBloc, UserState>(
+    return UserSpecificBlocListener(
+      id: widget.userId,
       listener: (context, state) {
         if (state is Ready) {
           // check on state updates

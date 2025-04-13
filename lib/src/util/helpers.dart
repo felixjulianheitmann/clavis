@@ -1,4 +1,6 @@
 import 'package:clavis/src/blocs/auth_bloc.dart';
+import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
@@ -80,5 +82,57 @@ abstract class Helpers {
       }
       return null;
     });
+  }
+
+
+static Bloc getUserSpecificBloc(BuildContext context, num? id) {
+    if (id == null) return UserMeBloc(context.read<UserRepository>());
+    return UserBloc(context.read<UserRepository>(), id);
+  }
+}
+
+class UserSpecificBlocBuilder extends StatelessWidget {
+  const UserSpecificBlocBuilder({
+    super.key,
+    required this.id,
+    required this.builder,
+  });
+  final num? id;
+  final Widget Function(BuildContext context, UserState state) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    if (id == null) {
+      return BlocBuilder<UserMeBloc, UserState>(builder: builder);
+    } else {
+      return BlocBuilder<UserBloc, UserState>(builder: builder);
+    }
+  }
+}
+
+class UserSpecificBlocListener extends StatelessWidget {
+  const UserSpecificBlocListener({
+    super.key,
+    required this.id,
+    required this.listener,
+    required this.child,
+  });
+  final num? id;
+  final void Function(BuildContext context, UserState state) listener;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (id == null) {
+      return BlocListener<UserMeBloc, UserState>(
+        listener: listener,
+        child: child,
+      );
+    } else {
+      return BlocListener<UserBloc, UserState>(
+        listener: listener,
+        child: child,
+      );
+    }
   }
 }

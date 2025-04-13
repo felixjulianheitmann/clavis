@@ -12,7 +12,7 @@ class PageInfo {
   });
   final PageId id;
   final List<Widget> appbarActions;
-  final List<Bloc> blocs;
+  final List<Bloc Function(BuildContext ctx)> blocs;
 }
 
 class PageState{
