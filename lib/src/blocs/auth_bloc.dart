@@ -112,7 +112,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogin(Login event, Emitter<AuthState> emit) async {
     if (_authCheckTimer != null) _authCheckTimer!.cancel();
-    _authRepo.login(event.creds);
+    await _authRepo.login(event.creds);
+    await _prefRepo.write(event.creds);
   }
 
 }

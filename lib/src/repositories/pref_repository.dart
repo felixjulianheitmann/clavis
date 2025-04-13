@@ -140,6 +140,7 @@ class PrefRepo {
     final store = FlutterSecureStorage();
     _creds.update(host: creds.host, user: creds.user, pass: creds.pass);
     _credCtrl.add(_creds);
+    await _set(_keyHostname, creds.host!);
     await store.write(key: _keyUsername, value: creds.user);
     await store.write(key: _keyPassword, value: creds.pass);
   }
@@ -192,32 +193,32 @@ class PrefRepo {
 }
 
 Future<T?> _get<T>(String key) async {
-  final store = await SharedPreferences.getInstance();
+  final store = SharedPreferencesAsync();
   if (T == String) {
-    return store.getString(key) as T?;
+    return await store.getString(key) as T?;
   } else if (T == int) {
-    return store.getInt(key) as T?;
+    return await store.getInt(key) as T?;
   } else if (T == double) {
-    return store.getDouble(key) as T?;
+    return await store.getDouble(key) as T?;
   } else if (T == bool) {
-    return store.getBool(key) as T?;
+    return await store.getBool(key) as T?;
   } else if (T == List<String>) {
-    return store.getStringList(key) as T?;
+    return await store.getStringList(key) as T?;
   }
   return null;
 }
 
 Future<void> _set<T>(String key, T value) async {
-  final store = await SharedPreferences.getInstance();
+  final store = SharedPreferencesAsync();
   if (T == String) {
-    store.setString(key, value as String);
+    await store.setString(key, value as String);
   } else if (T == int) {
-    store.setInt(key, value as int);
+    await store.setInt(key, value as int);
   } else if (T == double) {
-    store.setDouble(key, value as double);
+    await store.setDouble(key, value as double);
   } else if (T == bool) {
-    store.setBool(key, value as bool);
+    await store.setBool(key, value as bool);
   } else if (T == List<String>) {
-    store.setStringList(key, value as List<String>);
+    await store.setStringList(key, value as List<String>);
   }
 }
