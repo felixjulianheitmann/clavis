@@ -2,7 +2,7 @@ import 'package:clavis/src/blocs/error_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/constants.dart';
-import 'package:clavis/src/pages/user_me/user_me_page.dart';
+import 'package:clavis/src/pages/users/user_me_page.dart';
 import 'package:clavis/src/util/app_title.dart';
 import 'package:clavis/src/pages/games/games_page.dart';
 import 'package:clavis/src/pages/settings/settings_page.dart';
