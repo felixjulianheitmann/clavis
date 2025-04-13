@@ -52,13 +52,19 @@ class UsersPage extends StatelessWidget {
           final activeUsers = availableUsers.where((u) => u.user.activated);
           final inactiveUsers = availableUsers.where((u) => !u.user.activated);
 
+          final screenW = MediaQuery.of(context).size.width;
+          final alignment =
+              screenW < 2 * UserTile.width
+                  ? WrapAlignment.center
+                  : WrapAlignment.start;
+
           Widget userTileList(List<UserBundle> users) {
             return SizedBox(
               width: double.maxFinite,
               child: Wrap(
                 runSpacing: _cardSpacing,
                 spacing: _cardSpacing,
-                alignment: WrapAlignment.start,
+                alignment: alignment,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: userTiles(users),
               ),
@@ -105,7 +111,7 @@ class UserTile extends StatelessWidget {
   const UserTile({super.key, required this.user});
   final UserBundle user;
 
-  static const width = 300.0;
+  static const width = 400.0;
 
   @override
   Widget build(BuildContext context) {
