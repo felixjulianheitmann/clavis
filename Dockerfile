@@ -1,4 +1,4 @@
-FROM httpd:2.4-alpine
+FROM httpd:2.4.63-bookworm
 
 ARG BUILD_DIR=build/web/
 
