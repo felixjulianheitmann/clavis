@@ -21,6 +21,8 @@ jobs:
         include:
           - os: windows-latest
             platform: windows
+          - os: ubuntu-24.04-arm
+            platform: linux
       fail-fast: false
     
     outputs:
@@ -150,7 +152,7 @@ jobs:
     permissions: 
       packages: write
       
-    # if: ${{ needs.build.outputs.distance == 0 }}
+    if: ${{ needs.build.outputs.distance == 0 }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-web
