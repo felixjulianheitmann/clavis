@@ -1,6 +1,6 @@
 name: publish-web
-on: 
-  workflow_dispatch: 
+on:
+  workflow_call: 
     inputs:
       tag:
         type: string  
