@@ -39,6 +39,11 @@ jobs:
         id: ghd
         uses: proudust/gh-describe@v2
 
+      - name: print version
+        run: |
+          echo Version: ${{ steps.ghd.outputs.tag }}
+          echo Distance: ${{ steps.ghd.outputs.distance }}
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -151,7 +156,11 @@ jobs:
     if: ${{ needs.build.outputs.distance }} == 0
 
     steps:
-
+    - name: print version
+      run: |
+        echo Version: ${{ needs.build.outputs.tag }}
+        echo Distance: ${{ needs.build.outputs.distance }}
+          
     - name: Download builds
       uses: "actions/download-artifact@v4"
       with:
