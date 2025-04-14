@@ -179,7 +179,15 @@ jobs:
     - name: build docker
       run: |
         docker build --build-arg BUILD_DIR=tmp.cicd/builds-${{ matrix.platform }} --tag clavis:${{ needs.build.outputs.tag }} --tag clavis:latest .
-    
+
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: push docker
       if: ${{ matrix.platform }} == web
       uses: redhat-actions/push-to-registry@v2
@@ -187,6 +195,7 @@ jobs:
         registry: ghcr.io/felixjulianheitmann
         image: clavis
         tags: ${{ needs.build.outputs.tag }} latest
+
 
     - name: package installers
       run: 
