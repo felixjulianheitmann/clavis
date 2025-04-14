@@ -14,11 +14,11 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [web, android, linux]
+        platform: [web]
         os: [ubuntu-latest]
-        include:
-          - os: windows-latest
-            platform: windows
+        # include:
+        #   - os: windows-latest
+        #     platform: windows
       fail-fast: false
     
     outputs:
