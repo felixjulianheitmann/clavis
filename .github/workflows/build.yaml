@@ -146,7 +146,7 @@ jobs:
   
   package-web:
     needs: build
-    if: ${{ needs.build.outputs.distance == 0 }} 
+    # if: ${{ needs.build.outputs.distance == 0 }} 
     permissions: 
       packages: write
 
