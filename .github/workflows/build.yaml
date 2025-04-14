@@ -14,15 +14,20 @@ on:
 
 jobs:
   build:
+    env:
+      BUILD_PATH_MAP: '{"web":"app/outputs/flutter-apk/app-release.apk","android":"linux/x64/release/bundle","linux":"web","windows":"windows"}'
     strategy:
       matrix:
         platform: [web, android, linux]
         os: [ubuntu-latest]
+        arch: [amd64]
         include:
           - os: windows-latest
             platform: windows
+            arch: amd64
           - os: ubuntu-24.04-arm
             platform: linux
+            arch: arm64
       fail-fast: false
     
     outputs:
@@ -118,34 +123,13 @@ jobs:
       - name: list builds
         run: ls build/*
 
-      - name: Upload Android artifacts
-        uses: actions/upload-artifact@v4
-        if: matrix.platform == 'android'
-        with:
-          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
-          path: build/app/outputs/flutter-apk/app-release.apk
-
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'linux'
         with:
-          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
-          path: build/linux/x64/release/bundle
+          name: clavis-${{ matrix.platform }}-${{ matrix.arch }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
+          path: "build/${{ fromJson(env.BUILD_PATH_MAP)[matrix.platform] }}"
 
-      - name: Upload Web artifacts
-        uses: actions/upload-artifact@v4
-        if: matrix.platform == 'web'
-        with:
-          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
-          path: build/web
-
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
-        if: matrix.platform == 'windows'
-        with:
-          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
-          path: build/windows
-  
   package-web:
     runs-on: ubuntu-latest
     needs: build
