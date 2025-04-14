@@ -150,6 +150,7 @@ jobs:
     needs: build
     if: ${{ needs.build.outputs.distance == 0 }}
     steps:
+    - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-web
       with:
         tag: ${{ needs.build.outputs.tag }}
