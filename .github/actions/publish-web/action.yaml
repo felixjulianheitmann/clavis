@@ -1,0 +1,52 @@
+name: publish-web
+description: publish the clavis docker image
+inputs:
+  tag:
+    type: string  
+    description: the tag used for this action
+    required: true
+  distance:
+    type: string  
+    description: number of additional builds since last tag
+    required: true
+  token:
+    type: string
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: print version
+    shell: bash
+    run: |
+      echo Version: ${{ inputs.tag }}
+      echo Distance: ${{ inputs.distance }}
+      
+  - name: Download builds
+    uses: "actions/download-artifact@v4"
+    with:
+      name: clavis-web-${{ inputs.tag }}-${{ github.sha }}
+      path: ${{github.workspace}}/tmp.cicd/builds-web
+
+  - name: list downloads
+    shell: bash
+    run: ls ${{github.workspace}}/tmp.cicd/builds-web
+      
+  - name: build docker
+    shell: bash
+    run: |
+      docker build --build-arg BUILD_DIR=tmp.cicd/builds-web --tag clavis:${{ inputs.tag }} --tag clavis:latest .
+
+  - name: Login to GitHub Container Registry
+    uses: docker/login-action@v3
+    with:
+      registry: ghcr.io
+      username: ${{ github.actor }}
+      password: ${{ inputs.token }}
+
+  - name: push docker
+    uses: redhat-actions/push-to-registry@v2
+    with:
+      registry: ghcr.io/felixjulianheitmann
+      image: clavis
+      tags: ${{ inputs.tag }} latest

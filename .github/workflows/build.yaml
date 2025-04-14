@@ -9,6 +9,8 @@ on:
   pull_request:
     branches:
       - main
+    types: 
+      - synchronize
 
 jobs:
   build:
@@ -19,6 +21,8 @@ jobs:
         include:
           - os: windows-latest
             platform: windows
+          - os: ubuntu-24.04-arm
+            platform: linux
       fail-fast: false
     
     outputs:
@@ -118,66 +122,43 @@ jobs:
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'android'
         with:
-          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
+          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'linux'
         with:
-          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
+          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/linux/x64/release/bundle
 
       - name: Upload Web artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'web'
         with:
-          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
+          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/web
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'windows'
         with:
-          name: build-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
+          name: clavis-${{ matrix.platform }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: build/windows
   
   package-web:
+    runs-on: ubuntu-latest
     needs: build
-    if: ${{ needs.build.outputs.distance == 0 }} 
     permissions: 
       packages: write
-
-    strategy:
-      matrix:
-        platform: [web, android, linux, windows]
-      fail-fast: false
-    
-    runs-on: ubuntu-latest
+      
+    if: ${{ needs.build.outputs.distance == 0 }}
     steps:
-    - name: print version
-      run: |
-        echo Version: ${{ needs.build.outputs.tag }}
-        echo Distance: ${{ needs.build.outputs.distance }}
-          
-    - name: Download builds
-      uses: "actions/download-artifact@v4"
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/publish-web
       with:
-        name: build-${{ matrix.platform }}-${{ needs.build.outputs.tag }}-${{ github.sha }}
-        path: ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
-
-    - name: build docker
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        registry: ghcr.io/felixjulianheitmann
-        image: clavis
-        tags: ${{ needs.build.outputs.tag }} latest
-
-    - name: package installers
-      run: 
-        echo packaging
-        # if [ "${{ matrix.platform }}" == "web" ]; then
-        #   flutter build web --release
-        # elif [ "${{ matrix.platform }}" == "linux" ]; then
-        #   flutter build linux --release  
-        # fi
+        tag: ${{ needs.build.outputs.tag }}
+        distance: ${{ needs.build.outputs.distance }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+  
