@@ -157,5 +157,6 @@ jobs:
       with:
         tag: ${{ needs.build.outputs.tag }}
         distance: ${{ needs.build.outputs.distance }}
+        token: ${{ secrets.GITHUB_TOKEN }}
     
   

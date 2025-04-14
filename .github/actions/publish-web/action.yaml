@@ -9,10 +9,14 @@ inputs:
     type: string  
     description: number of additional builds since last tag
     required: true
+  token:
+    type: string
+    required: true
 
 runs:
   steps:
   - name: print version
+    shell: bash
     run: |
       echo Version: ${{ inputs.tag }}
       echo Distance: ${{ inputs.distance }}
@@ -24,9 +28,11 @@ runs:
       path: ${{github.workspace}}/tmp.cicd/builds-web
 
   - name: list downloads
+    shell: bash
     run: ls ${{github.workspace}}/tmp.cicd/builds-web
       
   - name: build docker
+    shell: bash
     run: |
       docker build --build-arg BUILD_DIR=tmp.cicd/builds-web --tag clavis:${{ inputs.tag }} --tag clavis:latest .
 
@@ -35,7 +41,7 @@ runs:
     with:
       registry: ghcr.io
       username: ${{ github.actor }}
-      password: ${{ secrets.GITHUB_TOKEN }}
+      password: ${{ inputs.token }}
 
   - name: push docker
     uses: redhat-actions/push-to-registry@v2
