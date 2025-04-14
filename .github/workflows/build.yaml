@@ -145,10 +145,12 @@ jobs:
           path: build/windows
   
   package-web:
-    
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ needs.build.outputs.distance == 0 }}
+    permissions: 
+      packages: write
+      
+    # if: ${{ needs.build.outputs.distance == 0 }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-web
