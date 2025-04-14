@@ -170,7 +170,7 @@ jobs:
     - name: Download builds
       uses: "actions/download-artifact@v4"
       with:
-        name: calvis-${{ matrix.platform }}-${{ needs.build.outputs.tag }}-${{ github.sha }}
+        name: clavis-${{ matrix.platform }}-${{ needs.build.outputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
 
     - name: list downloads
