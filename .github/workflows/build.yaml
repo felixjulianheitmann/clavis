@@ -166,7 +166,15 @@ jobs:
         name: build-${{ matrix.platform }}-${{ needs.build.outputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
 
+    - name: list downloads
+      run: ls ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
+        
     - name: build docker
+      run: |
+        docker build --build-arg BUILD_DIR=tmp.cicd/builds-${{ matrix.platform }} --tag clavis:${{ needs.build.outputs.tag }} --tag clavis:latest .
+    
+    - name: push docker
+      if: ${{ matrix.platform }} == web
       uses: redhat-actions/push-to-registry@v2
       with:
         registry: ghcr.io/felixjulianheitmann
