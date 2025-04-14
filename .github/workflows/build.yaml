@@ -153,22 +153,23 @@ jobs:
     
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ needs.build.outputs.distance }} <= 0
 
     steps:
     - name: print version
+      if: ${{ needs.build.outputs.distance }} == 0
       run: |
         echo Version: ${{ needs.build.outputs.tag }}
         echo Distance: ${{ needs.build.outputs.distance }}
           
     - name: Download builds
+      if: ${{ needs.build.outputs.distance }} == 0
       uses: "actions/download-artifact@v4"
       with:
         name: build-${{ matrix.platform }}-${{ needs.build.outputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/builds-${{ matrix.platform }}
 
     - name: build docker
-      if: ${{ matrix.platform }} == web
+      if: ${{ matrix.platform }} == web && ${{ needs.build.outputs.distance }} == 0
       uses: redhat-actions/push-to-registry@v2
       with:
         registry: ghcr.io/felixjulianheitmann
@@ -176,6 +177,7 @@ jobs:
         tags: ${{ needs.build.outputs.tag }} latest
 
     - name: package installers
+      if: ${{ needs.build.outputs.distance }} == 0
       run: 
         echo packaging
         # if [ "${{ matrix.platform }}" == "web" ]; then
