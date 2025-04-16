@@ -58,5 +58,10 @@
     "action_cancel": "Cancel",
     "action_continue": "Continue",
     "action_signup": "Signup",
-    "action_register": "Register"
+    "action_register": "Register",
+    "game_last_played_label": "Last Played",
+    "game_average_playtime_label": "Average Playtime",
+    "game_minutes_played_label": "Minutes Played",
+    "game_average_playtime_value": "{avgPlaytime} h",
+    "game_minutes_played_value": "{minutesPlayed} min"
 }

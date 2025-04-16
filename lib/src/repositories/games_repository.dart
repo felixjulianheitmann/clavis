@@ -61,7 +61,7 @@ class GameRepository {
     _gamesListCtrl.add(games.data);
   }
 
-  Future<void> getGame(ApiClient api, int id) async {
+  Future<void> getGame(ApiClient api, num id) async {
     final GamevaultGame? game;
     try {
       game = await GameApi(api).getGameByGameId(id);

@@ -10,10 +10,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:gamevault_client_sdk/api.dart';
 
-
 typedef ValidateFunc = bool Function();
 typedef ActionButtonBuilderFunc =
-    Widget Function(BuildContext context, ValidateFunc validateForm, GamevaultUser user);
+    Widget Function(
+      BuildContext context,
+      ValidateFunc validateForm,
+      GamevaultUser user,
+    );
 
 class UserForm extends StatefulWidget {
   const UserForm({super.key, this.id});
@@ -22,7 +25,6 @@ class UserForm extends StatefulWidget {
   @override
   State<UserForm> createState() => _UserFormState();
 }
-
 
 class _UserFormState extends State<UserForm> {
   final _formKey = GlobalKey<FormState>();
@@ -35,26 +37,28 @@ class _UserFormState extends State<UserForm> {
     context.read<PrefBloc>().add(SetUsername(username: input));
     return Edited(api: api, username: input);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
     final api = Helpers.getApi(context);
     if (api == null) return Center(child: CircularProgressIndicator());
-    
+
     String? remoteUsername;
     String? remoteFirstName;
     String? remoteLastName;
     String? remoteEmail;
 
-    final user;
+    GamevaultUser? user;
     if (widget.id == null) {
       user = context.select((UserMeBloc u) {
-      if (u.state is Ready) return (u.state as Ready).user.user;
-    });
+        if (u.state is Ready) return (u.state as Ready).user.user;
+        return null;
+      });
     } else {
       user = context.select((UserBloc u) {
         if (u.state is Ready) return (u.state as Ready).user.user;
+        return null;
       });
     }
 
@@ -162,7 +166,6 @@ class _TextEditState extends State<TextEdit> {
 
   @override
   Widget build(BuildContext context) {
-
     void Function(String)? onChanged;
     if (widget.remoteValue != null) {
       if (widget.controller.text == '' && !_isModified) {
@@ -173,7 +176,7 @@ class _TextEditState extends State<TextEdit> {
             () => _isModified = widget.remoteValue != widget.controller.text,
           );
     }
-    
+
     final field = TextFormField(
       validator: widget.validator,
       controller: widget.controller,
@@ -189,7 +192,6 @@ class _TextEditState extends State<TextEdit> {
         suffixIcon: _isModified ? Icon(Icons.pending) : null,
       ),
     );
-
 
     return UserSpecificBlocListener(
       id: widget.userId,

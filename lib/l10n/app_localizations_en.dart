@@ -188,4 +188,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_register => 'Register';
+
+  @override
+  String get game_last_played_label => 'Last Played';
+
+  @override
+  String get game_average_playtime_label => 'Average Playtime';
+
+  @override
+  String get game_minutes_played_label => 'Minutes Played';
+
+  @override
+  String game_average_playtime_value(Object avgPlaytime) {
+    return '$avgPlaytime h';
+  }
+
+  @override
+  String game_minutes_played_value(Object minutesPlayed) {
+    return '$minutesPlayed min';
+  }
 }

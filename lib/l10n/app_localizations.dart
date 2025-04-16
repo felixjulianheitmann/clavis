@@ -436,6 +436,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Register'**
   String get action_register;
+
+  /// No description provided for @game_last_played_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Played'**
+  String get game_last_played_label;
+
+  /// No description provided for @game_average_playtime_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Playtime'**
+  String get game_average_playtime_label;
+
+  /// No description provided for @game_minutes_played_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes Played'**
+  String get game_minutes_played_label;
+
+  /// No description provided for @game_average_playtime_value.
+  ///
+  /// In en, this message translates to:
+  /// **'{avgPlaytime} h'**
+  String game_average_playtime_value(Object avgPlaytime);
+
+  /// No description provided for @game_minutes_played_value.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutesPlayed} min'**
+  String game_minutes_played_value(Object minutesPlayed);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
