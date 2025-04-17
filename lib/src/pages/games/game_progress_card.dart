@@ -3,6 +3,7 @@ import 'package:clavis/src/blocs/game_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/util/helpers.dart';
+import 'package:clavis/src/util/value_pair_column.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,7 +85,7 @@ class _GameProgressCardBody extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _ValuePairs(
+          ValuePairColumn(
             labels: [
               translate.game_last_played_label,
               translate.game_average_playtime_label,
@@ -105,63 +106,6 @@ class _GameProgressCardBody extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ValuePairs extends StatelessWidget {
-  const _ValuePairs({
-    required this.labels,
-    required this.icons,
-    required this.values,
-    required this.height,
-  });
-  final List<String> labels;
-  final List<IconData> icons;
-  final List<String> values;
-  final double height;
-
-  Widget _text(String text, Alignment align) {
-    return SizedBox(
-      height: height,
-      child: Align(alignment: align, child: Text(text)),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final labelTexts = labels.map((e) => _text(e, Alignment.centerRight));
-
-    final iconWidgets = icons.map(
-      (e) => SizedBox(height: height, child: Icon(e)),
-    );
-
-    final valueTexts = values.map((e) => _text(e, Alignment.centerLeft));
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: labelTexts.toList(),
-          ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: iconWidgets.toList(),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: valueTexts.toList(),
-          ),
-        ),
-      ],
     );
   }
 }

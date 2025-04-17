@@ -2,7 +2,7 @@ import 'package:clavis/src/constants.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum PageId { games, users, userMe, settings }
+enum PageId { games, users, userMe, settings, downloads }
 
 class PageInfo {
   const PageInfo({

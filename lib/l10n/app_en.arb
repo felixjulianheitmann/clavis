@@ -59,9 +59,17 @@
     "action_continue": "Continue",
     "action_signup": "Signup",
     "action_register": "Register",
+    "action_download": "Download",
+    "action_remove": "Remove",
     "game_last_played_label": "Last Played",
     "game_average_playtime_label": "Average Playtime",
     "game_minutes_played_label": "Minutes Played",
     "game_average_playtime_value": "{avgPlaytime} h",
-    "game_minutes_played_value": "{minutesPlayed} min"
+    "game_minutes_played_value": "{minutesPlayed} min",
+    "page_downloads_title": "Downloads",
+    "page_downloads_pending_title": "Pending...",
+    "page_downloads_closed_title": "Closed",
+    "page_downloads_closed_descriptions": "Downloads that are finished, cancelled or have failed.",
+    "page_downloads_pending_empty": "No downloads queued",
+    "download_size_label": "Size"
 }

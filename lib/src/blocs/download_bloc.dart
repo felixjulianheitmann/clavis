@@ -21,20 +21,22 @@ class DlRemove extends DownloadEvent{
   num gameId;
 }
 
-class DownloadState {}
-class DlReady extends DownloadState {
-  DlReady({required this.dlContext});
-  final DownloadContext dlContext;
+class DownloadState {
+  DownloadState({required this.dlContext});
+  DownloadState.init() : dlContext = DownloadContext();
+  DownloadContext dlContext;
 }
 
 class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
   final DownloadsRepository _repo;
   
-  DownloadBloc({required DownloadsRepository repo}) : _repo = repo,  super(DownloadState()) {
+  DownloadBloc({required DownloadsRepository repo})
+    : _repo = repo,
+      super(DownloadState.init()) {
     on<DlSubscribe>((_, emit) async {
       await emit.onEach(
         _repo.downloads,
-        onData: (data) => emit(DlReady(dlContext: data)),
+        onData: (data) => emit(DownloadState(dlContext: data)),
       );
     });
 

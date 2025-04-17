@@ -55,6 +55,11 @@ class SidebarDrawer extends StatelessWidget {
             onTap: () => _setPage(context, Constants.gamesPageInfo()),
           ),
           Spacer(),
+          ListTile(
+            leading: Icon(Icons.download),
+            title: Text(translate.page_downloads_title),
+            onTap: () => _setPage(context, Constants.downloadsPageInfo()),
+          ),
           _AdminArea(),
           Divider(),
           _UserMeTile(),
@@ -75,7 +80,7 @@ class _AdminArea extends StatelessWidget {
     return BlocBuilder<UserMeBloc, UserState>(
       builder: (context, state) {
         final translate = AppLocalizations.of(context)!;
-        
+
         // admin access
         final isAdmin =
             state is Ready && state.user.user.role == GamevaultUserRoleEnum.n3;

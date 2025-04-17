@@ -437,6 +437,18 @@ abstract class AppLocalizations {
   /// **'Register'**
   String get action_register;
 
+  /// No description provided for @action_download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get action_download;
+
+  /// No description provided for @action_remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get action_remove;
+
   /// No description provided for @game_last_played_label.
   ///
   /// In en, this message translates to:
@@ -466,6 +478,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutesPlayed} min'**
   String game_minutes_played_value(Object minutesPlayed);
+
+  /// No description provided for @page_downloads_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get page_downloads_title;
+
+  /// No description provided for @page_downloads_pending_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending...'**
+  String get page_downloads_pending_title;
+
+  /// No description provided for @page_downloads_closed_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get page_downloads_closed_title;
+
+  /// No description provided for @page_downloads_closed_descriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads that are finished, cancelled or have failed.'**
+  String get page_downloads_closed_descriptions;
+
+  /// No description provided for @page_downloads_pending_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No downloads queued'**
+  String get page_downloads_pending_empty;
+
+  /// No description provided for @download_size_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get download_size_label;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

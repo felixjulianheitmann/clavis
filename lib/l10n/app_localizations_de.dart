@@ -190,6 +190,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get action_register => 'Register';
 
   @override
+  String get action_download => 'Download';
+
+  @override
+  String get action_remove => 'Remove';
+
+  @override
   String get game_last_played_label => 'Last Played';
 
   @override
@@ -207,4 +213,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String game_minutes_played_value(Object minutesPlayed) {
     return '$minutesPlayed min';
   }
+
+  @override
+  String get page_downloads_title => 'Downloads';
+
+  @override
+  String get page_downloads_pending_title => 'Pending...';
+
+  @override
+  String get page_downloads_closed_title => 'Closed';
+
+  @override
+  String get page_downloads_closed_descriptions => 'Downloads that are finished, cancelled or have failed.';
+
+  @override
+  String get page_downloads_pending_empty => 'No downloads queued';
+
+  @override
+  String get download_size_label => 'Size';
 }
