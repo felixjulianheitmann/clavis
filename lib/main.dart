@@ -8,6 +8,7 @@ import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/auth_repository.dart';
+import 'package:clavis/src/repositories/download_repository.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/logger.dart';
@@ -40,6 +41,7 @@ void main() {
         RepositoryProvider(create: (_) => PrefRepo()),
         RepositoryProvider(create: (_) => GameRepository()),
         RepositoryProvider(create: (_) => UserRepository()),
+        RepositoryProvider(create: (_) => DownloadsRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
