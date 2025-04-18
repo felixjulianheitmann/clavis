@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 class ValuePairColumn extends StatelessWidget {
   const ValuePairColumn({
+    super.key,
     required this.labels,
     required this.icons,
     required this.values,

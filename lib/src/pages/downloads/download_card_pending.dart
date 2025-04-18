@@ -1,9 +1,8 @@
-
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
+import 'package:clavis/src/pages/downloads/download_card_base.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
-import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/value_pair_column.dart';
 import 'package:flutter/material.dart';
@@ -16,28 +15,17 @@ class DownloadCardPending extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          _BackgroundBanner(game: operation.game),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Helpers.cover(operation.game, 50),
-                _GameInfo(game: operation.game),
-                Column(
-                  children: [
-                    _DownloadButton(operation: operation),
-                    _RemoveButton(gameId: operation.game.id),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return DownloadCardBase(
+      operation: operation,
+      children: [
+        _GameInfo(game: operation.game),
+        Column(
+          children: [
+            _DownloadButton(operation: operation),
+            _RemoveButton(gameId: operation.game.id),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -66,25 +54,6 @@ class _GameInfo extends StatelessWidget {
   }
 }
 
-class _BackgroundBanner extends StatelessWidget {
-  const _BackgroundBanner({required this.game});
-
-  final GamevaultGame game;
-
-  @override
-  Widget build(BuildContext context) {
-    final backgroundUrl = game.metadata?.background?.sourceUrl;
-    Widget background;
-    if (backgroundUrl != null) {
-      background = Expanded(child: CacheImage(imageUrl: backgroundUrl));
-    } else {
-      background = SizedBox.shrink();
-    }
-
-    return FittedBox(fit: BoxFit.cover, child: background);
-  }
-}
-
 class _RemoveButton extends StatelessWidget {
   const _RemoveButton({required this.gameId});
 
@@ -98,7 +67,9 @@ class _RemoveButton extends StatelessWidget {
       message: translate.action_remove,
       child: IconButton.filled(
         onPressed:
-            () => context.read<DownloadBloc>().add(DlRemove(gameId: gameId)),
+            () => context.read<DownloadBloc>().add(
+              DlRemovePending(gameId: gameId),
+            ),
         icon: Icon(Icons.delete),
       ),
     );

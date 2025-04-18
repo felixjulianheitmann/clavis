@@ -227,8 +227,26 @@ class AppLocalizationsDe extends AppLocalizations {
   String get page_downloads_closed_descriptions => 'Downloads that are finished, cancelled or have failed.';
 
   @override
-  String get page_downloads_pending_empty => 'No downloads queued';
+  String get download_size_label => 'Size';
 
   @override
-  String get download_size_label => 'Size';
+  String get list_empty_message => 'Nothing to display...';
+
+  @override
+  String get download_status_finished => 'Done';
+
+  @override
+  String get download_status_pending => 'Pending';
+
+  @override
+  String get download_status_running => 'Running';
+
+  @override
+  String get download_status_cancelled => 'Cancelled';
+
+  @override
+  String get download_status_downloadReturnedError => 'Error';
+
+  @override
+  String get download_status_unknown => 'Unknown';
 }

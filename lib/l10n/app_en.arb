@@ -70,6 +70,12 @@
     "page_downloads_pending_title": "Pending...",
     "page_downloads_closed_title": "Closed",
     "page_downloads_closed_descriptions": "Downloads that are finished, cancelled or have failed.",
-    "page_downloads_pending_empty": "No downloads queued",
-    "download_size_label": "Size"
+    "download_size_label": "Size",
+    "list_empty_message": "Nothing to display...",
+    "download_status_finished": "Done",
+    "download_status_pending": "Pending",
+    "download_status_running": "Running",
+    "download_status_cancelled": "Cancelled",
+    "download_status_downloadReturnedError": "Error",
+    "download_status_unknown": "Unknown"
 }

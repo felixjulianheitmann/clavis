@@ -2,22 +2,34 @@ import 'package:clavis/src/repositories/download_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
-sealed class DownloadEvent{}
+sealed class DownloadEvent {}
 
-class DlSubscribe extends DownloadEvent{}
-class DlAdd extends DownloadEvent{
+class DlSubscribe extends DownloadEvent {}
+
+class DlAdd extends DownloadEvent {
   DlAdd({required this.api, required this.downloadDir, required this.game});
   ApiClient api;
   String downloadDir;
   GamevaultGame game;
 }
 
-class DlPush extends DownloadEvent{
+class DlRetry extends DownloadEvent {
+  DlRetry({required this.gameId});
+  num gameId;
+}
+
+class DlPush extends DownloadEvent {
   DlPush({required this.gameId});
   num gameId;
-} 
-class DlRemove extends DownloadEvent{
-  DlRemove({required this.gameId});
+}
+
+class DlRemovePending extends DownloadEvent {
+  DlRemovePending({required this.gameId});
+  num gameId;
+}
+
+class DlRemoveClosed extends DownloadEvent {
+  DlRemoveClosed({required this.gameId});
   num gameId;
 }
 
@@ -29,7 +41,7 @@ class DownloadState {
 
 class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
   final DownloadsRepository _repo;
-  
+
   DownloadBloc({required DownloadsRepository repo})
     : _repo = repo,
       super(DownloadState.init()) {
@@ -42,6 +54,8 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
 
     on<DlAdd>((e, _) => _repo.queueDownload(e.api, e.downloadDir, e.game));
     on<DlPush>((e, _) => _repo.activateOp(e.gameId));
-    on<DlRemove>((e, _) => _repo.removeFromQueue(e.gameId));
+    on<DlRemovePending>((e, _) => _repo.removeFromPending(e.gameId));
+    on<DlRemoveClosed>((e, _) => _repo.removeFromClosed(e.gameId));
+    on<DlRetry>((e, _) => _repo.queueClosed(e.gameId));
   }
 }

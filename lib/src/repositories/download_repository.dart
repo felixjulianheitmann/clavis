@@ -22,14 +22,14 @@ class Progress {
     required this.cancelToken,
   });
   Progress.initial()
-    : bytesLoaded = 0,
+    : bytesLoaded = [],
       bytesTotal = 0,
       cancelToken = CancelToken();
-  int bytesLoaded;
+  List<int> bytesLoaded;
   int bytesTotal;
   CancelToken cancelToken;
   updateWith({int? bytesLoaded, int? bytesTotal, CancelToken? cancelToken}) {
-    this.bytesLoaded = bytesLoaded ?? this.bytesLoaded;
+    if (bytesLoaded != null) this.bytesLoaded += [bytesLoaded];
     this.bytesTotal = bytesTotal ?? this.bytesTotal;
     this.cancelToken = cancelToken ?? this.cancelToken;
   }
@@ -112,12 +112,28 @@ class DownloadsRepository {
     await _startNextInQueue();
   }
 
-  void removeFromQueue(num gameId) {
+  Future<void> queueClosed(num gameId) async {
+    final idx = _downloads.closedOps.indexWhere((op) => op.game.id == gameId);
+    if (idx == -1) return;
+
+    final op = _downloads.closedOps.removeAt(idx);
+    op.status = DownloadStatus.pending;
+    op.progress = Progress.initial();
+    await queueDownload(op.api, op.downloadPath, op.game);
+  }
+
+  void removeFromPending(num gameId) {
     final idx = _downloads.pendingOps.indexWhere((op) => op.game.id == gameId);
     if (idx == -1) return; // nothing to remove
 
     final op = _downloads.pendingOps.removeAt(idx);
     op.progress.cancelToken.cancel();
+    _downloadsStream.add(_downloads);
+  }
+
+  void removeFromClosed(num gameId) {
+    _downloads.closedOps.removeWhere((op) => op.game.id == gameId);
+    _downloadsStream.add(_downloads);
   }
 
   void stopActiveOp() {

@@ -503,17 +503,53 @@ abstract class AppLocalizations {
   /// **'Downloads that are finished, cancelled or have failed.'**
   String get page_downloads_closed_descriptions;
 
-  /// No description provided for @page_downloads_pending_empty.
-  ///
-  /// In en, this message translates to:
-  /// **'No downloads queued'**
-  String get page_downloads_pending_empty;
-
   /// No description provided for @download_size_label.
   ///
   /// In en, this message translates to:
   /// **'Size'**
   String get download_size_label;
+
+  /// No description provided for @list_empty_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to display...'**
+  String get list_empty_message;
+
+  /// No description provided for @download_status_finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get download_status_finished;
+
+  /// No description provided for @download_status_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get download_status_pending;
+
+  /// No description provided for @download_status_running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get download_status_running;
+
+  /// No description provided for @download_status_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get download_status_cancelled;
+
+  /// No description provided for @download_status_downloadReturnedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get download_status_downloadReturnedError;
+
+  /// No description provided for @download_status_unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get download_status_unknown;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

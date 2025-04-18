@@ -1,9 +1,8 @@
-
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
+import 'package:clavis/src/pages/downloads/download_card_base.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
-import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/value_pair_column.dart';
 import 'package:flutter/material.dart';
@@ -16,26 +15,58 @@ class DownloadCardClosed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
+    return DownloadCardBase(
+      operation: operation,
+      children: [
+        Column(
+          children: [
+            _GameInfo(game: operation.game),
+            _StatusDisplay(status: operation.status),
+          ],
+        ),
+        Column(
+          children: [
+            _RetryButton(operation: operation),
+            _RemoveButton(gameId: operation.game.id),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusDisplay extends StatelessWidget {
+  const _StatusDisplay({required this.status});
+
+  final DownloadStatus status;
+
+  String _statusToStr(AppLocalizations tr) {
+    switch (status) {
+      case DownloadStatus.finished:
+        return tr.download_status_finished;
+      case DownloadStatus.pending:
+        return tr.download_status_pending;
+      case DownloadStatus.running:
+        return tr.download_status_running;
+      case DownloadStatus.cancelled:
+        return tr.download_status_cancelled;
+      case DownloadStatus.downloadReturnedError:
+        return tr.download_status_downloadReturnedError;
+      case DownloadStatus.unknown:
+        return tr.download_status_unknown;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+    final icon = status == DownloadStatus.finished ? Icons.check : Icons.close;
+
+    return RichText(
+      text: TextSpan(
         children: [
-          _BackgroundBanner(game: operation.game),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Helpers.cover(operation.game, 50),
-                _GameInfo(game: operation.game),
-                Column(
-                  children: [
-                    _DownloadButton(operation: operation),
-                    _RemoveButton(gameId: operation.game.id),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          TextSpan(text: _statusToStr(translate)),
+          WidgetSpan(child: Icon(icon, size: 24)),
         ],
       ),
     );
@@ -66,25 +97,6 @@ class _GameInfo extends StatelessWidget {
   }
 }
 
-class _BackgroundBanner extends StatelessWidget {
-  const _BackgroundBanner({required this.game});
-
-  final GamevaultGame game;
-
-  @override
-  Widget build(BuildContext context) {
-    final backgroundUrl = game.metadata?.background?.sourceUrl;
-    Widget background;
-    if (backgroundUrl != null) {
-      background = Expanded(child: CacheImage(imageUrl: backgroundUrl));
-    } else {
-      background = SizedBox.shrink();
-    }
-
-    return FittedBox(fit: BoxFit.cover, child: background);
-  }
-}
-
 class _RemoveButton extends StatelessWidget {
   const _RemoveButton({required this.gameId});
 
@@ -98,15 +110,17 @@ class _RemoveButton extends StatelessWidget {
       message: translate.action_remove,
       child: IconButton.filled(
         onPressed:
-            () => context.read<DownloadBloc>().add(DlRemove(gameId: gameId)),
+            () => context.read<DownloadBloc>().add(
+              DlRemoveClosed(gameId: gameId),
+            ),
         icon: Icon(Icons.delete),
       ),
     );
   }
 }
 
-class _DownloadButton extends StatelessWidget {
-  const _DownloadButton({required this.operation});
+class _RetryButton extends StatelessWidget {
+  const _RetryButton({required this.operation});
 
   final DownloadOp operation;
 
@@ -126,14 +140,11 @@ class _DownloadButton extends StatelessWidget {
         onPressed:
             enableButtons
                 ? () => context.read<DownloadBloc>().add(
-                  DlAdd(
-                    api: api,
-                    downloadDir: downloadDir,
-                    game: operation.game,
+                  DlRetry(gameId: operation.game.id,
                   ),
                 )
                 : null,
-        icon: Icon(Icons.download),
+        icon: Icon(Icons.replay),
       ),
     );
   }

@@ -1,6 +1,9 @@
 import 'package:clavis/l10n/app_localizations.dart';
-import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/clavis_scaffold.dart';
+import 'package:clavis/src/pages/downloads/download_card_active.dart';
+import 'package:clavis/src/pages/downloads/download_card_closed.dart';
+import 'package:clavis/src/pages/downloads/download_card_pending.dart';
+import 'package:clavis/src/pages/downloads/downloads_list.dart';
 import 'package:flutter/widgets.dart';
 
 class DownloadsPage extends StatelessWidget {
@@ -23,6 +26,19 @@ class DownloadsPageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final translate = AppLocalizations.of(context)!;
+
+    return Column(
+      children: [
+        DownloadCardActive(),
+        DownloadsList<DownloadCardPending>(
+          title: translate.page_downloads_pending_title,
+        ),
+        DownloadsList<DownloadCardClosed>(
+          title: translate.page_downloads_closed_title,
+          description: translate.page_downloads_closed_descriptions,
+        ),
+      ],
+    );
   }
 }
