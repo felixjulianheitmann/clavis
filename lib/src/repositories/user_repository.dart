@@ -245,6 +245,24 @@ class UserRepository {
     await reloadUsers(api);
   }
 
+  Future<void> addBookmark(ApiClient api, num id) async {
+    try {
+      await UserApi(api).postUsersMeBookmark(id);
+    } catch (e) {
+      throw UserRepoException("error adding bookmark: $id - $e");
+    }
+    await getUserMe(api);
+  }
+
+  Future<void> removeBookmark(ApiClient api, num id) async {
+    try {
+      await UserApi(api).deleteUsersMeBookmark(id);
+    } catch (e) {
+      throw UserRepoException("error adding bookmark: $id - $e");
+    }
+    await getUserMe(api);
+  }
+
   Future<void> activateUser(ApiClient api, num id) async {
     final update = UpdateUserDto(activated: true);
     await updateUser(api, id, update);

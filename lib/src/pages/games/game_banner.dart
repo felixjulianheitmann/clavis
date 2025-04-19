@@ -235,7 +235,7 @@ class _GameSizeText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      Helpers.sizeInUnit(game.size, translate),
+      Helpers.sizeInUnit(game.size!, translate),
       style: TextStyle(fontSize: 24, color: Colors.white),
     );
   }

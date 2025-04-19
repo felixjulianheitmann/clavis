@@ -48,7 +48,7 @@ Currently, the only release form is a web-app hosted using Docker.
   - [ ] show game stats related to user
     - [ ] play time, last played, etc.
   - [ ] display trailer
-  - [ ] add to bookmark
+  - [x] set bookmarking
 - User management
   - [ ] User Me page
     - [x] update user info

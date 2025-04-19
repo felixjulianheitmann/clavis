@@ -4,8 +4,11 @@ import 'dart:math';
 import 'package:clavis/src/pages/games/game_banner.dart';
 import 'package:clavis/src/pages/games/game_progress_card.dart';
 import 'package:clavis/src/util/cache_image.dart';
+import 'package:clavis/src/util/helpers.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/src/clavis_scaffold.dart';
@@ -21,22 +24,37 @@ class GamePage extends StatelessWidget {
     var actions = <Widget>[];
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       actions += [
-        // BlocBuilder<DownloadBloc, DownloadState>(
-        //   builder: (context, state) {
-        //     return IconButton(
-        //       icon: Icon(Icons.download),
-        //       onPressed: () {
-        //         if (state is DownloadReadyState) {
-        //           context.read<DownloadBloc>().add(
-        //             DownloadsQueuedEvent(ids: [game.id as int]),
-        //           );
-        //         }
-        //       },
-        //     );
-        //   },
-        // ),
-      ];
-    }
+    actions += [
+      Builder(
+        builder: (context) {
+          final api = Helpers.getApi(context);
+          final me = Helpers.getMe(context);
+          final isReady = api != null && me != null;
+          void Function()? onPressed;
+          IconData bookmarkIcon = Icons.star_outline;
+          if (isReady) {
+            final bookmarks = me.user.bookmarkedGames;
+            final isBookmarked =
+                bookmarks.firstWhereOrNull((g) => g.id == game.id) != null;
+            if (isBookmarked) {
+              bookmarkIcon = Icons.star;
+              onPressed = () {
+                context.read<UserMeBloc>().add(
+                  RemoveBookmark(api: api, game: game),
+                );
+              };
+            } else {
+              onPressed = () {
+                context.read<UserMeBloc>().add(
+                  AddBookmark(api: api, game: game),
+                );
+              };
+            }
+          }
+          return IconButton(icon: Icon(bookmarkIcon), onPressed: onPressed);
+        },
+      ),
+    ];
     return ClavisScaffold(
       title: game.title,
       body: _PageBody(game),

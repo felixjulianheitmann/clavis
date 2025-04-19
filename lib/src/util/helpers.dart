@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as path;
 
 abstract class Helpers {
   static const _defaultBannerImage = 'assets/Key-Logo_Diagonal.png';
@@ -41,7 +40,7 @@ abstract class Helpers {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(_defaultBannerImage, fit: BoxFit.cover),
-          Text(game.title ?? path.basenameWithoutExtension(game.filePath)),
+          Text(game.title ?? game.toString()),
         ],
       );
     }
@@ -79,6 +78,15 @@ abstract class Helpers {
     return context.select((AuthBloc a) {
       if (a.state is Authenticated) {
         return (a.state as Authenticated).api;
+      }
+      return null;
+    });
+  }
+
+  static UserBundle? getMe(BuildContext context) {
+    return context.select((UserMeBloc u) {
+      if (u.state is Ready) {
+        return (u.state as Ready).user;
       }
       return null;
     });

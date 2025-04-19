@@ -32,6 +32,18 @@ final class Deactivate extends UserEvent {
   final ApiClient api;
 }
 
+final class AddBookmark extends UserEvent {
+  AddBookmark({required this.api, required this.game});
+  final ApiClient api;
+  final GamevaultGame game;
+}
+
+final class RemoveBookmark extends UserEvent {
+  RemoveBookmark({required this.api, required this.game});
+  final ApiClient api;
+  final GamevaultGame game;
+}
+
 final class UploadAvatar extends UserEvent {
   UploadAvatar({
     required this.api,
@@ -151,6 +163,8 @@ class UserBaseBloc extends Bloc<UserEvent, UserState> {
         _userRepo.updateUserMe(e.api, update);
       }
     });
+    on<AddBookmark>((e, _) => _userRepo.addBookmark(e.api, e.game.id));
+    on<RemoveBookmark>((e, _) => _userRepo.removeBookmark(e.api, e.game.id));
   }
 }
 
