@@ -66,9 +66,12 @@ class _ProgressDisplay extends StatelessWidget {
               dotData: FlDotData(show: false),
               spots: dlSpeeds.toList(),
               barWidth: 8,
+              isCurved: true,
+              curveSmoothness: 0.35,
             ),
           ],
         ),
+        duration: DownloadsRepository.dlUpdateIntervalMs,
       ),
     );
 

@@ -19,7 +19,7 @@ enum DownloadStatus {
 
 class Progress {
 
-  static const _dlSpeedBufferSize = 500; 
+  static const _dlSpeedBufferSize = 250; 
 
   Progress({
     required this.speeds,
@@ -28,7 +28,7 @@ class Progress {
     required this.cancelToken,
   });
   Progress.initial()
-    : speeds = [],
+    : speeds = List.filled(_dlSpeedBufferSize, (0.0, DateTime.now())),
       bytesLoaded = 0,
       bytesTotal = 0,
       cancelToken = CancelToken();
@@ -99,6 +99,7 @@ class DownloadsRepository {
   final _activeDlHist = Queue<(int, DateTime)>();
   int _activeDlBytes = 0;
   static const _averagingWindow = 1000;
+  static const dlUpdateIntervalMs = Duration(milliseconds: 500);
 
   DownloadsRepository() {
     Future(() async {
@@ -117,7 +118,7 @@ class DownloadsRepository {
       );
     });
 
-    Timer.periodic(Duration(milliseconds: 50), _emitDlHist);
+    Timer.periodic(dlUpdateIntervalMs, _emitDlHist);
   }
 
   Stream<DownloadContext> get downloads async* {
