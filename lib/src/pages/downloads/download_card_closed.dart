@@ -89,7 +89,7 @@ class _GameInfo extends StatelessWidget {
         ValuePairColumn(
           labels: [translate.download_size_label],
           icons: [Icons.storage],
-          values: [Helpers.sizeInUnit(game.size, translate)],
+          values: [Helpers.sizeStrInUnit(game.size!, translate)],
           height: 24,
         ),
       ],

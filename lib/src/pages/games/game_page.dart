@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:clavis/src/blocs/download_bloc.dart';
+import 'package:clavis/src/blocs/pref_bloc.dart';
+import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/games/game_banner.dart';
 import 'package:clavis/src/pages/games/game_progress_card.dart';
 import 'package:clavis/src/util/cache_image.dart';
@@ -24,6 +27,26 @@ class GamePage extends StatelessWidget {
     var actions = <Widget>[];
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       actions += [
+        BlocBuilder<DownloadBloc, DownloadState>(
+          builder: (context, state) {
+            final api = Helpers.getApi(context);
+            final dlDir = context.select(
+              (PrefBloc p) => p.state.prefs.downloadDir,
+            );
+            void Function()? onPressed;
+            if (api != null && dlDir != null) {
+              onPressed = () {
+                context.read<DownloadBloc>().add(
+                  DlAdd(api: api, downloadDir: dlDir, game: game),
+                );
+              };
+            }
+            return IconButton(icon: Icon(Icons.download), onPressed: onPressed);
+          },
+        ),
+      ];
+    }
+
     actions += [
       Builder(
         builder: (context) {

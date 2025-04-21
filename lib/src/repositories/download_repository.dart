@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 
+import 'package:clavis/src/pages/downloads/util.dart';
 import 'package:clavis/src/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:gamevault_client_sdk/api.dart';
@@ -16,20 +18,38 @@ enum DownloadStatus {
 }
 
 class Progress {
+
+  static const _dlSpeedBufferSize = 500; 
+
   Progress({
+    required this.speeds,
     required this.bytesLoaded,
     required this.bytesTotal,
     required this.cancelToken,
   });
   Progress.initial()
-    : bytesLoaded = [],
+    : speeds = [],
+      bytesLoaded = 0,
       bytesTotal = 0,
       cancelToken = CancelToken();
-  List<int> bytesLoaded;
+  List<(double, DateTime)> speeds;
+  int bytesLoaded;
   int bytesTotal;
   CancelToken cancelToken;
-  updateWith({int? bytesLoaded, int? bytesTotal, CancelToken? cancelToken}) {
-    if (bytesLoaded != null) this.bytesLoaded += [bytesLoaded];
+  updateWith({
+    int? bytesLoaded,
+    int? bytesTotal,
+    double? speed,
+    CancelToken? cancelToken,
+  }) {
+    if (speed != null) {
+      if (speeds.length >= _dlSpeedBufferSize) {
+        speeds = speeds.sublist(1) + [(speed, DateTime.now())];
+      } else {
+        speeds += [(speed, DateTime.now())];
+      }
+    }
+    this.bytesLoaded = bytesLoaded ?? this.bytesLoaded;
     this.bytesTotal = bytesTotal ?? this.bytesTotal;
     this.cancelToken = cancelToken ?? this.cancelToken;
   }
@@ -76,10 +96,17 @@ class DownloadContext {
 class DownloadsRepository {
   DownloadContext _downloads = DownloadContext();
   final _downloadsStream = StreamController<DownloadContext>.broadcast();
+  final _activeDlHist = Queue<(int, DateTime)>();
+  int _activeDlBytes = 0;
+  static const _averagingWindow = 1000;
 
   DownloadsRepository() {
     Future(() async {
       await for (final download in _downloadsStream.stream) {
+        if (!_downloads.hasActive) {
+          _activeDlBytes = 0;
+          _activeDlHist.clear();
+        }
         _downloads = download;
       }
     }).onError((error, stackTrace) {
@@ -89,6 +116,8 @@ class DownloadsRepository {
         stackTrace: stackTrace,
       );
     });
+
+    Timer.periodic(Duration(milliseconds: 50), _emitDlHist);
   }
 
   Stream<DownloadContext> get downloads async* {
@@ -101,12 +130,16 @@ class DownloadsRepository {
     String targetDir,
     GamevaultGame game,
   ) async {
+    final filePath = game.filePath;
     final op = DownloadOp.initial(
       game: game,
       api: api,
-      downloadPath: join(targetDir, basename(game.filePath)),
+      downloadPath: join(
+        targetDir,
+        basename(filePath ?? "game-${game.id}.unknown"),
+      ),
     );
-    _downloads.pendingOps.add(op);
+    _downloads.pendingOps = _downloads.pendingOps + [op];
     _downloadsStream.add(_downloads.copyWith());
 
     await _startNextInQueue();
@@ -161,12 +194,23 @@ class DownloadsRepository {
   Future<void> _startActiveOp() async {
     if (!_downloads.hasActive) return;
     final activeOp = _downloads.activeOp!;
+    final gameId = activeOp.game.id;
     final cancelToken = CancelToken();
     void onProgress(int count, total) {
-      if (!_updateActiveOp(bytesLoaded: count, bytesTotal: total)) {
-        // download not in queue for some reason, nothing we can do ...
+      if (gameId != _downloads.activeOp?.game.id) {
+        // something else has started in between
         cancelToken.cancel();
+        return;
       }
+
+      if (_activeDlHist.length >= _averagingWindow) _activeDlHist.removeFirst();
+      _activeDlHist.addLast((count, DateTime.now()));
+      _activeDlBytes = count;
+
+      // if (!_updateActiveOp(bytesLoaded: count, bytesTotal: total)) {
+      //   // download not in queue for some reason, nothing we can do ...
+      //   cancelToken.cancel();
+      // }
     }
 
     final downloadTask = _prepareDownload(
@@ -212,6 +256,7 @@ class DownloadsRepository {
   bool _updateActiveOp({
     DownloadStatus? status,
     int? bytesLoaded,
+    double? speed,
     int? bytesTotal,
     CancelToken? cancelToken,
   }) {
@@ -221,6 +266,7 @@ class DownloadsRepository {
       bytesLoaded: bytesLoaded,
       bytesTotal: bytesTotal,
       cancelToken: cancelToken,
+      speed: speed,
     );
     if (status != null) _downloads.activeOp!.status = status;
 
@@ -232,7 +278,7 @@ class DownloadsRepository {
     if (!_downloads.hasActive) return;
     _downloads.activeOp!.progress.cancelToken.cancel();
 
-    _downloads.closedOps.insert(0, _downloads.activeOp!);
+    _downloads.closedOps = [_downloads.activeOp!] + _downloads.closedOps;
     _downloads.activeOp = null;
   }
 
@@ -240,5 +286,16 @@ class DownloadsRepository {
     final d = File(target).parent;
     if (await d.exists()) return;
     await d.create(recursive: true);
+  }
+
+  void _emitDlHist(Timer t) {
+    if (!_downloads.hasActive) return;
+    if (_activeDlHist.isEmpty) return;
+
+    final speeds = downloadSpeeds(_activeDlHist.toList());
+    final avg =
+        speeds.reduce((a, b) => a + b) /
+        (speeds.isNotEmpty ? speeds.length : 1);
+    _updateActiveOp(bytesLoaded: _activeDlBytes, speed: avg);
   }
 }

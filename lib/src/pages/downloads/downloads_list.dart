@@ -9,15 +9,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DownloadsList<CardType> extends StatelessWidget {
-  const DownloadsList({super.key, required this.title, this.description});
+  const DownloadsList({
+    super.key,
+    required this.title,
+    this.description,
+    this.startCollapsed = true,
+  });
   final String title;
   final String? description;
+  final bool startCollapsed;
 
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
       title: Text(title),
       subtitle: description != null ? Text(description!) : null,
+      initiallyExpanded: !startCollapsed,
       children: [_List<CardType>()],
     );
   }

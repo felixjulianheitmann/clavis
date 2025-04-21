@@ -2,14 +2,19 @@ import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/cache_image.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:clavis/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 
 abstract class Helpers {
   static const _defaultBannerImage = 'assets/Key-Logo_Diagonal.png';
+
+  static const bytesPerKilo = 1000.0;
+  static const bytesPerMega = 1000.0 * bytesPerKilo;
+  static const bytesPerGiga = 1000.0 * bytesPerMega;
+  static const bytesPerTera = 1000.0 * bytesPerGiga;
 
   static Widget avatar(ImageProvider? avatar, {double? radius}) {
     final standardIcon = CircleAvatar(
@@ -47,30 +52,56 @@ abstract class Helpers {
     return CacheImage(imageUrl: url, width: width);
   }
 
-  static String sizeInUnit(String sizeBytes, AppLocalizations translate) {
-    const bytesPerKilo = 1000.0;
-    const bytesPerMega = 1000.0 * bytesPerKilo;
-    const bytesPerGiga = 1000.0 * bytesPerMega;
-    const bytesPerTera = 1000.0 * bytesPerGiga;
-    int size;
+  static String sizeStrInUnit(String sizeBytes, AppLocalizations translate) {
     try {
-      size = int.parse(sizeBytes);
+      return sizeInUnit(int.parse(sizeBytes), translate);
     } on FormatException {
       return "??";
     }
+  }
 
-    final f = NumberFormat(".##");
+  static String sizeInUnit(num sizeBytes, AppLocalizations translate) {
+    return sizeInUnitUniform([sizeBytes], translate).first;
+  }
 
-    if (size < bytesPerKilo) {
-      return translate.size_bytes(f.format(size));
-    } else if (size < bytesPerMega) {
-      return translate.size_kilobytes(f.format(size / bytesPerKilo));
-    } else if (size < bytesPerGiga) {
-      return translate.size_megabytes(f.format(size / bytesPerMega));
-    } else if (size < bytesPerTera) {
-      return translate.size_gigabytes(f.format(size / bytesPerGiga));
+  static List<String> _sizeMapper(
+    List<num> values,
+    String Function(String) mapper,
+    divider,
+  ) {
+    return values.map((s) => mapper((s / divider).toStringAsFixed(2))).toList();
+  }
+
+  static List<String> sizeInUnitUniform(
+    List<num> sizeBytes,
+    AppLocalizations translate,
+  ) {
+    final maxSize = sizeBytes.max;
+
+    if (maxSize < bytesPerKilo) {
+      return _sizeMapper(sizeBytes, translate.size_bytes, 1.0);
+    } else if (maxSize < bytesPerMega) {
+      return _sizeMapper(sizeBytes, translate.size_kilobytes, bytesPerKilo);
+    } else if (maxSize < bytesPerGiga) {
+      return _sizeMapper(sizeBytes, translate.size_megabytes, bytesPerMega);
+    } else if (maxSize < bytesPerTera) {
+      return _sizeMapper(sizeBytes, translate.size_gigabytes, bytesPerGiga);
     } else {
-      return translate.size_terabytes(f.format(size / bytesPerTera));
+      return _sizeMapper(sizeBytes, translate.size_terabytes, bytesPerTera);
+    }
+  }
+
+  static String speedInUnit(num speed, AppLocalizations translate) {
+    if (speed < bytesPerKilo) {
+      return _sizeMapper([speed], translate.speed_bps, 1.0).first;
+    } else if (speed < bytesPerMega) {
+      return _sizeMapper([speed], translate.speed_kbps, bytesPerKilo).first;
+    } else if (speed < bytesPerGiga) {
+      return _sizeMapper([speed], translate.speed_mbps, bytesPerMega).first;
+    } else if (speed < bytesPerTera) {
+      return _sizeMapper([speed], translate.speed_gbps, bytesPerGiga).first;
+    } else {
+      return _sizeMapper([speed], translate.speed_tbps, bytesPerTera).first;
     }
   }
 

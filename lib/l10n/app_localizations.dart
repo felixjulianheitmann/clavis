@@ -185,6 +185,36 @@ abstract class AppLocalizations {
   /// **'{size} TB'**
   String size_terabytes(Object size);
 
+  /// No description provided for @speed_bps.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} B/s'**
+  String speed_bps(Object size);
+
+  /// No description provided for @speed_kbps.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} kB/s'**
+  String speed_kbps(Object size);
+
+  /// No description provided for @speed_mbps.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} MB/s'**
+  String speed_mbps(Object size);
+
+  /// No description provided for @speed_gbps.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} GB/s'**
+  String speed_gbps(Object size);
+
+  /// No description provided for @speed_tbps.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} TB/s'**
+  String speed_tbps(Object size);
+
   /// No description provided for @settings_app_title.
   ///
   /// In en, this message translates to:

@@ -2,11 +2,15 @@
 import 'dart:io';
 
 import 'package:clavis/l10n/app_localizations.dart';
+import 'package:clavis/src/blocs/download_bloc.dart';
+import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/hoverable.dart';
+import 'package:clavis/src/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gamevault_client_sdk/api.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -190,24 +194,35 @@ class _GameDownloadButton extends StatelessWidget {
   final double _downloadSize;
   final AppLocalizations translate;
 
-  // void _triggerDownload(BuildContext context) {
-  //   // try and trigger a direct browser download
-  //   if (kIsWeb) {
-  //     log.e("file download not yet supported on web");
-  //     throw Error();
-  //   } else {
-  //     // use the download queuing mechanism
-  //     context.read<DownloadBloc>().add(
-  //       DownloadsQueuedEvent(ids: [game.id as int]),
-  //     );
-  //   }
-  // }
+  void _triggerDownload(
+    BuildContext context,
+    ApiClient api,
+    String downloadDir,
+  ) {
+    // try and trigger a direct browser download
+    if (kIsWeb) {
+      log.e("file download not yet supported on web");
+      throw Error();
+    } else {
+      // use the download queuing mechanism
+      context.read<DownloadBloc>().add(
+        DlAdd(api: api, game: game, downloadDir: downloadDir),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final api = Helpers.getApi(context);
+    final dlDir = context.select((PrefBloc p) => p.state.prefs.downloadDir);
+    void Function()? cb;
+    if (api != null && dlDir != null) {
+      cb = () => _triggerDownload(context, api, dlDir);
+    }
+    
     final actionButton = IconButton(
       icon: Icon(Icons.download),
-      onPressed: null,
+      onPressed: cb,
       iconSize: _downloadSize,
       color: Colors.white,
     );
@@ -235,7 +250,7 @@ class _GameSizeText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      Helpers.sizeInUnit(game.size!, translate),
+      Helpers.sizeStrInUnit(game.size!, translate),
       style: TextStyle(fontSize: 24, color: Colors.white),
     );
   }

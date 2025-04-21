@@ -48,7 +48,7 @@ class _BackgroundBanner extends StatelessWidget {
     final backgroundUrl = game.metadata?.background?.sourceUrl;
     Widget background;
     if (backgroundUrl != null) {
-      background = Expanded(child: CacheImage(imageUrl: backgroundUrl));
+      background = CacheImage(imageUrl: backgroundUrl);
     } else {
       background = SizedBox.shrink();
     }

@@ -33,6 +33,7 @@ class DownloadsPageBody extends StatelessWidget {
         DownloadCardActive(),
         DownloadsList<DownloadCardPending>(
           title: translate.page_downloads_pending_title,
+          startCollapsed: false,
         ),
         DownloadsList<DownloadCardClosed>(
           title: translate.page_downloads_closed_title,

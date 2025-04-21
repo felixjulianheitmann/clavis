@@ -1,7 +1,10 @@
+import 'package:clavis/src/blocs/active_download_bloc.dart';
 import 'package:clavis/src/blocs/error_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/constants.dart';
+import 'package:clavis/src/pages/downloads/active_dl_snackbar.dart';
+import 'package:clavis/src/pages/downloads/downloads_page.dart';
 import 'package:clavis/src/pages/users/user_me_page.dart';
 import 'package:clavis/src/util/app_title.dart';
 import 'package:clavis/src/pages/games/games_page.dart';
@@ -12,7 +15,15 @@ import 'package:flutter/material.dart';
 import 'package:clavis/src/drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ClavisScaffold extends StatelessWidget {
+enum DlSnackVisibility { visible, dismissed, hiddenOnDlPage }
+
+class DlSnackBarState {
+  GlobalKey? snackKey;
+  num? activeDl;
+  DlSnackVisibility visibility = DlSnackVisibility.dismissed;
+}
+
+class ClavisScaffold extends StatefulWidget {
   const ClavisScaffold({
     super.key,
     this.body,
@@ -28,8 +39,27 @@ class ClavisScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final String? title;
 
+  @override
+  State<ClavisScaffold> createState() => _ClavisScaffoldState();
+}
+
+class _ClavisScaffoldState extends State<ClavisScaffold> {
+  DlSnackBarState dlSnackBarState = DlSnackBarState();
+
   Widget _getBody(PageInfo activePage, bool isReady) {
     if (!isReady) return Center(child: CircularProgressIndicator());
+    if (dlSnackBarState.visibility != DlSnackVisibility.dismissed &&
+        activePage.id == Constants.downloadsPageInfo().id) {
+      // hide visibilty temporarily
+      setState(
+        () => dlSnackBarState.visibility = DlSnackVisibility.hiddenOnDlPage,
+      );
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    } else if (dlSnackBarState.visibility == DlSnackVisibility.hiddenOnDlPage &&
+        activePage.id == Constants.downloadsPageInfo().id) {
+      setState(() => dlSnackBarState.visibility = DlSnackVisibility.visible);
+      ScaffoldMessenger.of(context).showSnackBar(activeDlSnackbar());
+    }
 
     if (activePage.id == Constants.usersPageInfo().id) {
       return UsersPage();
@@ -37,6 +67,8 @@ class ClavisScaffold extends StatelessWidget {
       return SettingsPage();
     } else if (activePage.id == Constants.userMePageInfo().id) {
       return UserMePage();
+    } else if (activePage.id == Constants.downloadsPageInfo().id) {
+      return DownloadsPage();
     } else {
       return GamesPage();
     }
@@ -63,24 +95,38 @@ class ClavisScaffold extends StatelessWidget {
       builder: (context, state) {
         final scaffold = Scaffold(
           appBar:
-              showAppBar
+              widget.showAppBar
                   ? ClavisAppbar(
-                    title: title,
-                    actions: actions ?? state.activePage.appbarActions,
+                    title: widget.title,
+                    actions: widget.actions ?? state.activePage.appbarActions,
                   )
                   : null,
-          drawer: showDrawer ? SidebarDrawer() : null,
-          body: body ?? _getBody(state.activePage, isReady),
+          drawer: widget.showDrawer ? SidebarDrawer() : null,
+          body: widget.body ?? _getBody(state.activePage, isReady),
         );
-        if (state.activePage.blocs.isEmpty) {
-          return scaffold;
-        }
 
-        final providers =
-            state.activePage.blocs
-                .map((bloc) => BlocProvider(create: bloc))
-                .toList();
-        return MultiBlocProvider(providers: providers, child: scaffold);
+        return BlocListener<ActiveDlBloc, ActiveDlState>(
+          listener: (context, state) {
+            if (state.operation != null) {
+              if (state.operation?.game.id != dlSnackBarState.activeDl) {
+                ScaffoldMessenger.of(context).showSnackBar(activeDlSnackbar());
+              }
+            }
+          },
+          child: Builder(
+            builder: (context) {
+              if (state.activePage.blocs.isEmpty) {
+                return scaffold;
+              }
+
+              final providers =
+                  state.activePage.blocs
+                      .map((bloc) => BlocProvider(create: bloc))
+                      .toList();
+              return MultiBlocProvider(providers: providers, child: scaffold);
+            },
+          ),
+        );
       },
     );
   }

@@ -64,6 +64,31 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String speed_bps(Object size) {
+    return '$size B/s';
+  }
+
+  @override
+  String speed_kbps(Object size) {
+    return '$size kB/s';
+  }
+
+  @override
+  String speed_mbps(Object size) {
+    return '$size MB/s';
+  }
+
+  @override
+  String speed_gbps(Object size) {
+    return '$size GB/s';
+  }
+
+  @override
+  String speed_tbps(Object size) {
+    return '$size TB/s';
+  }
+
+  @override
   String get settings_app_title => 'Application';
 
   @override

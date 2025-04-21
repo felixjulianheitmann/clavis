@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:clavis/src/blocs/active_download_bloc.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/blocs/error_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
@@ -66,6 +67,12 @@ void main() {
             create: (ctx) {
               return DownloadBloc(repo: ctx.read<DownloadsRepository>())
                 ..add(DlSubscribe());
+            },
+          ),
+          BlocProvider(
+            create: (ctx) {
+              return ActiveDlBloc(ctx.read<DownloadsRepository>())
+                ..add(ActiveDlSubscribe());
             },
           ),
           BlocProvider(create: (_) => PageBloc()),
