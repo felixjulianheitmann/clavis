@@ -580,6 +580,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown'**
   String get download_status_unknown;
+
+  /// No description provided for @download_status_label.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get download_status_label;
+
+  /// No description provided for @download_duration_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get download_duration_label;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

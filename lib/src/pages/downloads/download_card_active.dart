@@ -32,9 +32,9 @@ class DownloadCardActive extends StatelessWidget {
               ),
             ),
           ),
-          children: [
-            Expanded(child: _DownloadData(activeOp: state.dlContext.activeOp!)),
-          ],
+          child: Expanded(
+            child: _DownloadData(activeOp: state.dlContext.activeOp!),
+          ),
         );
       },
     );
@@ -61,8 +61,6 @@ class _DownloadData extends StatelessWidget {
             : Duration(
               seconds: ((p.bytesTotal - p.bytesLoaded) / dlSpeed).toInt(),
             );
-    final remainingStr =
-        "${r.inHours.toString().padLeft(2, '0')}:${r.inMinutes.remainder(60).toString().padLeft(2, '0')}:${r.inSeconds.remainder(60).toString().padLeft(2, '0')}";
 
     final style = TextStyle(fontSize: 20, fontFamily: 'RobotoMono');
 
@@ -89,7 +87,7 @@ class _DownloadData extends StatelessWidget {
                 children: [
                   Text("$loadedBytes/$totalBytes", style: style),
                   Text(Helpers.speedInUnit(dlSpeed, translate), style: style),
-                  Text(remainingStr, style: style),
+                  Text(Helpers.formatDuration(r), style: style),
                 ],
               ),
             ),

@@ -82,5 +82,7 @@
     "download_status_running": "Running",
     "download_status_cancelled": "Cancelled",
     "download_status_downloadReturnedError": "Error",
-    "download_status_unknown": "Unknown"
+    "download_status_unknown": "Unknown",
+    "download_status_label": "State",
+    "download_duration_label": "Duration"
 }

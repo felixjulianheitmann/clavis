@@ -274,4 +274,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get download_status_unknown => 'Unknown';
+
+  @override
+  String get download_status_label => 'State';
+
+  @override
+  String get download_duration_label => 'Duration';
 }

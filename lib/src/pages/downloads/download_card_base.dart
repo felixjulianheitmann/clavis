@@ -13,14 +13,14 @@ class DownloadCardBase extends StatelessWidget {
   const DownloadCardBase({
     super.key,
     required this.operation,
-    required this.children,
+    required this.child,
+    required this.height,
     this.overlay,
-    this.height,
   });
   final DownloadOp operation;
-  final List<Widget> children;
+  final Widget child;
   final Widget? overlay;
-  final double? height;
+  final double height;
 
   void _openGame(BuildContext context) {
     context.read<PageBloc>().add(PageChanged(Constants.gamesPageInfo()));
@@ -54,14 +54,14 @@ class DownloadCardBase extends StatelessWidget {
                             children: [
                               Card.outlined(
                                 clipBehavior: Clip.hardEdge,
-                                child: Helpers.cover(operation.game, 120),
+                            child: Helpers.cover(operation.game, height * 0.56),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ] +
-                    children,
+                  child,
+                ],
               ),
             ),
           ],

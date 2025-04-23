@@ -61,12 +61,17 @@ class DownloadOp {
   String downloadPath;
   Progress progress;
   DownloadStatus status;
+  DateTime started;
+  DateTime stopped;
   DownloadOp.initial({
     required this.game,
     required this.api,
     required this.downloadPath,
   }) : progress = Progress.initial(),
-       status = DownloadStatus.pending;
+       status = DownloadStatus.pending,
+       started = DateTime.now(),
+       stopped = DateTime.now();
+
 }
 
 typedef DownloadOps = List<DownloadOp>;
@@ -159,6 +164,7 @@ class DownloadsRepository {
     final op = _downloads.closedOps.removeAt(idx);
     op.status = DownloadStatus.pending;
     op.progress = Progress.initial();
+    _downloadsStream.add(_downloads);
     await queueDownload(op.api, op.downloadPath, op.game);
   }
 
@@ -221,10 +227,6 @@ class DownloadsRepository {
         _downloads.activeOp!.progress.bytesTotal = total;
       }
 
-      // if (!_updateActiveOp(bytesLoaded: count, bytesTotal: total)) {
-      //   // download not in queue for some reason, nothing we can do ...
-      //   cancelToken.cancel();
-      // }
     }
 
     final downloadTask = _prepareDownload(
@@ -234,7 +236,11 @@ class DownloadsRepository {
       cancelToken,
       onProgress,
     );
-    _updateActiveOp(status: DownloadStatus.running, cancelToken: cancelToken);
+    activeOp.status = DownloadStatus.running;
+    activeOp.progress.updateWith(cancelToken: cancelToken);
+    activeOp.started = DateTime.now();
+    _downloads.activeOp = activeOp;
+    _downloadsStream.add(_downloads);
 
     final response = await downloadTask;
     if (response.statusCode != 200) {
@@ -267,27 +273,6 @@ class DownloadsRepository {
     );
   }
 
-  bool _updateActiveOp({
-    DownloadStatus? status,
-    int? bytesLoaded,
-    double? speed,
-    int? bytesTotal,
-    CancelToken? cancelToken,
-  }) {
-    if (!_downloads.hasActive) return false;
-
-    _downloads.activeOp!.progress.updateWith(
-      bytesLoaded: bytesLoaded,
-      bytesTotal: bytesTotal,
-      cancelToken: cancelToken,
-      speed: speed,
-    );
-    if (status != null) _downloads.activeOp!.status = status;
-
-    _downloadsStream.add(_downloads);
-    return true;
-  }
-
   Future<void> closeActiveOp(DownloadStatus status) async {
     if (!_downloads.hasActive) return;
 
@@ -299,6 +284,7 @@ class DownloadsRepository {
     }
 
     _downloads.activeOp!.status = status;
+    _downloads.activeOp!.stopped = DateTime.now();
     _downloads.closedOps = [_downloads.activeOp!] + _downloads.closedOps;
     _downloads.activeOp = null;
     _downloadsStream.add(_downloads);
@@ -319,6 +305,13 @@ class DownloadsRepository {
     final avg =
         speeds.reduce((a, b) => a + b) /
         (speeds.isNotEmpty ? speeds.length : 1);
-    _updateActiveOp(bytesLoaded: _activeDlBytes, speed: avg);
+    
+    if (_downloads.hasActive) {
+      _downloads.activeOp!.progress.updateWith(
+        bytesLoaded: _activeDlBytes,
+        speed: avg,
+      );
+      _downloadsStream.add(_downloads);
+    }
   }
 }

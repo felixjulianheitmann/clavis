@@ -13,12 +13,16 @@ import 'package:gamevault_client_sdk/api.dart';
 class DownloadCardPending extends StatelessWidget {
   const DownloadCardPending({super.key, required this.operation});
   final DownloadOp operation;
+  
+  static const _height = 150.0;
 
   @override
   Widget build(BuildContext context) {
     return DownloadCardBase(
+      height: _height,
       operation: operation,
-      children: [
+      child: Row(
+        children: [
         _GameInfo(game: operation.game),
         Column(
           children: [
@@ -26,7 +30,8 @@ class DownloadCardPending extends StatelessWidget {
             _RemoveButton(gameId: operation.game.id),
           ],
         ),
-      ],
+        ],
+      )
     );
   }
 }

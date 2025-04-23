@@ -16,80 +16,88 @@ class DownloadCardClosed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DownloadCardBase(
+      height: 150,
       operation: operation,
-      children: [
-        Column(
+      child: Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _GameInfo(game: operation.game),
-            _StatusDisplay(status: operation.status),
+            Column(
+              children: [
+                _GameInfo(
+                  game: operation.game,
+                  status: operation.status,
+                  duration: operation.stopped.difference(operation.started),
+                ),
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _RetryButton(operation: operation),
+                _RemoveButton(gameId: operation.game.id),
+              ],
+            ),
           ],
         ),
-        Column(
-          children: [
-            _RetryButton(operation: operation),
-            _RemoveButton(gameId: operation.game.id),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _StatusDisplay extends StatelessWidget {
-  const _StatusDisplay({required this.status});
-
-  final DownloadStatus status;
-
-  String _statusToStr(AppLocalizations tr) {
-    switch (status) {
-      case DownloadStatus.finished:
-        return tr.download_status_finished;
-      case DownloadStatus.pending:
-        return tr.download_status_pending;
-      case DownloadStatus.running:
-        return tr.download_status_running;
-      case DownloadStatus.cancelled:
-        return tr.download_status_cancelled;
-      case DownloadStatus.downloadReturnedError:
-        return tr.download_status_downloadReturnedError;
-      case DownloadStatus.unknown:
-        return tr.download_status_unknown;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final translate = AppLocalizations.of(context)!;
-    final icon = status == DownloadStatus.finished ? Icons.check : Icons.close;
-
-    return RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(text: _statusToStr(translate)),
-          WidgetSpan(child: Icon(icon, size: 24)),
-        ],
-      ),
+      )
     );
   }
 }
 
 class _GameInfo extends StatelessWidget {
-  const _GameInfo({required this.game});
+  const _GameInfo({
+    required this.game,
+    required this.status,
+    required this.duration,
+  });
 
   final GamevaultGame game;
+  final DownloadStatus status;
+  final Duration duration;
   static const _titleScaling = 2.0;
-
+  
+  (String, IconData) _statusMap(AppLocalizations tr) {
+    switch (status) {
+      case DownloadStatus.finished:
+        return (tr.download_status_finished, Icons.check);
+      case DownloadStatus.pending:
+        return (tr.download_status_pending, Icons.hourglass_empty_rounded);
+      case DownloadStatus.running:
+        return (tr.download_status_running, Icons.play_arrow);
+      case DownloadStatus.cancelled:
+        return (tr.download_status_cancelled, Icons.cancel);
+      case DownloadStatus.downloadReturnedError:
+        return (tr.download_status_downloadReturnedError, Icons.error);
+      case DownloadStatus.unknown:
+        return (tr.download_status_unknown, Icons.question_mark);
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
+    final downloadStatus = _statusMap(translate);
 
     return Column(
       children: [
         Text(game.title ?? "", textScaler: TextScaler.linear(_titleScaling)),
         ValuePairColumn(
-          labels: [translate.download_size_label],
-          icons: [Icons.storage],
-          values: [Helpers.sizeStrInUnit(game.size!, translate)],
+          labels: [
+            translate.download_size_label,
+            translate.download_status_label,
+            translate.download_duration_label,
+          ],
+          icons: [
+            Icons.storage,
+            downloadStatus.$2,
+            Icons.hourglass_bottom_rounded,
+          ],
+          values: [
+            Helpers.sizeStrInUnit(game.size!, translate),
+            downloadStatus.$1,
+            Helpers.formatDuration(duration),
+          ],
           height: 24,
         ),
       ],
@@ -113,7 +121,7 @@ class _RemoveButton extends StatelessWidget {
             () => context.read<DownloadBloc>().add(
               DlRemoveClosed(gameId: gameId),
             ),
-        icon: Icon(Icons.delete),
+        icon: Icon(Icons.close),
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
-import 'package:clavis/src/pages/downloads/download_card_base.dart';
 import 'package:clavis/src/pages/downloads/download_card_closed.dart';
 import 'package:clavis/src/pages/downloads/download_card_pending.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
@@ -33,10 +32,15 @@ class DownloadsList<CardType> extends StatelessWidget {
 class _List<CardType> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final ops = context.select((DownloadBloc d) {
-      if (CardType is DownloadCardPending) return d.state.dlContext.pendingOps;
-      if (CardType is DownloadCardClosed) return d.state.dlContext.closedOps;
-      return <DownloadOp>[];
+    final (len, ops) = context.select((DownloadBloc d) {
+      final dls = d.state.dlContext;
+      if (CardType == DownloadCardPending) {
+        return (dls.pendingOps.length, dls.pendingOps);
+      }
+      if (CardType == DownloadCardClosed) {
+        return (dls.closedOps.length, dls.closedOps);
+      }
+      return (0, <DownloadOp>[]);
     });
 
     final translate = AppLocalizations.of(context)!;
@@ -47,14 +51,14 @@ class _List<CardType> extends StatelessWidget {
       );
     }
 
-    Iterable<DownloadCardBase>? items;
-    if (CardType is DownloadCardPending) {
+    Iterable<Widget>? items;
+    if (CardType == DownloadCardPending) {
       items = ops.map(
-        (op) => DownloadCardPending(operation: op) as DownloadCardBase,
+        (op) => DownloadCardPending(operation: op),
       );
-    } else if (CardType is DownloadCardClosed) {
+    } else if (CardType == DownloadCardClosed) {
       items = ops.map(
-        (op) => DownloadCardClosed(operation: op) as DownloadCardBase,
+        (op) => DownloadCardClosed(operation: op),
       );
     } else {
       log.e("Unknownw download widget type", error: CardType);

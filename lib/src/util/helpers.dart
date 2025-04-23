@@ -131,6 +131,13 @@ abstract class Helpers {
     if (id == null) return UserMeBloc(context.read<UserRepository>());
     return UserBloc(context.read<UserRepository>(), id);
   }
+
+  static String formatDuration(Duration d) {
+    final hStr = d.inHours.toString().padLeft(2, '0');
+    final mStr = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final sStr = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return "$hStr:$mStr:$sStr";
+  }
 }
 
 class UserSpecificBlocBuilder extends StatelessWidget {
