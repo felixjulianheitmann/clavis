@@ -36,6 +36,30 @@ SnackBar activeDlSnackbar(BuildContext context) {
           color: Theme.of(context).textTheme.bodyMedium!.color,
         );
 
+        final name = activeDl.game.title ?? activeDl.game.id.toString();
+        final dlSpeedText = Helpers.speedInUnit(current, translate);
+        final dlProgressText = "$loaded / $total";
+
+        final w = TextPainter.computeWidth(
+          text: TextSpan(
+            style: textStyle,
+            children: [
+              TextSpan(text: Helpers.speedInUnit(current, translate)),
+              TextSpan(text: dlSpeedText),
+              TextSpan(text: dlProgressText),
+            ],
+          ),
+          textDirection: TextDirection.ltr,
+        );
+
+        var snackContent = [
+          Text(name, style: textStyle),
+          Text(dlSpeedText, style: textStyle),
+          Text(dlProgressText, style: textStyle),
+        ];
+        final showName = w < MediaQuery.of(context).size.width * 0.7;
+        if (!showName) snackContent.removeAt(0);
+
         return GestureDetector(
           onTap: () {
             context.read<PageBloc>().add(
@@ -49,18 +73,7 @@ SnackBar activeDlSnackbar(BuildContext context) {
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      activeDl.game.title ?? activeDl.game.id.toString(),
-                      style: textStyle,
-                    ),
-                    Text(
-                      Helpers.speedInUnit(current, translate),
-                      style: textStyle,
-                    ),
-                    Text("$loaded / $total", style: textStyle),
-                  ],
+                  children: snackContent,
                 ),
               ),
             ],
