@@ -23,13 +23,14 @@ SnackBar activeDlSnackbar(BuildContext context) {
         final activeDl = state.operation;
         final translate = AppLocalizations.of(context)!;
         if (activeDl == null) return SizedBox.shrink();
+        final prog = activeDl.progress;
         final mapper = Helpers.sizeUnitMapper(
-          activeDl.progress.bytesTotal,
+          prog.bytesTotal,
           translate,
         );
         final current = _currentSpeed(activeDl.progress);
-        final loaded = mapper(activeDl.progress.bytesLoaded);
-        final total = mapper(activeDl.progress.bytesTotal);
+        final loaded = mapper(prog.bytesLoaded);
+        final total = mapper(prog.bytesTotal);
 
         final textStyle = TextStyle(
           fontFamily: 'RobotoMono',
@@ -60,6 +61,9 @@ SnackBar activeDlSnackbar(BuildContext context) {
         final showName = w < MediaQuery.of(context).size.width * 0.7;
         if (!showName) snackContent.removeAt(0);
 
+        final progressRel =
+            prog.bytesTotal == 0 ? 0.0 : prog.bytesLoaded / prog.bytesTotal;
+
         return GestureDetector(
           onTap: () {
             context.read<PageBloc>().add(
@@ -75,6 +79,10 @@ SnackBar activeDlSnackbar(BuildContext context) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: snackContent,
                 ),
+              ),
+              LinearProgressIndicator(
+                value: progressRel,
+                color: Theme.of(context).primaryColor.withAlpha(100),
               ),
             ],
           ),
