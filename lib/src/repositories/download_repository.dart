@@ -98,8 +98,8 @@ class DownloadsRepository {
   final _downloadsStream = StreamController<DownloadContext>.broadcast();
   final _activeDlHist = Queue<(int, DateTime)>();
   int _activeDlBytes = 0;
-  static const _averagingWindow = 1000;
-  static const dlUpdateIntervalMs = Duration(milliseconds: 500);
+  static const _averagingWindow = 10000;
+  static const dlUpdateIntervalMs = Duration(milliseconds: 200);
 
   DownloadsRepository() {
     Future(() async {

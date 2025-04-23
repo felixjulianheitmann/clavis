@@ -1,10 +1,7 @@
 import 'dart:collection';
-import 'dart:math';
 
-import 'package:clavis/src/blocs/active_download_bloc.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/pages/downloads/download_card_base.dart';
-import 'package:clavis/src/pages/downloads/util.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -24,14 +21,13 @@ class _DownloadCardActiveState extends State<DownloadCardActive> {
     return BlocBuilder<DownloadBloc, DownloadState>(
       builder: (context, state) {
         if (!state.dlContext.hasActive) return SizedBox.shrink();
-        return _ProgressDisplay(operation: state.dlContext.activeOp!);
+        return DownloadCardBase(
+          operation: state.dlContext.activeOp!,
+          children: [_ProgressDisplay(operation: state.dlContext.activeOp!)],
+        );
       },
     );
 
-    // return DownloadCardBase(
-    //   operation: activeOp,
-    //   children: [
-    // ]);
   }
 }
 
@@ -50,11 +46,9 @@ class _ProgressDisplay extends StatelessWidget {
 
     return SizedBox(
       height: 400,
-      width: 10000,
       child: LineChart(
         LineChartData(
           minY: 0.0,
-
           gridData: FlGridData(drawVerticalLine: false),
           titlesData: FlTitlesData(show: false),
           lineBarsData: [
@@ -66,7 +60,7 @@ class _ProgressDisplay extends StatelessWidget {
               dotData: FlDotData(show: false),
               spots: dlSpeeds.toList(),
               barWidth: 8,
-              isCurved: true,
+              isCurved: false,
               curveSmoothness: 0.35,
             ),
           ],
