@@ -13,7 +13,7 @@ class LogoutAction extends StatelessWidget {
       onPressed: () {
         context.read<AuthBloc>().add(Logout());
         context.read<PageBloc>().add(
-          PageChangedEvent(Constants.gamesPageInfo()),
+          PageChanged(Constants.gamesPageInfo()),
         );
       },
       icon: Icon(Icons.logout),

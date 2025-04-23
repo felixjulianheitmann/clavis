@@ -2,7 +2,6 @@ import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/active_download_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/constants.dart';
-import 'package:clavis/src/pages/downloads/util.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
@@ -13,38 +12,57 @@ double _currentSpeed(Progress progress) {
   return progress.speeds.last.$1;
 }
 
-SnackBar activeDlSnackbar() {
+SnackBar activeDlSnackbar(BuildContext context) {
   return SnackBar(
-    behavior: SnackBarBehavior.floating,
-    duration: Duration(
-      days: 1000,
-    ), // TODO: How do I prevent it from being closed
+    padding: EdgeInsets.zero,
+    backgroundColor: Theme.of(context).canvasColor,
+    behavior: SnackBarBehavior.fixed,
+    duration: Duration(days: 365), // do not close automatically
     content: BlocBuilder<ActiveDlBloc, ActiveDlState>(
       builder: (context, state) {
         final activeDl = state.operation;
         final translate = AppLocalizations.of(context)!;
         if (activeDl == null) return SizedBox.shrink();
-
-        final current = _currentSpeed(activeDl.progress);
-        final loaded = activeDl.progress.bytesLoaded;
-        final sizeStrs = Helpers.sizeInUnitUniform([
-          loaded,
+        final mapper = Helpers.sizeUnitMapper(
           activeDl.progress.bytesTotal,
-        ], translate);
+          translate,
+        );
+        final current = _currentSpeed(activeDl.progress);
+        final loaded = mapper(activeDl.progress.bytesLoaded);
+        final total = mapper(activeDl.progress.bytesTotal);
+
+        final textStyle = TextStyle(
+          fontFamily: 'RobotoMono',
+          color: Theme.of(context).textTheme.bodyMedium!.color,
+        );
 
         return GestureDetector(
           onTap: () {
             context.read<PageBloc>().add(
-              PageChangedEvent(Constants.downloadsPageInfo()),
+              PageChanged(Constants.downloadsPageInfo()),
             );
             Navigator.pop(context);
           },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Stack(
             children: [
-              Text(activeDl.game.title ?? activeDl.game.id.toString()),
-              Text(Helpers.speedInUnit(current, translate)),
-              Text("${sizeStrs[0]} / ${sizeStrs[1]}"),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      activeDl.game.title ?? activeDl.game.id.toString(),
+                      style: textStyle,
+                    ),
+                    Text(
+                      Helpers.speedInUnit(current, translate),
+                      style: textStyle,
+                    ),
+                    Text("$loaded / $total", style: textStyle),
+                  ],
+                ),
+              ),
             ],
           ),
         );

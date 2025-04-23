@@ -10,7 +10,7 @@ import 'package:gamevault_client_sdk/api.dart';
 
 void _setPage(BuildContext context, PageInfo page) {
   final pageChanger = context.read<PageBloc>();
-  pageChanger.add(PageChangedEvent(page));
+  pageChanger.add(PageChanged(page));
   Navigator.pop(context);
 }
 

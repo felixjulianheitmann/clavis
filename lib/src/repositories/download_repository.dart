@@ -208,6 +208,10 @@ class DownloadsRepository {
       _activeDlHist.addLast((count, DateTime.now()));
       _activeDlBytes = count;
 
+      if (_downloads.activeOp?.progress.bytesTotal == 0) {
+        _downloads.activeOp!.progress.bytesTotal = total;
+      }
+
       // if (!_updateActiveOp(bytesLoaded: count, bytesTotal: total)) {
       //   // download not in queue for some reason, nothing we can do ...
       //   cancelToken.cancel();

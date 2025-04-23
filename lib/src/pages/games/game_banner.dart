@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
+import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/helpers.dart';
@@ -208,6 +209,7 @@ class _GameDownloadButton extends StatelessWidget {
       context.read<DownloadBloc>().add(
         DlAdd(api: api, game: game, downloadDir: downloadDir),
       );
+      context.read<PageBloc>().add(DlStarted(game.id));
     }
   }
 

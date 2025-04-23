@@ -1,5 +1,6 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
+import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/pages/downloads/download_card_base.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
@@ -96,13 +97,16 @@ class _DownloadButton extends StatelessWidget {
       child: IconButton.filled(
         onPressed:
             enableButtons
-                ? () => context.read<DownloadBloc>().add(
-                  DlAdd(
-                    api: api,
-                    downloadDir: downloadDir,
-                    game: operation.game,
-                  ),
-                )
+                ? () {
+                  context.read<DownloadBloc>().add(
+                    DlAdd(
+                      api: api,
+                      downloadDir: downloadDir,
+                      game: operation.game,
+                    ),
+                  );
+                  context.read<PageBloc>().add(DlStarted(operation.game.id));
+                }
                 : null,
         icon: Icon(Icons.download),
       ),

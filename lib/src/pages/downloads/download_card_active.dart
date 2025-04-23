@@ -1,8 +1,10 @@
 import 'dart:collection';
 
+import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/pages/downloads/download_card_base.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
+import 'package:clavis/src/util/helpers.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +17,8 @@ class DownloadCardActive extends StatefulWidget {
 }
 
 class _DownloadCardActiveState extends State<DownloadCardActive> {
+  static const _cardHeight = 200.0;
+  
   @override
   Widget build(BuildContext context) {
 
@@ -22,8 +26,21 @@ class _DownloadCardActiveState extends State<DownloadCardActive> {
       builder: (context, state) {
         if (!state.dlContext.hasActive) return SizedBox.shrink();
         return DownloadCardBase(
+          height: _cardHeight,
           operation: state.dlContext.activeOp!,
-          children: [_ProgressDisplay(operation: state.dlContext.activeOp!)],
+          overlay: Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: 32),
+              child: _ProgressDisplay(
+                operation: state.dlContext.activeOp!,
+                height: _cardHeight,
+              ),
+            ),
+          ),
+          children: [
+            Expanded(child: _DownloadData(activeOp: state.dlContext.activeOp!)),
+          ],
         );
       },
     );
@@ -31,10 +48,54 @@ class _DownloadCardActiveState extends State<DownloadCardActive> {
   }
 }
 
+class _DownloadData extends StatelessWidget {
+  const _DownloadData({required this.activeOp});
+
+  final DownloadOp activeOp;
+
+  @override
+  Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+    final p = activeOp.progress;
+    final mapper = Helpers.sizeUnitMapper(p.bytesTotal, translate);
+    final totalBytes = mapper(p.bytesTotal);
+    final loadedBytes = mapper(p.bytesLoaded);
+    final dlSpeed = p.speeds.isNotEmpty ? p.speeds.last.$1 : 0.0;
+
+    final r =
+        dlSpeed == 0.0
+            ? Duration.zero
+            : Duration(
+              seconds: ((p.bytesTotal - p.bytesLoaded) / dlSpeed).toInt(),
+            );
+    final remainingStr =
+        "${r.inHours.toString().padLeft(2, '0')}:${r.inMinutes.remainder(60).toString().padLeft(2, '0')}:${r.inSeconds.remainder(60).toString().padLeft(2, '0')}";
+
+    final style = TextStyle(fontSize: 20, fontFamily: 'RobotoMono');
+
+    return Card.outlined(
+      color: Theme.of(context).canvasColor.withAlpha(150),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text("$loadedBytes/$totalBytes", style: style),
+            Text(Helpers.speedInUnit(dlSpeed, translate), style: style),
+            Text(remainingStr, style: style),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ProgressDisplay extends StatelessWidget {
-  const _ProgressDisplay({required this.operation});
+  const _ProgressDisplay({required this.operation, required this.height});
 
   final DownloadOp operation;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -45,17 +106,18 @@ class _ProgressDisplay extends StatelessWidget {
     final color = Theme.of(context).primaryColor;
 
     return SizedBox(
-      height: 400,
+      height: height,
       child: LineChart(
         LineChartData(
           minY: 0.0,
-          gridData: FlGridData(drawVerticalLine: false),
+          gridData: FlGridData(show: false),
           titlesData: FlTitlesData(show: false),
+          borderData: FlBorderData(show: false),
           lineBarsData: [
             LineChartBarData(
               gradient: LinearGradient(
                 colors: [color.withValues(alpha: 0), color],
-                stops: const [0.1, 1.0],
+                stops: const [0.3, 1.0],
               ),
               dotData: FlDotData(show: false),
               spots: dlSpeeds.toList(),
@@ -64,6 +126,7 @@ class _ProgressDisplay extends StatelessWidget {
               curveSmoothness: 0.35,
             ),
           ],
+          lineTouchData: LineTouchData(enabled: false),
         ),
         duration: DownloadsRepository.dlUpdateIntervalMs,
       ),

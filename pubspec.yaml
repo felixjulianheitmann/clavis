@@ -63,6 +63,10 @@ flutter:
     - family: Jersey10
       fonts:
         - asset: assets/Jersey10-Regular.ttf
+    - family: RobotoMono
+      fonts:
+        - asset: assets/RobotoMono-Regular.ttf
+        - asset: assets/RobotoMono-Bold.ttf
   assets:
     - "assets/Key-Logo_Diagonal.png"
     - "assets/clavis_white.svg"

@@ -2,7 +2,6 @@ import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/cache_image.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
@@ -61,47 +60,52 @@ abstract class Helpers {
   }
 
   static String sizeInUnit(num sizeBytes, AppLocalizations translate) {
-    return sizeInUnitUniform([sizeBytes], translate).first;
+    return sizeUnitMapper(sizeBytes, translate)(sizeBytes);
   }
 
-  static List<String> _sizeMapper(
-    List<num> values,
+  static String _sizeMapper(
+    num value,
     String Function(String) mapper,
-    divider,
+    divisor,
   ) {
-    return values.map((s) => mapper((s / divider).toStringAsFixed(2))).toList();
+    return mapper((value / divisor).toStringAsFixed(2));
   }
 
-  static List<String> sizeInUnitUniform(
-    List<num> sizeBytes,
+  static String Function(num) sizeUnitMapper(
+    num ref,
     AppLocalizations translate,
   ) {
-    final maxSize = sizeBytes.max;
-
-    if (maxSize < bytesPerKilo) {
-      return _sizeMapper(sizeBytes, translate.size_bytes, 1.0);
-    } else if (maxSize < bytesPerMega) {
-      return _sizeMapper(sizeBytes, translate.size_kilobytes, bytesPerKilo);
-    } else if (maxSize < bytesPerGiga) {
-      return _sizeMapper(sizeBytes, translate.size_megabytes, bytesPerMega);
-    } else if (maxSize < bytesPerTera) {
-      return _sizeMapper(sizeBytes, translate.size_gigabytes, bytesPerGiga);
+    if (ref < bytesPerKilo) {
+      return (v) => _sizeMapper(v, translate.size_bytes, 1.0);
+    } else if (ref < bytesPerMega) {
+      return (v) => _sizeMapper(v, translate.size_kilobytes, bytesPerKilo);
+    } else if (ref < bytesPerGiga) {
+      return (v) => _sizeMapper(v, translate.size_megabytes, bytesPerMega);
+    } else if (ref < bytesPerTera) {
+      return (v) => _sizeMapper(v, translate.size_gigabytes, bytesPerGiga);
     } else {
-      return _sizeMapper(sizeBytes, translate.size_terabytes, bytesPerTera);
+      return (v) => _sizeMapper(v, translate.size_terabytes, bytesPerTera);
     }
   }
 
   static String speedInUnit(num speed, AppLocalizations translate) {
+    return speedUnitMapper(speed, translate)(speed);
+  }
+
+  static String Function(num) speedUnitMapper(
+    num speed,
+    AppLocalizations translate,
+  ) {
     if (speed < bytesPerKilo) {
-      return _sizeMapper([speed], translate.speed_bps, 1.0).first;
+      return (v) => _sizeMapper(v, translate.speed_bps, 1.0);
     } else if (speed < bytesPerMega) {
-      return _sizeMapper([speed], translate.speed_kbps, bytesPerKilo).first;
+      return (v) => _sizeMapper(v, translate.speed_kbps, bytesPerKilo);
     } else if (speed < bytesPerGiga) {
-      return _sizeMapper([speed], translate.speed_mbps, bytesPerMega).first;
+      return (v) => _sizeMapper(v, translate.speed_mbps, bytesPerMega);
     } else if (speed < bytesPerTera) {
-      return _sizeMapper([speed], translate.speed_gbps, bytesPerGiga).first;
+      return (v) => _sizeMapper(v, translate.speed_gbps, bytesPerGiga);
     } else {
-      return _sizeMapper([speed], translate.speed_tbps, bytesPerTera).first;
+      return (v) => _sizeMapper(v, translate.speed_tbps, bytesPerTera);
     }
   }
 

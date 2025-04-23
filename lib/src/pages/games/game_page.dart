@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:clavis/src/blocs/download_bloc.dart';
+import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/games/game_banner.dart';
@@ -27,8 +28,8 @@ class GamePage extends StatelessWidget {
     var actions = <Widget>[];
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       actions += [
-        BlocBuilder<DownloadBloc, DownloadState>(
-          builder: (context, state) {
+        Builder(
+          builder: (context) {
             final api = Helpers.getApi(context);
             final dlDir = context.select(
               (PrefBloc p) => p.state.prefs.downloadDir,
@@ -39,6 +40,7 @@ class GamePage extends StatelessWidget {
                 context.read<DownloadBloc>().add(
                   DlAdd(api: api, downloadDir: dlDir, game: game),
                 );
+                context.read<PageBloc>().add(DlStarted(game.id));
               };
             }
             return IconButton(icon: Icon(Icons.download), onPressed: onPressed);
@@ -97,7 +99,6 @@ class _PageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -110,13 +111,11 @@ class _PageBody extends StatelessWidget {
           GameProgressCard(gameId: game.id),
           _GameDescription(game.metadata?.description),
           _GameScreenshots(game.metadata?.urlScreenshots),
-
         ],
       ),
     );
   }
 }
-
 
 class _GameDescription extends StatelessWidget {
   const _GameDescription(this.description);
