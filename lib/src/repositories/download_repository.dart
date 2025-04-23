@@ -281,10 +281,17 @@ class DownloadsRepository {
 
   void _closeActiveOp(DownloadStatus status) {
     if (!_downloads.hasActive) return;
-    _downloads.activeOp!.progress.cancelToken.cancel();
+
+    if (status == DownloadStatus.finished) {
+      _downloads.activeOp!.progress.bytesLoaded =
+          _downloads.activeOp!.progress.bytesTotal;
+    } else {
+      _downloads.activeOp!.progress.cancelToken.cancel();
+    }
 
     _downloads.closedOps = [_downloads.activeOp!] + _downloads.closedOps;
     _downloads.activeOp = null;
+    _downloadsStream.add(_downloads);
   }
 
   Future<void> _makeDirIfNotExists(String target) async {
