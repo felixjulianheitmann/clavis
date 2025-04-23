@@ -104,7 +104,7 @@ class DownloadsRepository {
   DownloadsRepository() {
     Future(() async {
       await for (final download in _downloadsStream.stream) {
-        if (!_downloads.hasActive) {
+        if (!download.hasActive) {
           _activeDlBytes = 0;
           _activeDlHist.clear();
         }
@@ -140,8 +140,14 @@ class DownloadsRepository {
         basename(filePath ?? "game-${game.id}.unknown"),
       ),
     );
+
+    if (_downloads.activeOp?.game.id == game.id ||
+        _downloads.pendingOps.any((op) => op.game.id == game.id)) {
+      // game is already in download queue
+      return;
+    }
     _downloads.pendingOps = _downloads.pendingOps + [op];
-    _downloadsStream.add(_downloads.copyWith());
+    _downloadsStream.add(_downloads);
 
     await _startNextInQueue();
   }
