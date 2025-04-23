@@ -14,10 +14,12 @@ class DlSnackBarState {
 class PageInfo {
   const PageInfo({
     required this.id,
+    this.title,
     this.appbarActions = const [],
     this.blocs = const [],
   });
   final PageId id;
+  final String? title;
   final List<Widget> appbarActions;
   final List<Bloc Function(BuildContext ctx)> blocs;
 }

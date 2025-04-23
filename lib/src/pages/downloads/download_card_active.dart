@@ -64,36 +64,36 @@ class _DownloadData extends StatelessWidget {
 
     final style = TextStyle(fontSize: 20, fontFamily: 'RobotoMono');
 
-    return Card.outlined(
-      color: Theme.of(context).canvasColor.withAlpha(150),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
+    return Row(
+      spacing: 8,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Card.outlined(
+          color: Theme.of(context).canvasColor.withAlpha(150),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                IconButton(
-                  onPressed: () => context.read<DownloadBloc>().add(DlCancel()),
-                  icon: Icon(Icons.cancel),
-                ),
+                Text("$loadedBytes/$totalBytes", style: style),
+                Text(Helpers.speedInUnit(dlSpeed, translate), style: style),
+                Text(Helpers.formatDuration(r), style: style),
               ],
             ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text("$loadedBytes/$totalBytes", style: style),
-                  Text(Helpers.speedInUnit(dlSpeed, translate), style: style),
-                  Text(Helpers.formatDuration(r), style: style),
-                ],
-              ),
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton.filled(onPressed: null, icon: Icon(Icons.pause)),
+            IconButton.filled(
+              onPressed: () => context.read<DownloadBloc>().add(DlCancel()),
+              icon: Icon(Icons.close),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 }

@@ -11,13 +11,7 @@ class DownloadsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final translate = AppLocalizations.of(context)!;
-
-    return ClavisScaffold(
-      body: DownloadsPageBody(),
-      title: translate.page_downloads_title,
-      showDrawer: false,
-    );
+    return DownloadsPageBody();
   }
 }
 

@@ -79,28 +79,32 @@ class _GameInfo extends StatelessWidget {
     final translate = AppLocalizations.of(context)!;
     final downloadStatus = _statusMap(translate);
 
-    return Column(
-      children: [
-        Text(game.title ?? "", textScaler: TextScaler.linear(_titleScaling)),
-        ValuePairColumn(
-          labels: [
-            translate.download_size_label,
-            translate.download_status_label,
-            translate.download_duration_label,
-          ],
-          icons: [
-            Icons.storage,
-            downloadStatus.$2,
-            Icons.hourglass_bottom_rounded,
-          ],
-          values: [
-            Helpers.sizeStrInUnit(game.size!, translate),
-            downloadStatus.$1,
-            Helpers.formatDuration(duration),
-          ],
-          height: 24,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(game.title ?? "", textScaler: TextScaler.linear(_titleScaling)),
+          ValuePairColumn(
+            labels: [
+              translate.download_size_label,
+              translate.download_status_label,
+              translate.download_duration_label,
+            ],
+            icons: [
+              Icons.storage,
+              downloadStatus.$2,
+              Icons.hourglass_bottom_rounded,
+            ],
+            values: [
+              Helpers.sizeStrInUnit(game.size!, translate),
+              downloadStatus.$1,
+              Helpers.formatDuration(duration),
+            ],
+            height: 24,
+          ),
+        ],
+      ),
     );
   }
 }
