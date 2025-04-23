@@ -23,6 +23,8 @@ class DlPush extends DownloadEvent {
   num gameId;
 }
 
+class DlCancel extends DownloadEvent {}
+
 class DlRemovePending extends DownloadEvent {
   DlRemovePending({required this.gameId});
   num gameId;
@@ -57,5 +59,6 @@ class DownloadBloc extends Bloc<DownloadEvent, DownloadState> {
     on<DlRemovePending>((e, _) => _repo.removeFromPending(e.gameId));
     on<DlRemoveClosed>((e, _) => _repo.removeFromClosed(e.gameId));
     on<DlRetry>((e, _) => _repo.queueClosed(e.gameId));
+    on<DlCancel>((e, _) => _repo.cancelActive());
   }
 }

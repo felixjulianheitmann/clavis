@@ -9,19 +9,13 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DownloadCardActive extends StatefulWidget {
+class DownloadCardActive extends StatelessWidget {
   const DownloadCardActive({super.key});
 
-  @override
-  State<DownloadCardActive> createState() => _DownloadCardActiveState();
-}
-
-class _DownloadCardActiveState extends State<DownloadCardActive> {
   static const _cardHeight = 200.0;
-  
+
   @override
   Widget build(BuildContext context) {
-
     return BlocBuilder<DownloadBloc, DownloadState>(
       builder: (context, state) {
         if (!state.dlContext.hasActive) return SizedBox.shrink();
@@ -44,7 +38,6 @@ class _DownloadCardActiveState extends State<DownloadCardActive> {
         );
       },
     );
-
   }
 }
 
@@ -77,13 +70,29 @@ class _DownloadData extends StatelessWidget {
       color: Theme.of(context).canvasColor.withAlpha(150),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
           children: [
-            Text("$loadedBytes/$totalBytes", style: style),
-            Text(Helpers.speedInUnit(dlSpeed, translate), style: style),
-            Text(remainingStr, style: style),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () => context.read<DownloadBloc>().add(DlCancel()),
+                  icon: Icon(Icons.cancel),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text("$loadedBytes/$totalBytes", style: style),
+                  Text(Helpers.speedInUnit(dlSpeed, translate), style: style),
+                  Text(remainingStr, style: style),
+                ],
+              ),
+            ),
           ],
         ),
       ),

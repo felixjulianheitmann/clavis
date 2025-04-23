@@ -162,6 +162,9 @@ class DownloadsRepository {
     await queueDownload(op.api, op.downloadPath, op.game);
   }
 
+  Future<void> cancelActive() async =>
+      await closeActiveOp(DownloadStatus.cancelled);
+
   void removeFromPending(num gameId) {
     final idx = _downloads.pendingOps.indexWhere((op) => op.game.id == gameId);
     if (idx == -1) return; // nothing to remove
@@ -178,7 +181,7 @@ class DownloadsRepository {
 
   void stopActiveOp() {
     if (!_downloads.hasActive) return;
-    _closeActiveOp(DownloadStatus.cancelled);
+    closeActiveOp(DownloadStatus.cancelled);
   }
 
   Future<void> activateOp(num gameId) async {
@@ -186,7 +189,7 @@ class DownloadsRepository {
     if (idx <= 0) return; // nothing to push
 
     // stop first
-    _closeActiveOp(DownloadStatus.cancelled);
+    closeActiveOp(DownloadStatus.cancelled);
     _downloads.activeOp = _downloads.pendingOps.removeAt(idx);
     await _startNextInQueue();
   }
@@ -235,9 +238,9 @@ class DownloadsRepository {
 
     final response = await downloadTask;
     if (response.statusCode != 200) {
-      _closeActiveOp(DownloadStatus.downloadReturnedError);
+      closeActiveOp(DownloadStatus.downloadReturnedError);
     } else {
-      _closeActiveOp(DownloadStatus.finished);
+      closeActiveOp(DownloadStatus.finished);
     }
 
     await _startNextInQueue();
@@ -285,7 +288,7 @@ class DownloadsRepository {
     return true;
   }
 
-  void _closeActiveOp(DownloadStatus status) {
+  Future<void> closeActiveOp(DownloadStatus status) async {
     if (!_downloads.hasActive) return;
 
     if (status == DownloadStatus.finished) {
@@ -295,9 +298,11 @@ class DownloadsRepository {
       _downloads.activeOp!.progress.cancelToken.cancel();
     }
 
+    _downloads.activeOp!.status = status;
     _downloads.closedOps = [_downloads.activeOp!] + _downloads.closedOps;
     _downloads.activeOp = null;
     _downloadsStream.add(_downloads);
+    await _startNextInQueue();
   }
 
   Future<void> _makeDirIfNotExists(String target) async {
