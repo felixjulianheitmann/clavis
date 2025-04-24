@@ -301,15 +301,12 @@ class DownloadsRepository {
     if (!_downloads.hasActive) return;
     if (_activeDlHist.isEmpty) return;
 
-    final speeds = downloadSpeeds(_activeDlHist.toList());
-    final avg =
-        speeds.reduce((a, b) => a + b) /
-        (speeds.isNotEmpty ? speeds.length : 1);
+    final speed = downloadSpeed(_activeDlHist.toList());
     
     if (_downloads.hasActive) {
       _downloads.activeOp!.progress.updateWith(
         bytesLoaded: _activeDlBytes,
-        speed: avg,
+        speed: speed,
       );
       _downloadsStream.add(_downloads);
     }

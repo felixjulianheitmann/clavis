@@ -16,18 +16,14 @@ extension WindowExtension<T> on Iterable<T> {
   }
 }
 
-List<double> downloadSpeeds(List<(int, DateTime)> downloadHistory) {
-  if (downloadHistory.length <= 1) return [];
+double downloadSpeed(List<(int, DateTime)> downloadHistory) {
+  if (downloadHistory.length <= 1) return 0.0;
 
-  final speeds = downloadHistory.window(2).map((pair) {
-    final duration = pair.last.$2.difference(pair.first.$2);
-    final bytes = pair.last.$1 - pair.first.$1;
-    return duration.inMicroseconds > 0
-        ? bytes / duration.inMicroseconds * 1000000
-        : 0.0;
-  });
-
-  return speeds.toList();
+  final duration = downloadHistory.last.$2.difference(downloadHistory.first.$2);
+  final bytes = downloadHistory.last.$1 - downloadHistory.first.$1;
+  return duration.inMicroseconds > 0
+      ? bytes / duration.inMicroseconds * 1000000
+      : 0.0;
 }
 
 List<double> windowAverage(List<double> values, int windowLength) {
