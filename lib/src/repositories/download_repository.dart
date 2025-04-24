@@ -19,7 +19,7 @@ enum DownloadStatus {
 
 class Progress {
 
-  static const _dlSpeedBufferSize = 250; 
+  static const _dlSpeedBufferSize = 300; 
 
   Progress({
     required this.speeds,
@@ -104,7 +104,7 @@ class DownloadsRepository {
   final _activeDlHist = Queue<(int, DateTime)>();
   int _activeDlBytes = 0;
   static const _averagingWindow = 10000;
-  static const dlUpdateIntervalMs = Duration(milliseconds: 200);
+  static const dlUpdateIntervalMs = Duration(milliseconds: 100);
 
   DownloadsRepository() {
     Future(() async {

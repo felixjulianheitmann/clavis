@@ -135,7 +135,8 @@ class _ProgressDisplay extends StatelessWidget {
           ],
           lineTouchData: LineTouchData(enabled: false),
         ),
-        duration: DownloadsRepository.dlUpdateIntervalMs,
+        duration: Duration.zero,
+        transformationConfig: FlTransformationConfig(),
       ),
     );
 
