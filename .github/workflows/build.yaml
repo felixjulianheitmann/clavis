@@ -31,7 +31,7 @@ jobs:
     outputs:
       tag: ${{ steps.ghd.outputs.tag }}
       distance: ${{ steps.ghd.outputs.distance }}
-      versionEncoded: ${{ steps.version.outputs.versionEncoded }}
+      parsedVersion: ${{ steps.version.outputs.parsed_ver }}
     
     runs-on: ${{ matrix.os }}
 
@@ -179,7 +179,7 @@ jobs:
       with:
         tag: ${{ needs.build.outputs.tag }}
         distance: ${{ needs.build.outputs.distance }}
-        versionEncoded: ${{ fromJson(needs.build.outputs.parsed_ver)['versionEncoded'] }}
+        versionEncoded: ${{ fromJson(needs.build.outputs.parsedVersion)['versionEncoded'] }}
         token: ${{ secrets.GITHUB_TOKEN }}
     
   
