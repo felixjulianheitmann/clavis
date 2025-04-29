@@ -52,6 +52,11 @@ jobs:
         with:
          cache: 'pip'
          python-version: '3.13'
+
+      - name: print tags
+        run: |
+          echo Tag: ${{ steps.ghd.outputs.tag }}
+          echo Distance: ${{ steps.ghd.outputs.distance }}
       
       - name: process version
         id: version
@@ -60,10 +65,8 @@ jobs:
           python version/inject-version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
           echo "parsed_ver=$(python version/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> $GITHUB_OUTPUTS 
 
-      - name: print version
+      - name: print parsed version
         run: |
-          echo Version: ${{ steps.ghd.outputs.tag }}
-          echo Distance: ${{ steps.ghd.outputs.distance }}
           echo parsed_version: ${{ steps.version.outputs.parsed_ver }}
 
       - name: Set up Flutter
