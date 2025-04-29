@@ -149,7 +149,7 @@ jobs:
     permissions: 
       packages: write
 
-    # if: ${{ needs.build.outputs.distance == 0 }} # disabled for debugging
+    if: ${{ needs.build.outputs.distance == 0 }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-rpm
