@@ -16,7 +16,7 @@ on:
 jobs:
   build:
     env:
-      BUILD_PATH_MAP: '{"web":"web","android":"build/app/outputs","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
+      BUILD_PATH_MAP: '{"web":"web","android":"app/outputs/flutter-apk/app-release.apk","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
     strategy:
       matrix:
         platform: [web, android, linux]
@@ -31,6 +31,7 @@ jobs:
     outputs:
       tag: ${{ steps.ghd.outputs.tag }}
       distance: ${{ steps.ghd.outputs.distance }}
+      versionEncoded: ${{ steps.version.outputs.versionEncoded }}
     
     runs-on: ${{ matrix.os }}
 
@@ -126,7 +127,6 @@ jobs:
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
-        if: matrix.platform == 'linux'
         with:
           name: clavis-${{ matrix.platform }}-${{ matrix.arch }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
           path: "build/${{ fromJson(env.BUILD_PATH_MAP)[matrix.platform] }}"
@@ -159,6 +159,22 @@ jobs:
       with:
         tag: ${{ needs.build.outputs.tag }}
         distance: ${{ needs.build.outputs.distance }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+  package-windows:
+    runs-on: windows-latest
+    needs: build
+    permissions: 
+      packages: write
+      
+    if: ${{ needs.build.outputs.distance == 0 }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/publish-windows
+      with:
+        tag: ${{ needs.build.outputs.tag }}
+        distance: ${{ needs.build.outputs.distance }}
+        versionEncoded: ${{ needs.build.outputs.versionEncoded }}
         token: ${{ secrets.GITHUB_TOKEN }}
     
   

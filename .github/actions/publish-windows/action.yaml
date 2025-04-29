@@ -1,0 +1,46 @@
+name: publish-windows
+description: publish the windows installer
+inputs:
+  tag:
+    type: string  
+    description: the tag used for this action
+    required: true
+  distance:
+    type: string
+    description: number of additional builds since last tag
+    required: true
+  versionEncoded:
+    type: string
+    description: a version in form of "x.x.x.x"
+    required: true
+  token:
+    type: string
+    required: true
+  
+
+runs:
+  using: "composite"
+  steps:
+  - name: print version
+    run: |
+      echo Version: ${{ inputs.tag }}
+      echo Distance: ${{ inputs.distance }}
+
+  - name: Download builds
+    uses: "actions/download-artifact@v4"
+    with:
+      name: clavis-web-${{ inputs.tag }}-${{ github.sha }}
+      path: ${{github.workspace}}/tmp.cicd/builds-windows
+
+  - name: list downloads
+    run: ls ${{github.workspace}}/tmp.cicd/builds-windows
+      
+  - name: bundle installer
+    run: ISCC.exe -DversionStrict="${{ input.versionEncoded }}" -Dversion="${{ input.tag }}-${{ input.distance }}" -DbuildDir ${{github.workspace}}/tmp.cicd/builds-windows" -Otarget .\package\win-installer.iss
+
+  - name: push docker
+    uses: redhat-actions/push-to-registry@v2
+    with:
+      registry: ghcr.io/felixjulianheitmann
+      image: clavis
+      tags: ${{ inputs.tag }} latest
