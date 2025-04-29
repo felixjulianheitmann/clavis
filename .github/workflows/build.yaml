@@ -59,6 +59,7 @@ jobs:
           echo Distance: ${{ steps.ghd.outputs.distance }}
       
       - name: process version
+        shell: bash
         id: version
         run: |
           pip install pyyaml semver
