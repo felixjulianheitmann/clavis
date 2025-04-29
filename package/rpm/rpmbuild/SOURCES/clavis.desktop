@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=clavis
+Comment=A client app for Gamevault
+Exec=/usr/bin/clavis/clavis
+Icon=/usr/bin/clavis/data/flutter_assets/assets/icon.svg
+Terminal=false
+Type=Application
+Categories=Game;

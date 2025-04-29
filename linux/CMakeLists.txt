@@ -127,10 +127,4 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
     COMPONENT Runtime)
 
 
-install(FILES "deps/x64/libjson-glib-1.0.so.0" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-  COMPONENT Runtime)
-install(FILES "deps/x64/libsecret-1.so.0" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-  COMPONENT Runtime)
-
-
 endif()

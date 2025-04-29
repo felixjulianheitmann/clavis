@@ -33,3 +33,7 @@ openapi_generator_config.json
 .vscode
 .flutter-plugins-dependencies
 .flutter-plugins
+
+package/rpm/rpmbuild/SOURCES/app
+package/rpm/rpmbuild/RPMS
+package/rpm/rpmbuild/BUILD
