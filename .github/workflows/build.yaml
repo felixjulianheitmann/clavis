@@ -16,7 +16,7 @@ on:
 jobs:
   build:
     env:
-      BUILD_PATH_MAP: '{"web":"app/outputs/flutter-apk/app-release.apk","android":"build/app/outputs/flutter-apk/app-release.apk","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
+      BUILD_PATH_MAP: '{"web":"web","android":"app/outputs","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
     strategy:
       matrix:
         platform: [web, android, linux]
