@@ -67,6 +67,7 @@ jobs:
           echo "parsed_ver=$(python version/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> "$GITHUB_OUTPUT" 
 
       - name: print parsed version
+        shell: bash
         run: |
           echo parsed_version: ${{ steps.version.outputs.parsed_ver }}
 
