@@ -2,7 +2,7 @@ BINARIES_DIR=$1
 VERSION=$2
 ARCH=$3
 
-PKG_DIR=package/rpmbuild
+PKG_DIR=package/rpm/rpmbuild
 NAME=clavis
 PKG_TITLE=${NAME}-${VERSION}
 PKG_TITLE_ARCH=${NAME}-${VERSION}-${ARCH}
