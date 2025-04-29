@@ -22,6 +22,7 @@ runs:
   using: "composite"
   steps:
   - name: print version
+    shell: bash
     run: |
       echo Version: ${{ inputs.tag }}
       echo Distance: ${{ inputs.distance }}
@@ -33,9 +34,11 @@ runs:
       path: ${{github.workspace}}/tmp.cicd/builds-windows
 
   - name: list downloads
+    shell: bash
     run: ls ${{github.workspace}}/tmp.cicd/builds-windows
       
   - name: bundle installer
+    shell: bash
     run: ISCC.exe -DversionStrict="${{ input.versionEncoded }}" -Dversion="${{ input.tag }}-${{ input.distance }}" -DbuildDir ${{github.workspace}}/tmp.cicd/builds-windows" -Otarget .\package\win-installer.iss
 
   - name: push docker
