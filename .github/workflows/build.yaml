@@ -167,7 +167,7 @@ jobs:
     permissions: 
       packages: write
       
-    if: ${{ needs.build.outputs.distance == 0 }}
+    # if: ${{ needs.build.outputs.distance == 0 }} // enabled temporarily for testing 
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-windows
