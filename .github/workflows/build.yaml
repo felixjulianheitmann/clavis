@@ -179,7 +179,7 @@ jobs:
       with:
         tag: ${{ needs.build.outputs.tag }}
         distance: ${{ needs.build.outputs.distance }}
-        versionEncoded: ${{ fromJson(needs.build.outputs.versionEncoded)['versionEncoded'] }}
+        versionEncoded: ${{ fromJson(needs.build.outputs.parsed_ver)['versionEncoded'] }}
         token: ${{ secrets.GITHUB_TOKEN }}
     
   
