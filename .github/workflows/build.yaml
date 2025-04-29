@@ -46,21 +46,24 @@ jobs:
         id: ghd
         uses: proudust/gh-describe@v2
 
-      - name: print version
-        run: |
-          echo Version: ${{ steps.ghd.outputs.tag }}
-          echo Distance: ${{ steps.ghd.outputs.distance }}
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
          cache: 'pip'
          python-version: '3.13'
       
-      - name: inject version
+      - name: process version
+        id: version
         run: |
-          pip install pyyaml
-          python inject-version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
+          pip install pyyaml semver
+          python version/inject-version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
+          echo "parsed_ver=$(python version/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> $GITHUB_OUTPUTS 
+
+      - name: print version
+        run: |
+          echo Version: ${{ steps.ghd.outputs.tag }}
+          echo Distance: ${{ steps.ghd.outputs.distance }}
+          echo parsed_version: ${{ steps.version.outputs.parsed_ver }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
