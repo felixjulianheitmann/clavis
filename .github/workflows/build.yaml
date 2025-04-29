@@ -16,7 +16,7 @@ on:
 jobs:
   build:
     env:
-      BUILD_PATH_MAP: '{"web":"app/outputs/flutter-apk/app-release.apk","android":"linux/x64/release/bundle","linux":"web","windows":"windows"}'
+      BUILD_PATH_MAP: '{"web":"web","android":"build/app/outputs","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
     strategy:
       matrix:
         platform: [web, android, linux]
@@ -121,7 +121,7 @@ jobs:
       - name: list builds
         run: ls build/*
 
-      - name: Upload Linux artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: matrix.platform == 'linux'
         with:
