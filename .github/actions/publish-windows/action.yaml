@@ -30,7 +30,7 @@ runs:
   - name: Download builds
     uses: "actions/download-artifact@v4"
     with:
-      name: clavis-web-${{ inputs.tag }}-${{ github.sha }}
+      name: clavis-windows-amd64-${{ inputs.tag }}-${{ github.sha }}
       path: ${{github.workspace}}/tmp.cicd/builds-windows
 
   - name: list downloads
