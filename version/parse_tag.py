@@ -8,7 +8,7 @@ if len(sys.argv) < 2:
     exit(1)
 
 
-ver = semver.Version.parse(sys.argv[1])
+ver = semver.Version.parse(sys.argv[1])[1:]
 distance="0"
 if(len(sys.argv) >= 3):
     distance = sys.argv[2]
