@@ -2,7 +2,7 @@ name: publish-windows
 description: publish the windows installer
 inputs:
   tag:
-    type: string  
+    type: string
     description: the tag used for this action
     required: true
   distance:
@@ -16,7 +16,7 @@ inputs:
   token:
     type: string
     required: true
-  
+
 
 runs:
   using: "composite"
@@ -34,13 +34,15 @@ runs:
       name: clavis-windows-amd64-${{ inputs.tag }}-${{ github.sha }}
       path: ${{github.workspace}}/tmp.cicd/builds-windows
 
-  - name: list downloads
+  - name: list for debugging
     shell: bash
-    run: ls '${{github.workspace}}/tmp.cicd/builds-windows'
-      
+    run: |
+      ls '${{github.workspace}}/tmp.cicd/builds-windows'
+      ls '${{github.workspace}}/package/*'
+
   - name: bundle installer
     shell: bash
-    run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}-${{ inputs.distance }}" -DbuildDir='${{github.workspace}}/tmp.cicd/builds-windows' -Otarget .\package\win-installer.iss
+    run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}-${{ inputs.distance }}" -DbuildDir='${{github.workspace}}/tmp.cicd/builds-windows' -Otarget '${{github.workspace}}\package\win-installer.iss'
 
   - name: Release
     uses: softprops/action-gh-release@v2
