@@ -39,7 +39,7 @@ runs:
       
   - name: bundle installer
     shell: bash
-    run: ISCC.exe -DversionStrict="${{ input.versionEncoded }}" -Dversion="${{ input.tag }}-${{ input.distance }}" -DbuildDir ${{github.workspace}}/tmp.cicd/builds-windows" -Otarget .\package\win-installer.iss
+    run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}-${{ inputs.distance }}" -DbuildDir ${{github.workspace}}/tmp.cicd/builds-windows" -Otarget .\package\win-installer.iss
 
   - name: push docker
     uses: redhat-actions/push-to-registry@v2
