@@ -38,7 +38,7 @@ runs:
     shell: bash
     run: |
       ls '${{github.workspace}}/tmp.cicd/builds-windows'
-      ls '${{github.workspace}}/package/*'
+      ls '${{github.workspace}}/*'
 
   - name: bundle installer
     shell: bash
