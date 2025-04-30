@@ -1,12 +1,18 @@
-PACKAGE=clavis_{version}-{revision}_{arch}
-mkdir $PACKAGE
-mkdir -p $PACKAGE/usr/lib64
-mkdir -p $PACKAGE/usr/local/bin
+BUILDDIR=$1
+VERSION=$2
+REVISION=$3
+ARCH=$4
 
-cp DEBIAN $PACKAGE/.
-cp build/linux/arm64/release/bundle/clavis $PACKAGE/usr/local/bin
-cp libs -> $PACKAGE/usr/lib64
+NAME=clavis
 
-python inject_version.py {VERSION} $PACKAGE/DEBIAN/control
+PKG=$NAME_$VERSION-$REVISION_$ARCH
+PKG_DIR=tmp/$PKG
+mkdir -p $PKG_DIR/usr/local/bin/$NAME
 
-dpkg-deb --build --root-owner-group $PACKAGE
+cp DEBIAN $PKG_DIR/.
+cp $BUILDDIR/* $PKG_DIR/usr/local/bin/$NAME
+cp libs -> $PKG_DIR/usr/lib64
+
+python inject_version.py {VERSION} $PKG_DIR/DEBIAN/control
+
+dpkg-deb --build --root-owner-group $PKG

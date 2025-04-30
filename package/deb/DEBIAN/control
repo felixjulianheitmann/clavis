@@ -1,7 +1,7 @@
 Package: clavis
-Version: 0.1.0-rc.4
+Version: $version
 Architecture: arm64
 Maintainer: Felix Bruns
 Description: Gamevault management client
  A client application to manage your Gamevault instance
-Depends: libsecret-1-0, libjsoncpp1
+Depends: libsecret-1-0, libjsoncpp25
