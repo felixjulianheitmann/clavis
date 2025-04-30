@@ -1,0 +1,118 @@
+name: publish-deb
+description: publish the clavis docker image
+inputs:
+  platform:
+    type: string  
+    description: the platform specifier for Flutter
+    required: true
+  arch:
+    type: string
+    description: the architecture for disambiguation
+
+outputs:
+  tag: ${{ steps.ghd.outputs.tag }}
+  distance: ${{ steps.ghd.outputs.distance }}
+  parsedVersion: ${{ steps.version.outputs.parsed_ver }}
+env:
+  BUILD_PATH_MAP: '{"web":"web","android":"app/outputs","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
+runs:
+  using: "composite"
+
+  steps:
+
+    - name: Git describe
+      id: ghd
+      uses: proudust/gh-describe@v2
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        cache: 'pip'
+        python-version: '3.13'
+
+    - name: print tags
+      shell: bash
+      run: |
+        echo Tag: ${{ steps.ghd.outputs.tag }}
+        echo Distance: ${{ steps.ghd.outputs.distance }}
+
+    - name: process version
+      shell: bash
+      id: version
+      run: |
+        pip install pyyaml semver
+        python version/inject-version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
+        echo "parsed_ver=$(python version/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> "$GITHUB_OUTPUT"
+
+    - name: print parsed version
+      shell: bash
+      run: |
+        echo parsed_version: ${{ steps.version.outputs.parsed_ver }}
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version: 3.29.2
+
+    - name: Cache Flutter dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.pub-cache
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+
+    - name: install linux deps
+      if: runner.os == 'linux'
+      run: |
+        sudo apt update && sudo apt install -y \
+        curl \
+        git \
+        unzip \
+        xz-utils \
+        zip \
+        libglu1-mesa
+
+    - name: install linux native app deps
+      if: runner.os == 'linux' && inputs.platform == 'linux'
+      shell: bash
+      run: |
+        sudo apt update && sudo apt install -y \
+        clang \
+        cmake \
+        ninja-build \
+        pkg-config \
+        libgtk-3-dev \
+        liblzma-dev \
+        libstdc++-12-dev \
+        libsecret-1-dev
+
+    - name: Install dependencies
+      shell: bash
+      run: flutter pub get
+
+    - name: Build Flutter ${{ inputs.platform }} app
+      if: runner.os == 'linux'
+      run: |
+        if [ "${{ inputs.platform }}" == "android" ]; then
+          flutter build apk --release
+        elif [ "${{ inputs.platform }}" == "web" ]; then
+          flutter build web --release
+        elif [ "${{ inputs.platform }}" == "linux" ]; then
+          flutter build linux --release
+        fi
+
+    - name: Build Flutter ${{ inputs.platform }} app
+      if: runner.os == 'Windows' && inputs.platform == 'windows'
+      run: flutter build windows --release
+
+    - name: list builds
+      run: ls build/*
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: clavis-${{ inputs.platform }}-${{ inputs.arch }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
+        path: "build/${{ fromJson(env.BUILD_PATH_MAP)[inputs.platform] }}"
+
