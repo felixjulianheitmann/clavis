@@ -171,6 +171,7 @@ jobs:
     needs: build
     permissions: 
       packages: write
+      contents: write
       
     # if: ${{ needs.build.outputs.distance == 0 }} // enabled temporarily for testing 
     steps:
@@ -181,5 +182,4 @@ jobs:
         distance: ${{ needs.build.outputs.distance }}
         versionEncoded: ${{ fromJson(needs.build.outputs.parsedVersion)['versionEncoded'] }}
         token: ${{ secrets.GITHUB_TOKEN }}
-    
   
