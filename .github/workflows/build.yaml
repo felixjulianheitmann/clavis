@@ -1,185 +1,137 @@
-name: Flutter Build
-
+name: publish-web
 on:
-  push:
-    branches:
-      - main
-    tags: 
-      - v*.*.*
-  pull_request:
-    branches:
-      - main
-    types: 
-      - synchronize
-      - opened
+  workflow_call:
+    inputs:
+      platform:
+        type: string  
+        description: the platform specifier for Flutter
+        required: true
+      arch:
+        type: string
+        description: the architecture for disambiguation
+        required: true
+      runner:
+        type: string
+        description: runner to use for this workflow
+        required: true
+
+    outputs:
+      tag: 
+        description: last tag published on this branch
+        value: ${{ jobs.build.outputs.tag }}
+      distance:
+        description: number of commits since the last tag
+        value: ${{ jobs.build.outputs.distance }}
+      parsedVersion:
+        description: a version json parsed from the last available tag
+        value: ${{ jobs.build.outputs.parsedVersion }}
+env:
+  BUILD_PATH_MAP: '{"web":"web","android":"app/outputs","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
 
 jobs:
   build:
-    env:
-      BUILD_PATH_MAP: '{"web":"web","android":"app/outputs","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
-    strategy:
-      matrix:
-        platform: [web, android, linux]
-        os: [ubuntu-latest]
-        arch: [amd64]
-        include:
-          - os: windows-latest
-            platform: windows
-            arch: amd64
-      fail-fast: false
-    
     outputs:
       tag: ${{ steps.ghd.outputs.tag }}
       distance: ${{ steps.ghd.outputs.distance }}
       parsedVersion: ${{ steps.version.outputs.parsed_ver }}
-    
-    runs-on: ${{ matrix.os }}
 
+    runs-on: ${{ inputs.runner }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          lfs: true
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Git describe
-        id: ghd
-        uses: proudust/gh-describe@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-         cache: 'pip'
-         python-version: '3.13'
-
-      - name: print tags
-        run: |
-          echo Tag: ${{ steps.ghd.outputs.tag }}
-          echo Distance: ${{ steps.ghd.outputs.distance }}
-      
-      - name: process version
-        shell: bash
-        id: version
-        run: |
-          pip install pyyaml semver
-          python version/inject-version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
-          echo "parsed_ver=$(python version/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> "$GITHUB_OUTPUT" 
-
-      - name: print parsed version
-        shell: bash
-        run: |
-          echo parsed_version: ${{ steps.version.outputs.parsed_ver }}
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          flutter-version: 3.29.2
-
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
-
-      - name: install linux deps
-        if: runner.os == 'linux'
-        run: |
-          sudo apt update && sudo apt install -y \
-          curl \
-          git \
-          unzip \
-          xz-utils \
-          zip \
-          libglu1-mesa
-
-      - name: install linux native app deps
-        if: runner.os == 'linux' && matrix.platform == 'linux'
-        run: |
-          sudo apt update && sudo apt install -y \
-          clang \
-          cmake \
-          ninja-build \
-          pkg-config \
-          libgtk-3-dev \
-          liblzma-dev \
-          libstdc++-12-dev \
-          libsecret-1-dev
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build Flutter ${{ matrix.platform }} app
-        if: runner.os == 'linux'
-        run: |
-          if [ "${{ matrix.platform }}" == "android" ]; then
-            flutter build apk --release
-          elif [ "${{ matrix.platform }}" == "web" ]; then
-            flutter build web --release
-          elif [ "${{ matrix.platform }}" == "linux" ]; then
-            flutter build linux --release  
-          fi
-      
-      - name: Build Flutter ${{ matrix.platform }} app
-        if: runner.os == 'Windows' && matrix.platform == 'windows'
-        run: flutter build windows --release
-
-      - name: list builds
-        run: ls build/*
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: clavis-${{ matrix.platform }}-${{ matrix.arch }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
-          path: "build/${{ fromJson(env.BUILD_PATH_MAP)[matrix.platform] }}"
-
-  package-web:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions: 
-      packages: write
-      
-    if: ${{ needs.build.outputs.distance == 0 }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/publish-web
+    - name: Checkout code
+      uses: actions/checkout@v4
       with:
-        tag: ${{ needs.build.outputs.tag }}
-        distance: ${{ needs.build.outputs.distance }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-    
-  package-rpm:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions: 
-      packages: write
+        lfs: true
+        fetch-depth: 0
+        fetch-tags: true
+    - name: Git describe
+      id: ghd
+      uses: proudust/gh-describe@v2
 
-    if: ${{ needs.build.outputs.distance == 0 }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/publish-rpm
+    - name: Setup Python
+      uses: actions/setup-python@v5
       with:
-        tag: ${{ needs.build.outputs.tag }}
-        distance: ${{ needs.build.outputs.distance }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-    
-  package-windows:
-    runs-on: windows-latest
-    needs: build
-    permissions: 
-      packages: write
-      contents: write
-      
-    if: ${{ needs.build.outputs.distance == 0 }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/publish-windows
+        cache: 'pip'
+        python-version: '3.13'
+
+    - name: print tags
+      run: |
+        echo Tag: ${{ steps.ghd.outputs.tag }}
+        echo Distance: ${{ steps.ghd.outputs.distance }}
+
+    - name: process version
+      shell: bash
+      id: version
+      run: |
+        pip install pyyaml semver
+        python version/inject-version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
+        echo "parsed_ver=$(python version/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> "$GITHUB_OUTPUT"
+
+    - name: print parsed version
+      run: |
+        echo parsed_version: '${{ steps.version.outputs.parsed_ver }}'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
       with:
-        tag: ${{ needs.build.outputs.tag }}
-        distance: ${{ needs.build.outputs.distance }}
-        versionEncoded: ${{ fromJson(needs.build.outputs.parsedVersion)['versionEncoded'] }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-  
+        channel: 'stable'
+        flutter-version: 3.29.2
+
+    - name: Cache Flutter dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.pub-cache
+        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-
+
+    - name: install linux deps
+      if: runner.os == 'linux'
+      run: |
+        sudo apt update && sudo apt install -y \
+        curl \
+        git \
+        unzip \
+        xz-utils \
+        zip \
+        libglu1-mesa
+
+    - name: install linux native app deps
+      if: runner.os == 'linux' && inputs.platform == 'linux'
+      run: |
+        sudo apt update && sudo apt install -y \
+        clang \
+        cmake \
+        ninja-build \
+        pkg-config \
+        libgtk-3-dev \
+        liblzma-dev \
+        libstdc++-12-dev \
+        libsecret-1-dev
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Build Flutter ${{ inputs.platform }} app
+      if: runner.os == 'linux'
+      run: |
+        if [ "${{ inputs.platform }}" == "android" ]; then
+          flutter build apk --release
+        elif [ "${{ inputs.platform }}" == "web" ]; then
+          flutter build web --release
+        elif [ "${{ inputs.platform }}" == "linux" ]; then
+          flutter build linux --release
+        fi
+
+    - name: Build Flutter ${{ inputs.platform }} app
+      if: runner.os == 'Windows' && inputs.platform == 'windows'
+      run: flutter build windows --release
+
+    - name: list builds
+      run: ls build/*
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: clavis-${{ inputs.platform }}-${{ inputs.arch }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
+        path: "build/${{ fromJson(env.BUILD_PATH_MAP)[inputs.platform] }}"
+
