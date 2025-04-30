@@ -1,0 +1,51 @@
+name: publish-deb
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string  
+        description: the tag used for this action
+        required: true
+      distance:
+        type: string  
+        description: number of additional builds since last tag
+        required: true
+      runner:
+        type: string
+        description: runner to use for this workflow
+        required: true
+
+permissions:
+  packages: write
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ${{ inputs.runner }}
+    steps:
+    - name: print version
+      shell: bash
+      run: |
+        echo Version: ${{ inputs.tag }}
+        echo Distance: ${{ inputs.distance }}
+        
+    - uses: actions/checkout@v4
+    - name: Download builds
+      uses: "actions/download-artifact@v4"
+      with:
+        name: clavis-linux-amd64-${{ inputs.tag }}-${{ github.sha }}
+        path: ${{github.workspace}}/tmp.cicd/builds-deb
+
+    - name: list downloads
+      shell: bash
+      run: ls ${{github.workspace}}/tmp.cicd/builds-deb
+        
+    # - name: Release
+    #   uses: softprops/action-gh-release@v2
+    #   with:
+    #     files: package/rpm/rpmbuild/RPMS/x64/*
+    #     draft: ${{ inputs.distance != 0 }}
+    #     latest: ${{ inputs.distance == 0 }}
+    #     generate_release_notes: true
+    #     fail_on_unmatched_files: true
+    #     token: ${{ secrets.GITHUB_TOKEN }}

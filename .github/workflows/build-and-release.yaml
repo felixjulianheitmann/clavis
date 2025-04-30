@@ -1,0 +1,80 @@
+name: Flutter Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*.*.*
+  pull_request:
+    branches:
+      - main
+    types:
+      - synchronize
+      - opened
+
+jobs:
+  build-web:
+    uses: ./.github/workflows/build.yaml
+    with:
+      platform: web
+      arch: amd64
+      runner: ubuntu-latest
+
+  build-linux:
+    uses: ./.github/workflows/build.yaml
+    with:
+      platform: linux
+      arch: amd64
+      runner: ubuntu-latest
+
+  build-android:
+    uses: ./.github/workflows/build.yaml
+    with:
+      platform: android
+      arch: amd64
+      runner: ubuntu-latest
+
+  build-windows:
+    uses: ./.github/workflows/build.yaml
+    with:
+      platform: windows
+      arch: amd64
+      runner: windows-latest
+
+  package-web:
+    if: ${{ needs.build-web.outputs.distance == 0 }}
+    uses: ./.github/workflows/publish-web.yaml
+    needs: build-web
+    with:
+      runner: ubuntu-latest
+      distance: ${{ needs.build-web.outputs.distance }}
+      tag: ${{ needs.build-web.outputs.tag }}
+
+  package-rpm:
+    if: ${{ needs.build-linux.outputs.distance == 0 }}
+    uses: ./.github/workflows/publish-rpm.yaml
+    needs: build-linux
+    with:
+      runner: ubuntu-latest
+      distance: ${{ needs.build-linux.outputs.distance }}
+      tag: ${{ needs.build-linux.outputs.tag }}
+
+  package-deb:
+    # if: ${{ needs.build-linux.outputs.distance == 0 }} # activated for testing
+    uses: ./.github/workflows/publish-deb.yaml
+    needs: build-linux
+    with:
+      runner: ubuntu-latest
+      distance: ${{ needs.build-linux.outputs.distance }}
+      tag: ${{ needs.build-linux.outputs.tag }}
+
+  package-windows:
+    if: ${{ needs.build-windows.outputs.distance == 0 }}
+    uses: ./.github/workflows/publish-windows.yaml
+    needs: build-windows
+    with:
+      runner: ubuntu-latest
+      distance: ${{ needs.build-windows.outputs.distance }}
+      tag: ${{ needs.build-windows.outputs.tag }}
+      versionEncoded: ${{ fromJson(needs.build-windows.outputs.parsedVersion)['versionEncoded'] }}
