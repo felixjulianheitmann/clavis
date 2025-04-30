@@ -5,14 +5,30 @@ ARCH=$4
 
 NAME=clavis
 
-PKG=$NAME_$VERSION-$REVISION_$ARCH
+if [ "$#" -ne 4 ]; then
+    echo "Usage: $0 <BUILDDIR> <VERSION> <REVISION> <ARCH>"
+    exit 1
+fi
+
+rm -rf tmp
+
+PKG=${NAME}_${VERSION}_${REVISION}_${ARCH}
 PKG_DIR=tmp/$PKG
+echo PKG: $PKG
+echo Ordner: $PKG_DIR/usr/local/bin/$NAME
 mkdir -p $PKG_DIR/usr/local/bin/$NAME
 
-cp DEBIAN $PKG_DIR/.
-cp $BUILDDIR/* $PKG_DIR/usr/local/bin/$NAME
-cp libs -> $PKG_DIR/usr/lib64
+cp -r $BUILDDIR/* $PKG_DIR/usr/local/bin/$NAME
+mkdir -p $PKG_DIR/DEBIAN
 
-python inject_version.py {VERSION} $PKG_DIR/DEBIAN/control
+cat <<EOF > $PKG_DIR/DEBIAN/control
+Package: clavis
+Version: $VERSION
+Architecture: $ARCH
+Maintainer: Felix Bruns
+Description: Gamevault management client
+ A client application to manage your Gamevault instance
+Depends: libsecret-1-0, libjsoncpp25
+EOF
 
-dpkg-deb --build --root-owner-group $PKG
+dpkg-deb --build --root-owner-group $PKG_DIR
