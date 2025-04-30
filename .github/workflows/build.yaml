@@ -14,188 +14,126 @@ on:
       - opened
 
 jobs:
-  build:
-    env:
-      BUILD_PATH_MAP: '{"web":"web","android":"app/outputs","linux":"linux/x64/release/bundle","windows":"windows/x64/runner/Release"}'
-    strategy:
-      matrix:
-        platform: [web, android, linux]
-        os: [ubuntu-latest]
-        arch: [amd64]
-        include:
-          - os: windows-latest
-            platform: windows
-            arch: amd64
-      fail-fast: false
-
+  build-web:
     outputs:
-      tag: ${{ steps.ghd.outputs.tag }}
-      distance: ${{ steps.ghd.outputs.distance }}
-      parsedVersion: ${{ steps.version.outputs.parsed_ver }}
-
-    runs-on: ${{ matrix.os }}
-
+      tag: ${{ steps.build.outputs.tag }}
+      distance: ${{ steps.build.outputs.distance }}
+      parsedVersion: ${{ steps.build.outputs.parsedVersion }}
+      
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          lfs: true
-          fetch-depth: 0
-          fetch-tags: true
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/build
+      with:
+        platform: web
+        arch: amd64
+      id: build
 
-      - name: Git describe
-        id: ghd
-        uses: proudust/gh-describe@v2
+  build-linux:
+    outputs:
+      tag: ${{ steps.build.outputs.tag }}
+      distance: ${{ steps.build.outputs.distance }}
+      parsedVersion: ${{ steps.build.outputs.parsedVersion }}
+      
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/build
+      with:
+        platform: linux
+        arch: amd64
+      id: build
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-         cache: 'pip'
-         python-version: '3.13'
+  build-android:
+    outputs:
+      tag: ${{ steps.build.outputs.tag }}
+      distance: ${{ steps.build.outputs.distance }}
+      parsedVersion: ${{ steps.build.outputs.parsedVersion }}
+      
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/build
+      with:
+        platform: android
+        arch: amd64
+      id: build
 
-      - name: print tags
-        run: |
-          echo Tag: ${{ steps.ghd.outputs.tag }}
-          echo Distance: ${{ steps.ghd.outputs.distance }}
-
-      - name: process version
-        shell: bash
-        id: version
-        run: |
-          pip install pyyaml semver
-          python version/inject-version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
-          echo "parsed_ver=$(python version/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> "$GITHUB_OUTPUT"
-
-      - name: print parsed version
-        shell: bash
-        run: |
-          echo parsed_version: ${{ steps.version.outputs.parsed_ver }}
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          flutter-version: 3.29.2
-
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
-
-      - name: install linux deps
-        if: runner.os == 'linux'
-        run: |
-          sudo apt update && sudo apt install -y \
-          curl \
-          git \
-          unzip \
-          xz-utils \
-          zip \
-          libglu1-mesa
-
-      - name: install linux native app deps
-        if: runner.os == 'linux' && matrix.platform == 'linux'
-        run: |
-          sudo apt update && sudo apt install -y \
-          clang \
-          cmake \
-          ninja-build \
-          pkg-config \
-          libgtk-3-dev \
-          liblzma-dev \
-          libstdc++-12-dev \
-          libsecret-1-dev
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build Flutter ${{ matrix.platform }} app
-        if: runner.os == 'linux'
-        run: |
-          if [ "${{ matrix.platform }}" == "android" ]; then
-            flutter build apk --release
-          elif [ "${{ matrix.platform }}" == "web" ]; then
-            flutter build web --release
-          elif [ "${{ matrix.platform }}" == "linux" ]; then
-            flutter build linux --release
-          fi
-
-      - name: Build Flutter ${{ matrix.platform }} app
-        if: runner.os == 'Windows' && matrix.platform == 'windows'
-        run: flutter build windows --release
-
-      - name: list builds
-        run: ls build/*
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: clavis-${{ matrix.platform }}-${{ matrix.arch }}-${{ steps.ghd.outputs.tag }}-${{ github.sha }}
-          path: "build/${{ fromJson(env.BUILD_PATH_MAP)[matrix.platform] }}"
+  build-windows:
+    outputs:
+      tag: ${{ steps.build.outputs.tag }}
+      distance: ${{ steps.build.outputs.distance }}
+      parsedVersion: ${{ steps.build.outputs.parsedVersion }}
+      
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/build
+      with:
+        platform: windows
+        arch: amd64
+      id: build
 
   package-web:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-web
     permissions:
       packages: write
 
-    if: ${{ needs.build.outputs.distance == 0 }}
+    if: ${{ needs.build-web.outputs.distance == 0 }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-web
       with:
-        tag: ${{ needs.build.outputs.tag }}
-        distance: ${{ needs.build.outputs.distance }}
+        tag: ${{ needs.build-web.outputs.tag }}
+        distance: ${{ needs.build-web.outputs.distance }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
   package-rpm:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-linux
     permissions:
       packages: write
       contents: write
 
-    if: ${{ needs.build.outputs.distance == 0 }}
+    if: ${{ needs.build-linux.outputs.distance == 0 }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-rpm
       with:
-        tag: ${{ needs.build.outputs.tag }}
-        distance: ${{ needs.build.outputs.distance }}
+        tag: ${{ needs.build-linux.outputs.tag }}
+        distance: ${{ needs.build-linux.outputs.distance }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
   package-deb:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-linux
     permissions:
       packages: write
       contents: write
 
-    # if: ${{ needs.build.outputs.distance == 0 }} # activated for debugging
+    # if: ${{ needs.build-linux.outputs.distance == 0 }} # activated for debugging
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-deb
       with:
-        tag: ${{ needs.build.outputs.tag }}
-        distance: ${{ needs.build.outputs.distance }}
+        tag: ${{ needs.build-linux.outputs.tag }}
+        distance: ${{ needs.build-linux.outputs.distance }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
   package-windows:
     runs-on: windows-latest
-    needs: build
+    needs: build-windows
     permissions:
       packages: write
       contents: write
 
-    if: ${{ needs.build.outputs.distance == 0 }}
+    if: ${{ needs.build-windows.outputs.distance == 0 }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-windows
       with:
-        tag: ${{ needs.build.outputs.tag }}
-        distance: ${{ needs.build.outputs.distance }}
-        versionEncoded: ${{ fromJson(needs.build.outputs.parsedVersion)['versionEncoded'] }}
+        tag: ${{ needs.build-windows.outputs.tag }}
+        distance: ${{ needs.build-windows.outputs.distance }}
+        versionEncoded: ${{ fromJson(needs.build-windows.outputs.parsedVersion)['versionEncoded'] }}
         token: ${{ secrets.GITHUB_TOKEN }}
