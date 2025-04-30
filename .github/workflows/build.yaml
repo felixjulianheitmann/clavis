@@ -173,7 +173,7 @@ jobs:
       packages: write
       contents: write
       
-    # if: ${{ needs.build.outputs.distance == 0 }} // enabled temporarily for testing 
+    if: ${{ needs.build.outputs.distance == 0 }}
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/publish-windows
