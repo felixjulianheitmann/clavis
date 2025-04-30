@@ -22,7 +22,7 @@ runs:
   using: "composite"
   steps:
   - name: print version
-    shell: bash
+    shell: pwsh
     run: |
       echo Version: ${{ inputs.tag }}
       echo Distance: ${{ inputs.distance }}
@@ -35,13 +35,13 @@ runs:
       path: ${{github.workspace}}/tmp.cicd/builds-windows
 
   - name: list for debugging
-    shell: bash
+    shell: pwsh
     run: |
       ls '${{github.workspace}}/tmp.cicd/builds-windows'
       ls '${{github.workspace}}'
 
   - name: bundle installer
-    shell: bash
+    shell: pwsh
     run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}-${{ inputs.distance }}" -DbuildDir='${{github.workspace}}/tmp.cicd/builds-windows' -Otarget '${{github.workspace}}\package\win-installer.iss'
 
   - name: Release
