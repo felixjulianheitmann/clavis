@@ -65,7 +65,7 @@ jobs:
       tag: ${{ needs.build-linux.outputs.tag }}
 
   package-deb:
-    # if: ${{ needs.build-linux.outputs.distance == 0 }} # activated for testing
+    if: ${{ needs.build-linux.outputs.distance == 0 }}
     uses: ./.github/workflows/publish-deb.yaml
     needs: build-linux
     with:
