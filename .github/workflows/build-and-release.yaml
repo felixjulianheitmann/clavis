@@ -13,6 +13,10 @@ on:
       - synchronize
       - opened
 
+permissions: 
+  packages: write
+  contents: write
+
 jobs:
   build-web:
     uses: ./.github/workflows/build.yaml
