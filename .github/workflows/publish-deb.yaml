@@ -3,12 +3,16 @@ on:
   workflow_call:
     inputs:
       tag:
-        type: string  
+        type: string
         description: the tag used for this action
         required: true
       distance:
-        type: string  
+        type: string
         description: number of additional builds since last tag
+        required: true
+      arch:
+        type: string
+        description: architecture of the package
         required: true
       runner:
         type: string
@@ -28,7 +32,7 @@ jobs:
       run: |
         echo Version: ${{ inputs.tag }}
         echo Distance: ${{ inputs.distance }}
-        
+
     - uses: actions/checkout@v4
     - name: Download builds
       uses: "actions/download-artifact@v4"
@@ -39,13 +43,18 @@ jobs:
     - name: list downloads
       shell: bash
       run: ls ${{github.workspace}}/tmp.cicd/builds-deb
-        
-    # - name: Release
-    #   uses: softprops/action-gh-release@v2
-    #   with:
-    #     files: package/rpm/rpmbuild/RPMS/x64/*
-    #     draft: ${{ inputs.distance != 0 }}
-    #     latest: ${{ inputs.distance == 0 }}
-    #     generate_release_notes: true
-    #     fail_on_unmatched_files: true
-    #     token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: build package
+      shell: bash
+      run: |
+        ./package/deb/build-deb.sh ${{github.workspace}}/tmp.cicd/builds-deb 0.1.0-rc.2 1 ${{ inputs.arch }}
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: tmp/*.deb
+        draft: ${{ inputs.distance != 0 }}
+        make_latest: ${{ inputs.distance == 0 }}
+        generate_release_notes: true
+        fail_on_unmatched_files: true
+        token: ${{ secrets.GITHUB_TOKEN }}

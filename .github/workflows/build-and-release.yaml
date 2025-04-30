@@ -71,6 +71,7 @@ jobs:
     with:
       runner: ubuntu-latest
       distance: ${{ needs.build-linux.outputs.distance }}
+      arch: amd64
       tag: ${{ needs.build-linux.outputs.tag }}
 
   package-windows:
