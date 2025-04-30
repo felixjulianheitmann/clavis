@@ -37,6 +37,12 @@ jobs:
 
     runs-on: ${{ inputs.runner }}
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+        fetch-depth: 0
+        fetch-tags: true
     - name: Git describe
       id: ghd
       uses: proudust/gh-describe@v2
