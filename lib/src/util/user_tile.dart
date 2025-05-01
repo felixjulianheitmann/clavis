@@ -9,13 +9,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
 class UserTile extends StatelessWidget {
-  const UserTile({super.key, required this.user});
+  const UserTile({super.key, required this.user, this.width});
   final UserBundle user;
-
-  static const width = 400.0;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
+    Widget Function(Widget child) wrapper = (c) => Expanded(child: c);
+    if (width != null) {
+      wrapper = (c) => SizedBox(width: width, child: c);
+    }
+    
     return Focusable(
       onTap: () {
         Navigator.push(
@@ -33,19 +37,23 @@ class UserTile extends StatelessWidget {
           ),
         );
       },
-      child: SizedBox(
-        width: UserTile.width,
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 8,
-              children: [UserAvatar(user), UserDesc(user.user)],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          wrapper(
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 8,
+                  children: [UserAvatar(user), UserDesc(user.user)],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

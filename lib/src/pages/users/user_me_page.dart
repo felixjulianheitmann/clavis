@@ -19,7 +19,10 @@ class UserMePage extends StatelessWidget {
               UserMeBloc(context.read<UserRepository>())..add(Subscribe()),
       child: Padding(
         padding: EdgeInsets.all(16),
-        child: Column(children: [_UserMeInfo(), Divider(), _RecentlyPlayed()]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [_UserMeInfo(), Divider(), _RecentlyPlayed()],
+        ),
       ),
     );
   }
@@ -67,13 +70,15 @@ class _UserMeInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenW = MediaQuery.of(context).size.width;
+
     return BlocBuilder<UserMeBloc, UserState>(
       builder: (context, state) {
         if (state is! Ready) return CircularProgressIndicator();
         return Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            UserTile(user: state.user),
+            Expanded(child: UserTile(user: state.user)),
           ],
         );
       },
