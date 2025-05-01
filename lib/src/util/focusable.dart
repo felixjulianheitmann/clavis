@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Focusable extends StatefulWidget {
-  const Focusable({super.key, required this.child});
+  const Focusable({super.key, this.onTap, required this.child});
+  final void Function()? onTap;
   final Widget child;
 
   @override
@@ -18,13 +19,16 @@ class _FocusableState extends State<Focusable> {
   Widget build(BuildContext context) {
     var scale = _isHovering ? _hoverFactor : 1.0;
 
-    return MouseRegion(
-      onEnter: (e) => setState(() => _isHovering = true),
-      onExit: (e) => setState(() => _isHovering = false),
-      child: AnimatedScale(
-        scale: scale,
-        duration: _animationDuration,
-        child: widget.child,
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: MouseRegion(
+        onEnter: (e) => setState(() => _isHovering = true),
+        onExit: (e) => setState(() => _isHovering = false),
+        child: AnimatedScale(
+          scale: scale,
+          duration: _animationDuration,
+          child: widget.child,
+        ),
       ),
     );
   }

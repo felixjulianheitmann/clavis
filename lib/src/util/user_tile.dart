@@ -1,4 +1,3 @@
-
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/users/user_detail_page.dart';
@@ -17,34 +16,33 @@ class UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap:
-          () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) {
-                return BlocProvider(
-                  create: (ctx) {
-                    return UserBloc(ctx.read<UserRepository>(), user.user.id)
-                      ..add(Subscribe());
-                  },
-                  child: DetailPage(id: user.user.id),
-                );
-              },
-            ),
+    return Focusable(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return BlocProvider(
+                create: (ctx) {
+                  return UserBloc(ctx.read<UserRepository>(), user.user.id)
+                    ..add(Subscribe());
+                },
+                child: DetailPage(id: user.user.id),
+              );
+            },
           ),
-      child: Focusable(
-        child: SizedBox(
-          width: UserTile.width,
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 8,
-                children: [UserAvatar(user), UserDesc(user.user)],
-              ),
+        );
+      },
+      child: SizedBox(
+        width: UserTile.width,
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 8,
+              children: [UserAvatar(user), UserDesc(user.user)],
             ),
           ),
         ),
@@ -52,7 +50,6 @@ class UserTile extends StatelessWidget {
     );
   }
 }
-
 
 class UserAvatar extends StatelessWidget {
   const UserAvatar(this.user, {super.key});

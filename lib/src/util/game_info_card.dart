@@ -23,14 +23,6 @@ class GameInfoCard extends StatelessWidget {
   final Widget? overlay;
   final double height;
 
-  void _openGame(BuildContext context, GamevaultGame game) {
-    context.read<PageBloc>().add(PageChanged(Constants.gamesPageInfo()));
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => GamePage(game: game)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final api = Helpers.getApi(context);
@@ -42,47 +34,74 @@ class GameInfoCard extends StatelessWidget {
               GameBloc(gameRepo: ctx.read<GameRepository>(), id: gameId)
                 ..add(GameSubscribe(api: api))
                 ..add(GameReload(api: api, id: gameId)),
-      child: BlocBuilder<GameBloc, GameState>(
-        builder: (context, state) {
-          if (state is! GameReady) return CircularProgressIndicator();
-          final game = state.game;
-          return SizedBox(
-            height: height,
-            child: Card(
-              margin: EdgeInsets.all(8),
-              clipBehavior: Clip.antiAlias,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _BackgroundBanner(game: game),
-                  overlay ?? SizedBox.shrink(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () => _openGame(context, game),
-                          child: Focusable(
-                            child: Wrap(
-                              children: [
-                                Card.outlined(
-                                  clipBehavior: Clip.hardEdge,
-                                  child: Helpers.cover(game, height * 0.56),
-                                ),
-                              ],
-                            ),
-                          ),
+      child: SizedBox(
+        height: height,
+        child: Card(
+          margin: EdgeInsets.all(8),
+          clipBehavior: Clip.antiAlias,
+          child: _CardContent(
+            overlay: overlay,
+            coverHeight: height * 0.56,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CardContent extends StatelessWidget {
+  const _CardContent({
+    required this.overlay,
+    required this.coverHeight,
+    required this.child,
+  });
+  final Widget? overlay;
+  final Widget child;
+  final double coverHeight;
+
+  void _openGame(BuildContext context, GamevaultGame game) {
+    context.read<PageBloc>().add(PageChanged(Constants.gamesPageInfo()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GamePage(game: game)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<GameBloc, GameState>(
+      builder: (context, state) {
+        if (state is! GameReady) return CircularProgressIndicator();
+        final game = state.game;
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            _BackgroundBanner(game: game),
+            overlay ?? SizedBox.shrink(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: <Widget>[
+                  Focusable(
+                    onTap: () => _openGame(context, game),
+                    child: Wrap(
+                      children: [
+                        Card.outlined(
+                          clipBehavior: Clip.hardEdge,
+                          child: Helpers.cover(game, coverHeight),
                         ),
-                        child,
                       ],
                     ),
                   ),
+                  child,
                 ],
               ),
             ),
-          );
-        },
-      ),
+          ],
+        );
+      },
     );
   }
 }

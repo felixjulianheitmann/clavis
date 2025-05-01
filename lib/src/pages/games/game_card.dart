@@ -16,22 +16,20 @@ class GameCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Focusable(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => GamePage(game: game)),
         );
       },
-      child: Focusable(
-        child: SizedBox(
-          height: aspectRatio * width,
-          width: width,
-          child: Card(
-            clipBehavior: Clip.antiAlias,
-            semanticContainer: true,
-            child: Helpers.cover(game, width),
-          ),
+      child: SizedBox(
+        height: aspectRatio * width,
+        width: width,
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          semanticContainer: true,
+          child: Helpers.cover(game, width),
         ),
       ),
     );
