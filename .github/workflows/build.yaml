@@ -61,6 +61,7 @@ jobs:
       shell: bash
       id: version
       run: |
+        pip install pyyaml semver
         python package/inject_version.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }}
         echo "parsed_ver=$(python package/parse_tag.py ${{ steps.ghd.outputs.tag }} ${{ steps.ghd.outputs.distance }})" >> "$GITHUB_OUTPUT"
 
