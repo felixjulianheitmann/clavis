@@ -37,12 +37,12 @@ jobs:
 
     - name: rename build file
       run: |
-        mv ${{github.workspace}}/tmp.cicd/build/app-release.apk ${{github.workspace}}/tmp.cicd/build/clavis_${{ inputs.tag }}.apk
+        mv ${{github.workspace}}/tmp.cicd/build/app/outputs/apk/release/app-release.apk ${{github.workspace}}/clavis_${{ inputs.tag }}.apk
 
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        files: ${{github.workspace}}/tmp.cicd/build/*.apk
+        files: ${{github.workspace}}/clavis_${{ inputs.tag }}.apk
         draft: ${{ inputs.distance != 0 }}
         make_latest: ${{ inputs.distance == 0 }}
         generate_release_notes: true
