@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/games/game_banner.dart';
 import 'package:clavis/src/pages/games/game_progress_card.dart';
 import 'package:clavis/src/util/cache_image.dart';
+import 'package:clavis/src/util/headline_divider.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -99,6 +101,8 @@ class _PageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+    
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -111,11 +115,33 @@ class _PageBody extends StatelessWidget {
           GameProgressCard(gameId: game.id),
           _GameDescription(game.metadata?.description),
           _GameScreenshots(game.metadata?.urlScreenshots),
+          // why is bookmarkedUsers a list of games?
+          // Visibility(
+          //   visible: game.bookmarkedUsers.isNotEmpty,
+          //   child: HeadlineDivider(text: translate.bookmarked_by_label),
+          // ),
+          // _BookmarkedSection(bookmarkedUsers: game.bookmarkedUsers)
         ],
       ),
     );
   }
 }
+
+// class _BookmarkedSection extends StatelessWidget {
+//   const _BookmarkedSection({required this.bookmarkedUsers});
+
+//   final List<GamevaultUser> bookmarkedUsers;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     if (bookmarkedUsers.isEmpty) return SizedBox.shrink();
+
+//     final userCards = bookmarkedUsers.map((u) {
+//       return Card(child: Placeholder());
+//     });
+//     return Wrap(children: userCards.toList());
+//   }
+// }
 
 class _GameDescription extends StatelessWidget {
   const _GameDescription(this.description);

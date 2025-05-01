@@ -1,3 +1,4 @@
+import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/games_list_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/games/game_card.dart';
@@ -18,6 +19,8 @@ class UserMePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+    
     return BlocProvider(
       create:
           (context) =>
@@ -28,9 +31,9 @@ class UserMePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _UserMeInfo(),
-            HeadlineDivider(text: "Bookmarks"),
+            HeadlineDivider(text: translate.bookmarks_label),
             _Bookmarks(),
-            HeadlineDivider(text: "Recently played"),
+            HeadlineDivider(text: translate.recently_played_label),
             _RecentlyPlayed(),
           ],
         ),

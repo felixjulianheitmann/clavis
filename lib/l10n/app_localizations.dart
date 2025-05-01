@@ -592,6 +592,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Duration'**
   String get download_duration_label;
+
+  /// No description provided for @bookmarks_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarks_label;
+
+  /// No description provided for @bookmarked_by_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarked by'**
+  String get bookmarked_by_label;
+
+  /// No description provided for @recently_played_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently Played'**
+  String get recently_played_label;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

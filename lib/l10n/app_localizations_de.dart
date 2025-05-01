@@ -280,4 +280,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get download_duration_label => 'Duration';
+
+  @override
+  String get bookmarks_label => 'Bookmarks';
+
+  @override
+  String get bookmarked_by_label => 'Bookmarked by';
+
+  @override
+  String get recently_played_label => 'Recently Played';
 }

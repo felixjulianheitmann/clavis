@@ -84,5 +84,8 @@
     "download_status_downloadReturnedError": "Error",
     "download_status_unknown": "Unknown",
     "download_status_label": "State",
-    "download_duration_label": "Duration"
+    "download_duration_label": "Duration",
+    "bookmarks_label": "Bookmarks",
+    "bookmarked_by_label": "Bookmarked by",
+    "recently_played_label": "Recently Played"
 }
