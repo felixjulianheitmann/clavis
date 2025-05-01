@@ -1,2 +1,2 @@
 pyyaml
-semverpyyaml semver
+semver
