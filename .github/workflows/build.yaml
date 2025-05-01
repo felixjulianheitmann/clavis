@@ -112,7 +112,6 @@ jobs:
       run: flutter pub get
 
     - name: Build Flutter ${{ inputs.platform }} app
-      if: runner.os == 'linux'
       run: flutter build ${{ inputs.platform }} --release
 
     - name: list builds
