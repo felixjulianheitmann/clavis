@@ -2,7 +2,7 @@ import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
-import 'package:clavis/src/pages/downloads/download_card_base.dart';
+import 'package:clavis/src/util/game_info_card.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/value_pair_column.dart';
@@ -18,7 +18,7 @@ class DownloadCardPending extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DownloadCardBase(
+    return GameInfoCard(
       height: _height,
       operation: operation,
       child: Row(

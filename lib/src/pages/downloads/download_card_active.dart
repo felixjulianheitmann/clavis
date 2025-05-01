@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
-import 'package:clavis/src/pages/downloads/download_card_base.dart';
+import 'package:clavis/src/util/game_info_card.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -19,7 +19,7 @@ class DownloadCardActive extends StatelessWidget {
     return BlocBuilder<DownloadBloc, DownloadState>(
       builder: (context, state) {
         if (!state.dlContext.hasActive) return SizedBox.shrink();
-        return DownloadCardBase(
+        return GameInfoCard(
           height: _cardHeight,
           operation: state.dlContext.activeOp!,
           overlay: Align(

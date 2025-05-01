@@ -1,7 +1,6 @@
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/constants.dart';
 import 'package:clavis/src/pages/games/game_page.dart';
-import 'package:clavis/src/repositories/download_repository.dart';
 import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/focusable.dart';
 import 'package:clavis/src/util/helpers.dart';
@@ -9,15 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
-class DownloadCardBase extends StatelessWidget {
-  const DownloadCardBase({
+class GameInfoCard extends StatelessWidget {
+  const GameInfoCard({
     super.key,
-    required this.operation,
+    required this.game,
     required this.child,
     required this.height,
     this.overlay,
   });
-  final DownloadOp operation;
+  final GamevaultGame game;
   final Widget child;
   final Widget? overlay;
   final double height;
@@ -26,7 +25,7 @@ class DownloadCardBase extends StatelessWidget {
     context.read<PageBloc>().add(PageChanged(Constants.gamesPageInfo()));
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => GamePage(game: operation.game)),
+      MaterialPageRoute(builder: (context) => GamePage(game: game)),
     );
   }
 
@@ -40,7 +39,7 @@ class DownloadCardBase extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            _BackgroundBanner(game: operation.game),
+            _BackgroundBanner(game: game),
             overlay ?? SizedBox.shrink(),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -54,7 +53,7 @@ class DownloadCardBase extends StatelessWidget {
                             children: [
                               Card.outlined(
                                 clipBehavior: Clip.hardEdge,
-                            child: Helpers.cover(operation.game, height * 0.56),
+                            child: Helpers.cover(game, height * 0.56),
                               ),
                             ],
                           ),
