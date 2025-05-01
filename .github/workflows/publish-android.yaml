@@ -35,7 +35,9 @@ jobs:
       shell: bash
       run: ls ${{github.workspace}}/tmp.cicd/build
 
-    - run: mv ${{github.workspace}}/tmp.cicd/build/app-release.apk ${{github.workspace}}/tmp.cicd/build/clavis_${{ inputs.tag }}.apk
+    - name: rename build file
+      run: |
+        mv ${{github.workspace}}/tmp.cicd/build/app-release.apk ${{github.workspace}}/tmp.cicd/build/clavis_${{ inputs.tag }}.apk
 
     - name: Release
       uses: softprops/action-gh-release@v2
