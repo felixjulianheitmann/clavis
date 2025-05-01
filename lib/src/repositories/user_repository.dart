@@ -79,12 +79,6 @@ class UserRepository {
     final bundles = users.map((u) => UserBundle(user: u)).toList();
     _usersController.add(bundles);
 
-    if (_userMe != null) {
-      final user = bundles.firstWhereOrNull(
-        (u) => u.user.id == _userMe!.user.id,
-      );
-      if (user != null) _userMeController.add(user);
-    }
   }
 
   void _updateUserEntry(GamevaultUser user) {

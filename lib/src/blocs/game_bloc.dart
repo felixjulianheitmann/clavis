@@ -33,7 +33,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       super(GameLoading()) {
     on<GameSubscribe>((event, emit) async {
       await emit.onEach(
-        _gameRepo.activeGameStream,
+        _gameRepo.gameStream(id),
         onData: (game) {
           emit(GameReady(game));
         },

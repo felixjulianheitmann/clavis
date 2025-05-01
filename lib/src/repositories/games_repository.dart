@@ -2,33 +2,28 @@ import 'dart:async';
 
 import 'package:clavis/src/types.dart';
 import 'package:clavis/src/util/logger.dart';
+import 'package:collection/collection.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
 class GameRepository {
   GameRepository()
-    : _gamesListCtrl = StreamController<GamevaultGames>.broadcast(),
-      _activeGameCtrl = StreamController<GamevaultGame>.broadcast() {
+    : _gamesListCtrl = StreamController<GamevaultGames>.broadcast() {
     Future(() async {
-      await for (final g in _activeGameCtrl.stream) {
-        _activeGame = g;
-      }
-    }).onError((error, stackTrace) {
-      log.e("active game setter errored out", error: error, stackTrace: stackTrace);
-    },);
-        Future(() async {
       await for (final g in _gamesListCtrl.stream) {
         _games = g;
       }
     }).onError((error, stackTrace) {
-      log.e("game list setter errored out", error: error, stackTrace: stackTrace);
-    },);
+      log.e(
+        "game list setter errored out",
+        error: error,
+        stackTrace: stackTrace,
+      );
+    });
   }
 
   GamevaultGames? _games;
-  GamevaultGame? _activeGame;
 
   final StreamController<GamevaultGames> _gamesListCtrl;
-  final StreamController<GamevaultGame> _activeGameCtrl;
 
   Stream<GamevaultGames> get gameListStream async* {
     if (_games != null) {
@@ -37,15 +32,19 @@ class GameRepository {
     yield* _gamesListCtrl.stream;
   }
 
-  Stream<GamevaultGame> get activeGameStream async* {
-    if (_activeGame != null) {
-      yield _activeGame!;
+  Stream<GamevaultGame> gameStream(num gameId) async* {
+    final initial = game(gameId);
+    if (initial != null) yield initial;
+    await for (final gameList in _gamesListCtrl.stream) {
+      final game = gameList.firstWhereOrNull((g) => g.id == gameId);
+      if (game != null) yield game;
     }
-    yield* _activeGameCtrl.stream;
   }
 
   GamevaultGames? get games => _games;
-  GamevaultGame? get activeGame => _activeGame;
+  GamevaultGame? game(num gameId) {
+    return _games?.firstWhereOrNull((g) => g.id == gameId);
+  }
 
   Future<void> getGames(ApiClient api) async {
     final GetGames200Response? games;
@@ -65,14 +64,28 @@ class GameRepository {
     final GamevaultGame? game;
     try {
       game = await GameApi(api).getGameByGameId(id);
-      if (game == null) {
-        return log.e("game query returned null - id: $id");
-      }
     } catch (e) {
       return log.e("error querying game - id: $id", error: e);
     }
+    if (game == null) {
+      return log.e("game query returned null - id: $id");
+    }
 
-    _activeGameCtrl.add(game);
+    final games = _games;
+    if (games == null) {
+      // game list not yet loaded
+      _gamesListCtrl.add([game]);
+      return;
+    }
+
+    final idx = games.indexWhere((g) => g.id == game!.id);
+    if (idx <= 0) {
+      // game not yet in gamelist?
+      _gamesListCtrl.add(games + [game]);
+      return;
+    }
+
+    games[idx] = game;
+    _gamesListCtrl.add(games);
   }
-
 }
