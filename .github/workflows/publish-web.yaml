@@ -27,7 +27,7 @@ jobs:
     - name: Download builds
       uses: "actions/download-artifact@v4"
       with:
-        name: clavis-web-${{ inputs.tag }}-${{ github.sha }}
+        name: clavis-web-amd64-${{ inputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/build
 
     - name: list downloads
