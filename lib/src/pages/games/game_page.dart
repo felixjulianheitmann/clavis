@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/download_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/blocs/pref_bloc.dart';
@@ -9,7 +8,6 @@ import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/games/game_banner.dart';
 import 'package:clavis/src/pages/games/game_progress_card.dart';
 import 'package:clavis/src/util/cache_image.dart';
-import 'package:clavis/src/util/headline_divider.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -101,8 +99,6 @@ class _PageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final translate = AppLocalizations.of(context)!;
-    
     return SingleChildScrollView(
       child: Column(
         children: [

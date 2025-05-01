@@ -6,67 +6,50 @@
 <img src="assets/clavis_white.svg" width="20%" />
 </p>
 
-A management client for your [Gamevault](https://gamevau.lt) library.
+The key to your [Gamevault](https://gamevau.lt) library.
+
+[![Build Pipeline](https://github.com/felixjulianheitmann/clavis/actions/workflows/build-and-release.yaml/badge.svg)](https://github.com/felixjulianheitmann/clavis/actions/workflows/build-and-release.yaml)
 
 _This project is independent from Phalcode. It's using the Gamevault's open source backend API to provide a multi-platform client interface._
 
+This is not a replacement for the official [Gamevault Client](https://github.com/Phalcode/gamevault-app). At the moment, this is a mere management application. It doesn't allow you to install or run any of the games from your vault.
 
-This Readme is more of a scratchpad for a roadmap at the moment.
+:::warning
+This software is still in a very early development phase expect bugs and other issues to pop up.
+:::
+
+This Flutter-based application is a management application for your Gamevault server. The feature set includes
+- browsing through your game library
+  - viewing individual games including screenshots, description, external links, etc.
+  - bookmarking games
+  - downloading the backends game installation files
+- managing Gamevault users
+  - registering new users
+  - activating/deactivating existing users
+  - deleting/restoring existing users
+  - editing user info and credentials
+- viewing your own gaming history
+
+There are plans for greatness in the future but I am trying for a stable minimum viable application first.
 
 ## Install
 
-Currently, the only release form is a web-app hosted using Docker.
+Check for the latest available releases on the [Releases Page](https://github.com/felixjulianheitmann/clavis/releases/latest).
 
-| System | Instructions |
-| ------ | ----- |
-| Docker | [Install using Docker](#docker) |
-| Deb package | ... |
-| App image | ... |
-| Flatpak | ... |
-| Win executable | ... |
-| Android APK | ... |
-| F-Droid | ... |
-
+clavis is available as:
+- [Docker image](#docker)
+- Linux RPM package
+- Linux deb package
+- Windows installer package
+- Android APK 
 
 ### Docker
 
-## Features
+The Docker image is available on the Github Container registry.
+The container is quite simple and doesn't have any dependencies or persistent storage.
 
-- Authentication
-  - [x] auhtenticate to your gamevault instance
-  - [x] store credentials safely for auto-authentication
-- Game browsing
-  - [x] Cover gallery view of your gamevault library
-  - [ ] Gallery listview of the library
-  - [x] searching gamelist by title
-  - [ ] searching by other criteria
-  - [ ] filtering list using pre-populated filter lists (e.g. only show games from Bethesda)
-- Game details
-  - [x] cover + description + banner + screenshots
-  - [x] display links to other pages (steam, wikipedia, youtube, etc)
-  - [ ] download game files
-  - [ ] show game stats related to user
-    - [ ] play time, last played, etc.
-  - [ ] display trailer
-  - [x] set bookmarking
-- User management
-  - [ ] User Me page
-    - [x] update user info
-    - [ ] deactivate user
-    - [ ] delete user
-    - [ ] display usage history
-      - [ ] last played games
-      - [ ] last login
-      - [ ] playtime stats, etc
-  - [ ] Admin Users page
-    - [x] hidden for non-admins
-    - [x] Shows all users sorted by active/inactive/deleted
-    - [x] Allows activating/deactivating users
-    - [x] Allows deleting/restoring users
-- Application settings
-  - [x] Dark/Light Mode
-  - [ ] Default Download Directory
-- Gamevault Server page
-  - [ ] General info about gamevault server
-  - [ ] Display news page
+```
+docker run --rm -p 8080:80 ghcr.io/felixjulianheitmann/clavis:latest
+```
 
+You can then access the application on `http://localhost:8080`.

@@ -90,7 +90,7 @@ class Clavis extends StatelessWidget {
   const Clavis({super.key});
 
   Future<Widget> _initApp(BuildContext context) async {
-    Log.initLog(LogOpts()); // TODO: provide log options in settings
+    Log.initLog(LogOpts());
     log.i("Starting application");
 
     return ClavisHome();
