@@ -1,5 +1,6 @@
 import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
@@ -20,15 +21,7 @@ class _GamesListState extends State<GamesList> {
 
   @override
   Widget build(BuildContext context) {
-    widget.games.sort((a, b) {
-      if (a.title == null) {
-        return 1;
-      } else if (b.title == null) {
-        return -1;
-      } else {
-        return a.title!.compareTo(b.title!);
-      }
-    });
+    widget.games.sortBy((e) => e.sortTitle ?? '___');
     final children =
         widget.games
             .map((game) => GameCard(game: game, width: _gameCardWidth))

@@ -14,7 +14,7 @@ class ClavisHome extends StatelessWidget {
       listener: (context, state) {
         if (state is Authenticated) {
           // update user on auth change
-          context.read<UserMeBloc>().add(Reload(api: state.api));
+          context.read<UserMeBloc>().add(UserReload(api: state.api));
         }
       },
       child: BlocBuilder<AuthBloc, AuthState>(

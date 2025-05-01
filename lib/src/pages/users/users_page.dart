@@ -54,8 +54,7 @@ class UsersPage extends StatelessWidget {
             return Wrap(
               runSpacing: _cardSpacing,
               spacing: _cardSpacing,
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
+              alignment: WrapAlignment.start,
               children: userTiles,
             );
           }

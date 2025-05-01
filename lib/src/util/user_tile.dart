@@ -29,7 +29,7 @@ class UserTile extends StatelessWidget {
               return BlocProvider(
                 create: (ctx) {
                   return UserBloc(ctx.read<UserRepository>(), user.user.id)
-                    ..add(Subscribe());
+                    ..add(UserSubscribe());
                 },
                 child: DetailPage(id: user.user.id),
               );
@@ -37,7 +37,8 @@ class UserTile extends StatelessWidget {
           ),
         );
       },
-      child: Row(
+      builder: (context, focus) {
+        return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           wrapper(
@@ -48,13 +49,14 @@ class UserTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 8,
-                  children: [UserAvatar(user), UserDesc(user.user)],
+                    children: [focus(UserAvatar(user)), UserDesc(user.user)],
                 ),
               ),
             ),
           ),
         ],
-      ),
+        );
+      }
     );
   }
 }

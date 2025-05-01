@@ -1,6 +1,4 @@
 import 'package:clavis/src/blocs/game_bloc.dart';
-import 'package:clavis/src/blocs/page_bloc.dart';
-import 'package:clavis/src/constants.dart';
 import 'package:clavis/src/pages/games/game_page.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/util/cache_image.dart';
@@ -14,14 +12,14 @@ class GameInfoCard extends StatelessWidget {
   const GameInfoCard({
     super.key,
     required this.gameId,
-    required this.child,
     required this.height,
+    required this.child,
     this.overlay,
   });
   final num gameId;
-  final Widget child;
   final Widget? overlay;
   final double height;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +59,6 @@ class _CardContent extends StatelessWidget {
   final double coverHeight;
 
   void _openGame(BuildContext context, GamevaultGame game) {
-    context.read<PageBloc>().add(PageChanged(Constants.gamesPageInfo()));
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => GamePage(game: game)),
@@ -86,14 +83,18 @@ class _CardContent extends StatelessWidget {
                 children: <Widget>[
                   Focusable(
                     onTap: () => _openGame(context, game),
-                    child: Wrap(
-                      children: [
-                        Card.outlined(
-                          clipBehavior: Clip.hardEdge,
-                          child: Helpers.cover(game, coverHeight),
+                    builder: (context, focus) {
+                      return focus(
+                        Wrap(
+                          children: [
+                            Card.outlined(
+                              clipBehavior: Clip.hardEdge,
+                              child: Helpers.cover(game, coverHeight),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                   child,
                 ],

@@ -1,9 +1,14 @@
+import 'package:clavis/src/blocs/games_list_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/pages/games/game_card.dart';
+import 'package:clavis/src/pages/games/game_progress_card.dart';
 import 'package:clavis/src/pages/users/user_detail_page.dart';
+import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
-import 'package:clavis/src/util/game_info_card.dart';
+import 'package:clavis/src/util/headline_divider.dart';
+import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/user_tile.dart';
-import 'package:clavis/src/util/value_pair_column.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
@@ -16,13 +21,54 @@ class UserMePage extends StatelessWidget {
     return BlocProvider(
       create:
           (context) =>
-              UserMeBloc(context.read<UserRepository>())..add(Subscribe()),
+              UserMeBloc(context.read<UserRepository>())..add(UserSubscribe()),
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [_UserMeInfo(), Divider(), _RecentlyPlayed()],
+          children: [
+            _UserMeInfo(),
+            HeadlineDivider(text: "Bookmarks"),
+            _Bookmarks(),
+            HeadlineDivider(text: "Recently played"),
+            _RecentlyPlayed(),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class _Bookmarks extends StatelessWidget {
+  const _Bookmarks();
+
+  @override
+  Widget build(BuildContext context) {
+    final me = Helpers.getMe(context);
+    final api = Helpers.getApi(context);
+    if (me == null || api == null) return CircularProgressIndicator();
+    final bookmarks = me.user.bookmarkedGames.take(10).toList();
+    bookmarks.sortBy((e) => e.sortTitle ?? "___");
+    return BlocProvider(
+      create:
+          (context) =>
+              GamesListBloc(gameRepo: context.read<GameRepository>())
+                ..add(Subscribe())
+                ..add(Reload(api: api)),
+      child: Wrap(
+        children:
+            bookmarks.map((g) {
+              return BlocBuilder<GamesListBloc, GamesListState>(
+                builder: (context, state) {
+                  if (state.games == null) return GameCard(game: g);
+
+                  final game = state.games!.firstWhereOrNull(
+                    (game) => game.id == g.id,
+                  );
+                  return GameCard(game: game ?? g);
+                },
+              );
+            }).toList(),
       ),
     );
   }
@@ -31,22 +77,11 @@ class UserMePage extends StatelessWidget {
 class _RecentlyPlayed extends StatelessWidget {
   const _RecentlyPlayed();
 
-  static const _cardHeight = 150.0;
-
   List<Widget> _progressCards(List<Progress> progresses) {
     return progresses
         .map((p) {
           if (p.game == null) return null;
-          return GameInfoCard(
-            gameId: p.game!.id,
-            height: _cardHeight,
-            child: ValuePairColumn(
-              labels: ["min played"],
-              icons: [Icons.hourglass_bottom_outlined],
-              values: ["${p.minutesPlayed}"],
-              height: 25,
-            ),
-          );
+          return GameProgressCard.decorated(gameId: p.game!.id);
         })
         .nonNulls
         .toList();
@@ -70,16 +105,12 @@ class _UserMeInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenW = MediaQuery.of(context).size.width;
-
     return BlocBuilder<UserMeBloc, UserState>(
       builder: (context, state) {
         if (state is! Ready) return CircularProgressIndicator();
         return Row(
           mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(child: UserTile(user: state.user)),
-          ],
+          children: [Expanded(child: UserTile(user: state.user))],
         );
       },
     );

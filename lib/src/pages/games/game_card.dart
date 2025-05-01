@@ -23,7 +23,9 @@ class GameCard extends StatelessWidget {
           MaterialPageRoute(builder: (context) => GamePage(game: game)),
         );
       },
-      child: SizedBox(
+      builder: (context, focus) {
+        return focus(
+          SizedBox(
         height: aspectRatio * width,
         width: width,
         child: Card(
@@ -31,7 +33,9 @@ class GameCard extends StatelessWidget {
           semanticContainer: true,
           child: Helpers.cover(game, width),
         ),
-      ),
+          ),
+        );
+      }
     );
   }
 }

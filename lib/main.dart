@@ -60,7 +60,8 @@ void main() {
           ),
           BlocProvider(
             create: (ctx) {
-              return UserMeBloc(ctx.read<UserRepository>())..add(Subscribe());
+              return UserMeBloc(ctx.read<UserRepository>())
+                ..add(UserSubscribe());
             },
           ),
           BlocProvider(

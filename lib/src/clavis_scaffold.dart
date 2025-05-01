@@ -63,7 +63,7 @@ class _ClavisScaffoldState extends State<ClavisScaffold> {
 
     final userMeLoaded = context.select((UserMeBloc u) => u.state is Ready);
     if (!userMeLoaded && apiLoaded) {
-      context.read<UserMeBloc>().add(Reload(api: api));
+      context.read<UserMeBloc>().add(UserReload(api: api));
     }
 
     bool isReady = userMeLoaded && apiLoaded;

@@ -2,6 +2,7 @@ import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/game_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
+import 'package:clavis/src/util/game_info_card.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:clavis/src/util/value_pair_column.dart';
 import 'package:collection/collection.dart';
@@ -11,9 +12,12 @@ import 'package:gamevault_client_sdk/api.dart';
 import 'package:intl/intl.dart';
 
 class GameProgressCard extends StatelessWidget {
-  const GameProgressCard({super.key, required this.gameId});
+  const GameProgressCard({super.key, required this.gameId}) : decorated = false;
+  const GameProgressCard.decorated({super.key, required this.gameId})
+    : decorated = true;
 
   final num gameId;
+  final bool decorated;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +47,13 @@ class GameProgressCard extends StatelessWidget {
               final me = state.user.user;
               final game = gameState.game;
 
+              if (decorated) {
+                return GameInfoCard(
+                  gameId: gameId,
+                  height: 150,
+                  child: _GameProgressCardBody(game: game, me: me),
+                );
+              }
               return Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -81,31 +92,29 @@ class _GameProgressCardBody extends StatelessWidget {
 
     final translate = AppLocalizations.of(context)!;
 
-    return Card(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ValuePairColumn(
-            labels: [
-              translate.game_last_played_label,
-              translate.game_average_playtime_label,
-              translate.game_minutes_played_label,
-            ],
-            icons: [Icons.calendar_today, Icons.timer, Icons.hourglass_empty],
-            values: [
-              lastPlayedStr,
-              translate.game_average_playtime_value(averagePlaytime),
-              translate.game_minutes_played_value(minutesPlayed),
-            ],
-            height: 32,
-          ),
-          Column(
-            children: [
-              Row(children: [Icon(Icons.download), Text("$downloadCount")]),
-            ],
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ValuePairColumn(
+          labels: [
+            translate.game_last_played_label,
+            translate.game_average_playtime_label,
+            translate.game_minutes_played_label,
+          ],
+          icons: [Icons.calendar_today, Icons.timer, Icons.hourglass_empty],
+          values: [
+            lastPlayedStr,
+            translate.game_average_playtime_value(averagePlaytime),
+            translate.game_minutes_played_value(minutesPlayed),
+          ],
+          height: 32,
+        ),
+        Column(
+          children: [
+            Row(children: [Icon(Icons.download), Text("$downloadCount")]),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -26,7 +26,7 @@ abstract class Constants {
       id: PageId.userMe,
       appbarActions: [UserEditAction()],
       blocs: [
-        (ctx) => UserMeBloc(ctx.read<UserRepository>())..add(Subscribe()),
+        (ctx) => UserMeBloc(ctx.read<UserRepository>())..add(UserSubscribe()),
       ],
     );
   }

@@ -5,10 +5,10 @@ import 'package:gamevault_client_sdk/api.dart';
 
 sealed class UserEvent {}
 
-final class Subscribe extends UserEvent {}
+final class UserSubscribe extends UserEvent {}
 
-final class Reload extends UserEvent {
-  Reload({required this.api});
+final class UserReload extends UserEvent {
+  UserReload({required this.api});
   final ApiClient api;
 }
 
@@ -101,7 +101,7 @@ class UserBaseBloc extends Bloc<UserEvent, UserState> {
   UserBaseBloc(UserRepository userRepo, this.id)
     : _userRepo = userRepo,
       super(Unavailable()) {
-    on<Subscribe>((_, emit) async {
+    on<UserSubscribe>((_, emit) async {
       final stream = id == null ? _userRepo.userMe : _userRepo.user(id!);
       await emit.onEach(
         stream,
@@ -111,7 +111,7 @@ class UserBaseBloc extends Bloc<UserEvent, UserState> {
         },
       );
     });
-    on<Reload>((e, emit) {
+    on<UserReload>((e, emit) {
       emit(Unavailable());
       if (id != null) {
         _userRepo.getUser(e.api, id!);

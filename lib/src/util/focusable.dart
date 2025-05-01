@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+typedef FocusWrapper = Widget Function(Widget child);
 class Focusable extends StatefulWidget {
-  const Focusable({super.key, this.onTap, required this.child});
+  const Focusable({super.key, this.onTap, required this.builder});
   final void Function()? onTap;
-  final Widget child;
+  final Widget Function(BuildContext context, FocusWrapper focus) builder;
 
   @override
   State<Focusable> createState() => _FocusableState();
@@ -19,16 +20,20 @@ class _FocusableState extends State<Focusable> {
   Widget build(BuildContext context) {
     var scale = _isHovering ? _hoverFactor : 1.0;
 
+    Widget focusWrapper(Widget child) {
+      return AnimatedScale(
+        scale: scale,
+        duration: _animationDuration,
+        child: child,
+      );
+    }
+
     return GestureDetector(
       onTap: widget.onTap,
       child: MouseRegion(
         onEnter: (e) => setState(() => _isHovering = true),
         onExit: (e) => setState(() => _isHovering = false),
-        child: AnimatedScale(
-          scale: scale,
-          duration: _animationDuration,
-          child: widget.child,
-        ),
+        child: widget.builder(context, focusWrapper),
       ),
     );
   }
