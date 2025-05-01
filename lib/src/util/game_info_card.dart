@@ -40,7 +40,8 @@ class GameInfoCard extends StatelessWidget {
       create:
           (ctx) =>
               GameBloc(gameRepo: ctx.read<GameRepository>(), id: gameId)
-                ..add(GameSubscribe(api: api)),
+                ..add(GameSubscribe(api: api))
+                ..add(GameReload(api: api, id: gameId)),
       child: BlocBuilder<GameBloc, GameState>(
         builder: (context, state) {
           if (state is! GameReady) return CircularProgressIndicator();
