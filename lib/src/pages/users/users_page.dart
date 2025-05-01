@@ -13,10 +13,7 @@ import 'package:gamevault_client_sdk/api.dart';
 class UsersPage extends StatelessWidget {
   const UsersPage({super.key});
   static const _cardSpacing = 16.0;
-
-  List<UserTile> userTiles(UserBundles users) {
-    return users.map((user) => UserTile(user: user)).toList();
-  }
+  static const _defaultTileWidth = 400.0;
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +52,15 @@ class UsersPage extends StatelessWidget {
           final inactiveUsers = availableUsers.where((u) => !u.user.activated);
 
           final screenW = MediaQuery.of(context).size.width;
+          final singleCol = screenW < 2 * _defaultTileWidth;
           final alignment =
-              screenW < 2 * UserTile.width
-                  ? WrapAlignment.center
-                  : WrapAlignment.start;
+              singleCol ? WrapAlignment.center : WrapAlignment.start;
+          final width = singleCol ? screenW * 0.95 : _defaultTileWidth;
 
           Widget userTileList(List<UserBundle> users) {
+            final userTiles =
+                users.map((u) => UserTile(user: u, width: width)).toList();
+
             return SizedBox(
               width: double.maxFinite,
               child: Wrap(
@@ -68,7 +68,7 @@ class UsersPage extends StatelessWidget {
                 spacing: _cardSpacing,
                 alignment: alignment,
                 crossAxisAlignment: WrapCrossAlignment.center,
-                children: userTiles(users),
+                children: userTiles,
               ),
             );
           }
@@ -110,10 +110,9 @@ class Headline extends StatelessWidget {
 }
 
 class UserTile extends StatelessWidget {
-  const UserTile({super.key, required this.user});
+  const UserTile({super.key, required this.user, required this.width});
   final UserBundle user;
-
-  static const width = 400.0;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +134,7 @@ class UserTile extends StatelessWidget {
           ),
       child: Focusable(
         child: SizedBox(
-          width: UserTile.width,
+          width: width,
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
