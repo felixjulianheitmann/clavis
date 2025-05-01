@@ -14,18 +14,13 @@ on:
         type: string
         description: architecture of the package
         required: true
-      runner:
-        type: string
-        description: runner to use for this workflow
-        required: true
 
 permissions:
-  packages: write
   contents: write
 
 jobs:
   publish:
-    runs-on: ${{ inputs.runner }}
+    runs-on: ubuntu-latest
     steps:
     - name: print version
       shell: bash
@@ -38,16 +33,16 @@ jobs:
       uses: "actions/download-artifact@v4"
       with:
         name: clavis-linux-amd64-${{ inputs.tag }}-${{ github.sha }}
-        path: ${{github.workspace}}/tmp.cicd/builds-deb
+        path: ${{github.workspace}}/tmp.cicd/build
 
     - name: list downloads
       shell: bash
-      run: ls ${{github.workspace}}/tmp.cicd/builds-deb
+      run: ls ${{github.workspace}}/tmp.cicd/build
 
     - name: build package
       shell: bash
       run: |
-        ./package/deb/build-deb.sh ${{github.workspace}}/tmp.cicd/builds-deb 0.1.0-rc.2 1 ${{ inputs.arch }}
+        ./package/deb/build-deb.sh ${{github.workspace}}/tmp.cicd/build 0.1.0-rc.2 1 ${{ inputs.arch }}
 
     - name: Release
       uses: softprops/action-gh-release@v2

@@ -112,19 +112,7 @@ jobs:
       run: flutter pub get
 
     - name: Build Flutter ${{ inputs.platform }} app
-      if: runner.os == 'linux'
-      run: |
-        if [ "${{ inputs.platform }}" == "android" ]; then
-          flutter build apk --release
-        elif [ "${{ inputs.platform }}" == "web" ]; then
-          flutter build web --release
-        elif [ "${{ inputs.platform }}" == "linux" ]; then
-          flutter build linux --release
-        fi
-
-    - name: Build Flutter ${{ inputs.platform }} app
-      if: runner.os == 'Windows' && inputs.platform == 'windows'
-      run: flutter build windows --release
+      run: flutter build ${{ inputs.platform }} --release
 
     - name: list builds
       run: ls build/*

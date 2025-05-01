@@ -35,7 +35,7 @@ jobs:
   build-android:
     uses: ./.github/workflows/build.yaml
     with:
-      platform: android
+      platform: apk
       arch: amd64
       runner: ubuntu-latest
 
@@ -51,7 +51,6 @@ jobs:
     uses: ./.github/workflows/publish-web.yaml
     needs: build-web
     with:
-      runner: ubuntu-latest
       distance: ${{ needs.build-web.outputs.distance }}
       tag: ${{ needs.build-web.outputs.tag }}
 
@@ -60,7 +59,6 @@ jobs:
     uses: ./.github/workflows/publish-rpm.yaml
     needs: build-linux
     with:
-      runner: ubuntu-latest
       distance: ${{ needs.build-linux.outputs.distance }}
       tag: ${{ needs.build-linux.outputs.tag }}
 
@@ -69,17 +67,22 @@ jobs:
     uses: ./.github/workflows/publish-deb.yaml
     needs: build-linux
     with:
-      runner: ubuntu-latest
       distance: ${{ needs.build-linux.outputs.distance }}
       arch: amd64
       tag: ${{ needs.build-linux.outputs.tag }}
-
+  package-android:
+    if: ${{ needs.build-android.outputs.distance == 0 }}
+    uses: ./.github/workflows/publish-apk.yaml
+    needs: build-android
+    with:
+      distance: ${{ needs.build-android.outputs.distance }}
+      tag: ${{ needs.build-android.outputs.tag }}
+    
   package-windows:
     if: ${{ needs.build-windows.outputs.distance == 0 }}
     uses: ./.github/workflows/publish-windows.yaml
     needs: build-windows
     with:
-      runner: ubuntu-latest
       distance: ${{ needs.build-windows.outputs.distance }}
       tag: ${{ needs.build-windows.outputs.tag }}
       versionEncoded: ${{ fromJson(needs.build-windows.outputs.parsedVersion)['versionEncoded'] }}

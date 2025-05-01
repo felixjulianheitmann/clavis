@@ -52,6 +52,8 @@ class LoginFormState extends State<LoginForm> {
       ),
       validator: nonEmptyValidator(translate),
       onFieldSubmitted: (_) => _submit(context),
+      autocorrect: false,
+      textInputAction: TextInputAction.next,
     );
     final userField = TextFormField(
       controller: _userEditCtrl,
@@ -61,6 +63,8 @@ class LoginFormState extends State<LoginForm> {
       ),
       validator: nonEmptyValidator(translate),
       onFieldSubmitted: (_) => _submit(context),
+      autocorrect: false,
+      textInputAction: TextInputAction.next,
     );
     final passField = TextFormField(
       controller: _passEditCtrl,
