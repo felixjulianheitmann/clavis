@@ -72,7 +72,7 @@ jobs:
       tag: ${{ needs.build-linux.outputs.tag }}
   package-android:
     # if: ${{ needs.build-android.outputs.distance == 0 }} # activate for testing
-    uses: ./.github/workflows/publish-android.yaml
+    uses: ./.github/workflows/publish-apk.yaml
     needs: build-android
     with:
       distance: ${{ needs.build-android.outputs.distance }}

@@ -1,4 +1,4 @@
-name: publish-android
+name: publish-apk
 on:
   workflow_call:
     inputs:
@@ -28,7 +28,7 @@ jobs:
     - name: Download builds
       uses: "actions/download-artifact@v4"
       with:
-        name: clavis-android-amd64-${{ inputs.tag }}-${{ github.sha }}
+        name: clavis-apk-amd64-${{ inputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/build
 
     - name: list downloads
