@@ -30,6 +30,6 @@ patchelf --set-rpath '$ORIGIN' $PKG_DIR/SOURCES/app/lib/libwindow_size_plugin.so
 
 rpmbuild \
     --define="_topdir `pwd`/package/rpm/rpmbuild" \
-    --define="clavis_arch aarch64" \
+    --define="clavis_arch $ARCH" \
     --define="clavis_version $VERSION" \
     -bb package/rpm/rpmbuild/SPECS/clavis.spec
