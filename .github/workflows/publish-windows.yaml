@@ -43,7 +43,7 @@ jobs:
 
     - name: bundle installer
       shell: pwsh
-      run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}" -DbuildDir='${{github.workspace}}/tmp.cicd/build' -Otarget '${{github.workspace}}\package\win-installer.iss'
+      run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}" -DbuildDir='${{github.workspace}}/tmp.cicd/build' -Otarget '${{github.workspace}}\package\windows\win-installer.iss'
 
     - name: Release
       uses: softprops/action-gh-release@v2
