@@ -10,22 +10,17 @@ on:
         type: string  
         description: number of additional builds since last tag
         required: true
-      runner:
-        type: string
-        description: runner to use for this workflow
-        required: true
       versionEncoded:
         type: string
         description: a version in form of "x.x.x.x"
         required: true
 
 permissions:
-  packages: write
   contents: write
         
 jobs:
   publish:
-    runs-on: ${{ inputs.runner }}
+    runs-on: windows-latest
     steps:
     - name: print version
       shell: pwsh
@@ -38,17 +33,17 @@ jobs:
       uses: "actions/download-artifact@v4"
       with:
         name: clavis-windows-amd64-${{ inputs.tag }}-${{ github.sha }}
-        path: ${{github.workspace}}/tmp.cicd/builds-windows
+        path: ${{github.workspace}}/tmp.cicd/build
 
     - name: list for debugging
       shell: pwsh
       run: |
-        ls '${{github.workspace}}/tmp.cicd/builds-windows'
+        ls '${{github.workspace}}/tmp.cicd/build'
         ls '${{github.workspace}}'
 
     - name: bundle installer
       shell: pwsh
-      run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}-${{ inputs.distance }}" -DbuildDir='${{github.workspace}}/tmp.cicd/builds-windows' -Otarget '${{github.workspace}}\package\win-installer.iss'
+      run: ISCC.exe -DversionStrict="${{ inputs.versionEncoded }}" -Dversion="${{ inputs.tag }}-${{ inputs.distance }}" -DbuildDir='${{github.workspace}}/tmp.cicd/build' -Otarget '${{github.workspace}}\package\win-installer.iss'
 
     - name: Release
       uses: softprops/action-gh-release@v2

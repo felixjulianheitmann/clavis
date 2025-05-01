@@ -1,13 +1,13 @@
-name: publish-rpm
+name: publish-android
 on:
   workflow_call:
     inputs:
       tag:
-        type: string  
+        type: string
         description: the tag used for this action
         required: true
       distance:
-        type: string  
+        type: string
         description: number of additional builds since last tag
         required: true
 
@@ -23,27 +23,24 @@ jobs:
       run: |
         echo Version: ${{ inputs.tag }}
         echo Distance: ${{ inputs.distance }}
-        
+
     - uses: actions/checkout@v4
     - name: Download builds
       uses: "actions/download-artifact@v4"
       with:
-        name: clavis-linux-amd64-${{ inputs.tag }}-${{ github.sha }}
+        name: clavis-android-amd64-${{ inputs.tag }}-${{ github.sha }}
         path: ${{github.workspace}}/tmp.cicd/build
 
     - name: list downloads
       shell: bash
       run: ls ${{github.workspace}}/tmp.cicd/build
-        
-    - name: build rpm
-      shell: bash
-      run: |
-        ./package/rpm/bundle-rpm.sh tmp.cicd/build ${{ inputs.tag }} x64
+
+    - run: mv ${{github.workspace}}/tmp.cicd/build/app-release.apk ${{github.workspace}}/tmp.cicd/build/clavis_${{ inputs.tag }}.apk
 
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        files: package/rpm/rpmbuild/RPMS/x64/*
+        files: ${{github.workspace}}/tmp.cicd/build/*.apk
         draft: ${{ inputs.distance != 0 }}
         make_latest: ${{ inputs.distance == 0 }}
         generate_release_notes: true
