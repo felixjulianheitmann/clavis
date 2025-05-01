@@ -2,7 +2,7 @@ import yaml
 import sys
 
 if len(sys.argv) < 2:
-    print("usage: python inject-version.py <version> [<distance>]")
+    print("usage: python inject_version.py <version> [<distance>]")
     print(f'provided: {" ".join(sys.argv)}')
     exit(1)
 
