@@ -2,7 +2,7 @@ import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/users/user_detail_page.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/game_info_card.dart';
-import 'package:clavis/src/util/helpers.dart';
+import 'package:clavis/src/util/user_tile.dart';
 import 'package:clavis/src/util/value_pair_column.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +35,7 @@ class _RecentlyPlayed extends StatelessWidget {
         .map((p) {
           if (p.game == null) return null;
           return GameInfoCard(
-            game: p.game!,
+            gameId: p.game!.id,
             height: _cardHeight,
             child: ValuePairColumn(
               labels: ["min played"],
@@ -73,13 +73,7 @@ class _UserMeInfo extends StatelessWidget {
         return Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Helpers.avatar(state.user.avatar),
-            Column(
-              children: [
-                Text(Helpers.userTitle(state.user.user)),
-                Text(state.user.user.username),
-              ],
-            ),
+            UserTile(user: state.user),
           ],
         );
       },

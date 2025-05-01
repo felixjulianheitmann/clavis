@@ -1,14 +1,10 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
-import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/blocs/users_bloc.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
-import 'package:clavis/src/util/focusable.dart';
-import 'package:clavis/src/util/helpers.dart';
-import 'package:clavis/src/pages/users/user_detail_page.dart';
+import 'package:clavis/src/util/user_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gamevault_client_sdk/api.dart';
 
 class UsersPage extends StatelessWidget {
   const UsersPage({super.key});

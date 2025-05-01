@@ -1,5 +1,4 @@
 import 'package:clavis/l10n/app_localizations.dart';
-import 'package:clavis/src/clavis_scaffold.dart';
 import 'package:clavis/src/pages/downloads/download_card_active.dart';
 import 'package:clavis/src/pages/downloads/download_card_closed.dart';
 import 'package:clavis/src/pages/downloads/download_card_pending.dart';

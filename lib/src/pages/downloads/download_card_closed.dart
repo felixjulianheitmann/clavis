@@ -17,7 +17,7 @@ class DownloadCardClosed extends StatelessWidget {
   Widget build(BuildContext context) {
     return GameInfoCard(
       height: 150,
-      operation: operation,
+      gameId: operation.game.id,
       child: Expanded(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

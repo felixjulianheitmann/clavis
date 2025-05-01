@@ -20,7 +20,7 @@ class DownloadCardPending extends StatelessWidget {
   Widget build(BuildContext context) {
     return GameInfoCard(
       height: _height,
-      operation: operation,
+      gameId: operation.game.id,
       child: Row(
         children: [
         _GameInfo(game: operation.game),

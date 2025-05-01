@@ -1,6 +1,8 @@
+import 'package:clavis/src/blocs/game_bloc.dart';
 import 'package:clavis/src/blocs/page_bloc.dart';
 import 'package:clavis/src/constants.dart';
 import 'package:clavis/src/pages/games/game_page.dart';
+import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/focusable.dart';
 import 'package:clavis/src/util/helpers.dart';
@@ -11,17 +13,17 @@ import 'package:gamevault_client_sdk/api.dart';
 class GameInfoCard extends StatelessWidget {
   const GameInfoCard({
     super.key,
-    required this.game,
+    required this.gameId,
     required this.child,
     required this.height,
     this.overlay,
   });
-  final GamevaultGame game;
+  final num gameId;
   final Widget child;
   final Widget? overlay;
   final double height;
 
-  void _openGame(BuildContext context) {
+  void _openGame(BuildContext context, GamevaultGame game) {
     context.read<PageBloc>().add(PageChanged(Constants.gamesPageInfo()));
     Navigator.push(
       context,
@@ -31,40 +33,54 @@ class GameInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: Card(
-        margin: EdgeInsets.all(8),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            _BackgroundBanner(game: game),
-            overlay ?? SizedBox.shrink(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children:
-                    <Widget>[
-                      GestureDetector(
-                        onTap: () => _openGame(context),
-                        child: Focusable(
-                          child: Wrap(
-                            children: [
-                              Card.outlined(
-                                clipBehavior: Clip.hardEdge,
-                            child: Helpers.cover(game, height * 0.56),
-                              ),
-                            ],
+    final api = Helpers.getApi(context);
+    if (api == null) return CircularProgressIndicator();
+
+    return BlocProvider(
+      create:
+          (ctx) =>
+              GameBloc(gameRepo: ctx.read<GameRepository>(), id: gameId)
+                ..add(GameSubscribe(api: api)),
+      child: BlocBuilder<GameBloc, GameState>(
+        builder: (context, state) {
+          if (state is! GameReady) return CircularProgressIndicator();
+          final game = state.game;
+          return SizedBox(
+            height: height,
+            child: Card(
+              margin: EdgeInsets.all(8),
+              clipBehavior: Clip.antiAlias,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _BackgroundBanner(game: game),
+                  overlay ?? SizedBox.shrink(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () => _openGame(context, game),
+                          child: Focusable(
+                            child: Wrap(
+                              children: [
+                                Card.outlined(
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Helpers.cover(game, height * 0.56),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                  child,
+                        child,
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

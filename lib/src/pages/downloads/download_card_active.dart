@@ -21,7 +21,7 @@ class DownloadCardActive extends StatelessWidget {
         if (!state.dlContext.hasActive) return SizedBox.shrink();
         return GameInfoCard(
           height: _cardHeight,
-          operation: state.dlContext.activeOp!,
+          gameId: state.dlContext.activeOp!.game.id,
           overlay: Align(
             alignment: Alignment.centerRight,
             child: Padding(
