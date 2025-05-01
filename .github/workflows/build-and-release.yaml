@@ -71,7 +71,7 @@ jobs:
       arch: amd64
       tag: ${{ needs.build-linux.outputs.tag }}
   package-android:
-    if: ${{ needs.build-android.outputs.distance == 0 }}
+    # if: ${{ needs.build-android.outputs.distance == 0 }} # activate for testing
     uses: ./.github/workflows/publish-android.yaml
     needs: build-android
     with:
