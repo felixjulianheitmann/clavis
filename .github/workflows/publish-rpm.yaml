@@ -38,7 +38,7 @@ jobs:
     - name: build rpm
       shell: bash
       run: |
-        ./package/rpm/bundle-rpm.sh tmp.cicd/build ${{ inputs.tag }} x64
+        ./package/rpm/bundle-rpm.sh tmp.cicd/build ${{ inputs.tag }} x86_64
 
     - name: Release
       uses: softprops/action-gh-release@v2
