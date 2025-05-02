@@ -1,7 +1,5 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
-import 'package:clavis/src/blocs/login_form_bloc.dart';
-import 'package:clavis/src/repositories/auth_repository.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -77,35 +75,21 @@ class LoginFormState extends State<LoginForm> {
       onFieldSubmitted: (_) => _submit(context),
     );
 
-    return BlocProvider(
-      create:
-          (context) => LoginFormBloc(
-            authRepo: context.read<AuthRepository>(),
-            prefRepo: context.read<PrefRepo>(),
-          )..add(SubscribeSettings()),
-      child: BlocListener<LoginFormBloc, LoginFormBlocState>(
-        listener: (context, state) {
-          if (_hostEditCtrl.text.isEmpty) _hostEditCtrl.text = state.host;
-          if (_userEditCtrl.text.isEmpty) _userEditCtrl.text = state.user;
-          if (_passEditCtrl.text.isEmpty) _passEditCtrl.text = state.pass;
-        },
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Padding(padding: EdgeInsets.all(10), child: hostField),
-              Padding(padding: EdgeInsets.all(10), child: userField),
-              Padding(padding: EdgeInsets.all(10), child: passField),
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: ElevatedButton(
-                  onPressed: () => _submit(context),
-                  child: Text(translate.action_login),
-                ),
-              ),
-            ],
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          Padding(padding: EdgeInsets.all(10), child: hostField),
+          Padding(padding: EdgeInsets.all(10), child: userField),
+          Padding(padding: EdgeInsets.all(10), child: passField),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: ElevatedButton(
+              onPressed: () => _submit(context),
+              child: Text(translate.action_login),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

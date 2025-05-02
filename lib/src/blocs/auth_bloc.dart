@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:clavis/src/repositories/auth_repository.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
-import 'package:clavis/src/util/logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
 sealed class AuthEvent {}
 
 final class AuthSubscriptionRequested extends AuthEvent {}
+
 final class Logout extends AuthEvent {}
+
 final class Login extends AuthEvent {
   Login({required this.creds});
   final Credentials creds;
@@ -20,8 +22,7 @@ class AuthState {}
 class Unknown extends AuthState {}
 
 class Unauthenticated extends AuthState {
-  Unauthenticated({this.message}) : super();
-  final String? message;
+  Unauthenticated() : super();
 }
 
 class Authenticated extends AuthState {
@@ -30,9 +31,13 @@ class Authenticated extends AuthState {
 }
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(AuthRepository authRepo, PrefRepo prefRepo)
-    : _authRepo = authRepo,
+  AuthBloc(
+    AuthRepository authRepo,
+    PrefRepo prefRepo,
+    ErrorRepository errorRepo,
+  ) : _authRepo = authRepo,
       _prefRepo = prefRepo,
+      _errorRepo = errorRepo,
       super(Unknown()) {
     on<AuthSubscriptionRequested>(_onAuthSubscription);
     on<Logout>(_onLogout);
@@ -43,21 +48,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   final AuthRepository _authRepo;
   final PrefRepo _prefRepo;
+  final ErrorRepository _errorRepo;
   Timer? _authCheckTimer;
 
   Future<void> _onAuthSubscription(
     AuthSubscriptionRequested event,
     Emitter<AuthState> emit,
   ) async {
-    // make sure the stored values are available
-    if (_prefRepo.creds != null) {
-      return _doSubscription(event, emit, _prefRepo.creds!);
-    }
+    try {
+      // make sure the stored values are available
+      if (_prefRepo.creds != null) {
+        return await _doSubscription(event, emit, _prefRepo.creds!);
+      }
 
-    await emit.onEach(
-      _prefRepo.credStream,
-      onData: (creds) => _doSubscription(event, emit, creds),
-    );
+      await emit.onEach(
+        _prefRepo.credStream,
+        onData: (creds) async => await _doSubscription(event, emit, creds),
+      );
+    } catch (e) {
+      _errorRepo.setError(ClavisError(e));
+      emit(Unauthenticated());
+    }
   }
 
   Future<void> _doSubscription(
@@ -70,12 +81,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     void startNewAuthCheckTimer(Credentials creds) {
       if (_authCheckTimer != null) _authCheckTimer!.cancel();
-      _authCheckTimer = Timer.periodic(
-        _authCheckInterval,
-        (_) async {
-        await _authRepo.checkAuth(creds);
-      },
-      );
+      _authCheckTimer = Timer.periodic(_authCheckInterval, (_) async {
+        try {
+          await _authRepo.checkAuth(creds);
+        } catch (e) {
+          _errorRepo.setError(ClavisError(e));
+        }
+      });
     }
 
     await emit.onEach(
@@ -92,29 +104,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
       onError: (error, stackTrace) {
-        log.e(
-          "Error during authentication subscription",
-          error: error,
-          stackTrace: stackTrace,
-        );
-        emit(Unauthenticated(message: error.toString()));
+        _errorRepo.setError(ClavisError(error, stack: stackTrace));
+        emit(Unauthenticated());
       },
     );
   }
 
-  Future<void> _onLogout(
-    Logout event,
-    Emitter<AuthState> emit,
-  ) async {
-    if (_authCheckTimer != null) _authCheckTimer!.cancel();
-    _prefRepo.remove();
-    _authRepo.logout();
+  Future<void> _onLogout(Logout event, Emitter<AuthState> emit) async {
+    try {
+      if (_authCheckTimer != null) _authCheckTimer!.cancel();
+      await _prefRepo.remove();
+      _authRepo.logout();
+    } catch (e) {
+      _errorRepo.setError(ClavisError(e));
+    }
   }
 
   Future<void> _onLogin(Login event, Emitter<AuthState> emit) async {
-    if (_authCheckTimer != null) _authCheckTimer!.cancel();
-    await _authRepo.login(event.creds);
-    await _prefRepo.write(event.creds);
+    try {
+      if (_authCheckTimer != null) _authCheckTimer!.cancel();
+      await _authRepo.login(event.creds);
+      await _prefRepo.write(event.creds);
+    } catch (e) {
+      _errorRepo.setError(ClavisError(e));
+    }
   }
-
 }

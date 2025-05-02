@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:clavis/src/util/logger.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
@@ -46,11 +45,18 @@ class AuthRepository {
     try {
       me = await UserApi(api).getUsersMe();
     } catch (e) {
-      return _controller.add((AuthStatus.unauthenticated, null));
+      _controller.add((AuthStatus.unauthenticated, null));
+      throw ApiException.withInner(
+        0,
+        "credential check: couldn't authenticate",
+        Exception(e.toString()),
+        StackTrace.current,
+      );
     }
 
     if (me == null) {
       _controller.add((AuthStatus.unauthenticated, null));
+      throw ApiException(0, "credential check: authenticate returned null");
     } else {
       // if this I was unauthenticated before, authenticate me
       // don't always push to stream to not update the authentication state
@@ -67,20 +73,29 @@ class AuthRepository {
     final auth = HttpBasicAuth(password: creds.pass!, username: creds.user!);
     final api = ApiClient(basePath: creds.host!, authentication: auth);
 
+    final GamevaultUser? me;
     try {
-      if (await UserApi(api).getUsersMe() == null) {
-        log.e("authentication failed - querying user info failed");
-        _controller.add((AuthStatus.unauthenticated, null));
-        return;
-      }
-
-      _api = api;
-      _controller.add((AuthStatus.authenticated, api));
+      me = await UserApi(api).getUsersMe();
     } catch (e) {
-      log.e("authentication failed - querying user info failed", error: e);
       _controller.add((AuthStatus.unauthenticated, null));
-      return;
+      throw ApiException.withInner(
+        0,
+        "authentication failed - querying user info failed",
+        Exception(e.toString()),
+        StackTrace.current,
+      );
     }
+
+    if (me == null) {
+      _controller.add((AuthStatus.unauthenticated, null));
+      throw ApiException(
+        0,
+        "authentication failed - querying user info returned null",
+      );
+    }
+
+    _api = api;
+    _controller.add((AuthStatus.authenticated, api));
   }
 
   void logout() {

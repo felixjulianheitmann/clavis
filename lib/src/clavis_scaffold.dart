@@ -9,6 +9,7 @@ import 'package:clavis/src/util/app_title.dart';
 import 'package:clavis/src/pages/games/games_page.dart';
 import 'package:clavis/src/pages/settings/settings_page.dart';
 import 'package:clavis/src/pages/users/users_page.dart';
+import 'package:clavis/src/util/error_snackbar.dart';
 import 'package:clavis/src/util/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:clavis/src/drawer.dart';
@@ -53,11 +54,6 @@ class _ClavisScaffoldState extends State<ClavisScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final errorState = context.select((ErrorBloc e) => e.state);
-    if (errorState.hasError) {
-      return ErrorWidget(errorState.error!);
-    }
-
     final api = Helpers.getApi(context);
     final apiLoaded = api != null;
 
@@ -68,38 +64,47 @@ class _ClavisScaffoldState extends State<ClavisScaffold> {
 
     bool isReady = userMeLoaded && apiLoaded;
 
-    return BlocListener<PageBloc, PageState>(
+    return BlocListener<ErrorBloc, ErrorState>(
       listener: (context, state) {
-        if (state.dlSnack.visibility == DlSnackVisibility.visible) {
-          ScaffoldMessenger.of(context).showSnackBar(activeDlSnackbar(context));
-        } else {
-          ScaffoldMessenger.of(context).clearSnackBars();
-        }
+        if (!state.hasError) return;
+        ScaffoldMessenger.of(context).showSnackBar(errorSnack(state.error!));
       },
-      child: BlocBuilder<PageBloc, PageState>(
-        builder: (context, state) {
-          final scaffold = Scaffold(
-            appBar:
-                widget.showAppBar
-                    ? ClavisAppbar(
-                      title: widget.title,
-                      actions: widget.actions ?? state.activePage.appbarActions,
-                    )
-                    : null,
-            drawer: widget.showDrawer ? SidebarDrawer() : null,
-            body: widget.body ?? _getBody(state.activePage, isReady),
-          );
-
-          if (state.activePage.blocs.isEmpty) {
-            return scaffold;
+      child: BlocListener<PageBloc, PageState>(
+        listener: (context, state) {
+          if (state.dlSnack.visibility == DlSnackVisibility.visible) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(activeDlSnackbar(context));
+          } else {
+            ScaffoldMessenger.of(context).clearSnackBars();
           }
-
-          final providers =
-              state.activePage.blocs
-                  .map((bloc) => BlocProvider(create: bloc))
-                  .toList();
-          return MultiBlocProvider(providers: providers, child: scaffold);
         },
+        child: BlocBuilder<PageBloc, PageState>(
+          builder: (context, state) {
+            final scaffold = Scaffold(
+              appBar:
+                  widget.showAppBar
+                      ? ClavisAppbar(
+                        title: widget.title,
+                        actions:
+                            widget.actions ?? state.activePage.appbarActions,
+                      )
+                      : null,
+              drawer: widget.showDrawer ? SidebarDrawer() : null,
+              body: widget.body ?? _getBody(state.activePage, isReady),
+            );
+
+            if (state.activePage.blocs.isEmpty) {
+              return scaffold;
+            }
+
+            final providers =
+                state.activePage.blocs
+                    .map((bloc) => BlocProvider(create: bloc))
+                    .toList();
+            return MultiBlocProvider(providers: providers, child: scaffold);
+          },
+        ),
       ),
     );
   }

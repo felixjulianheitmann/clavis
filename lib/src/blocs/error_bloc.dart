@@ -1,33 +1,44 @@
-import 'package:clavis/src/util/error.dart';
-import 'package:flutter/material.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
+import 'package:clavis/src/util/logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ErrorState {
-  const ErrorState({this.error});
-  final Object? error;
+  const ErrorState({required this.error});
+  final ClavisError? error;
   bool get hasError => error != null;
 }
 
 class ErrorEvent {}
 
-class ErrorNewEvent extends ErrorEvent {
-  ErrorNewEvent({required this.error});
-  final Object error;
+class ErrorNew extends ErrorEvent {
+  ErrorNew({required this.error});
+  final ClavisError error;
 }
 
-class ErrorDismissEvent extends ErrorEvent {}
+class ErrorSubscribe extends ErrorEvent {}
 
 class ErrorBloc extends Bloc<ErrorEvent, ErrorState> {
-  ErrorBloc() : super(ErrorState()) {
-    on<ErrorNewEvent>((event, emit) => emit(ErrorState(error: event.error)));
-    on<ErrorDismissEvent>((_, emit) => emit(ErrorState()));
-  }
+  final ErrorRepository _errorRepo;
+  ErrorBloc(ErrorRepository errorRepo)
+    : _errorRepo = errorRepo,
+      super(ErrorState(error: null)) {
+    on<ErrorSubscribe>((_, emit) async {
+      await emit.onEach(
+        _errorRepo.errorStream,
+        onData: (error) {
+          log.e(error.err.toString(), time: error.ts, stackTrace: error.stack);
+          emit(ErrorState(error: error));
+        },
+      );
+    });
 
-  static makeError(BuildContext context, Object error, bool dismissable) {
-    if(dismissable) {
-      showDialog(context: context, builder: (context) => ErrorDialog(error: error,));
-      return;
-    }
-    context.read<ErrorBloc>().add(ErrorNewEvent(error: error));
+    on<ErrorNew>((event, emit) {
+      log.e(
+        event.error.err.toString(),
+        time: event.error.ts,
+        stackTrace: event.error.stack,
+      );
+      emit(ErrorState(error: event.error));
+    });
   }
 }

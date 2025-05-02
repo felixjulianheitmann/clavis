@@ -11,6 +11,7 @@ import 'package:clavis/src/blocs/pref_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/repositories/auth_repository.dart';
 import 'package:clavis/src/repositories/download_repository.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/logger.dart';
@@ -44,12 +45,13 @@ void main() {
         RepositoryProvider(create: (_) => GameRepository()),
         RepositoryProvider(create: (_) => UserRepository()),
         RepositoryProvider(create: (_) => DownloadsRepository()),
+        RepositoryProvider(create: (_) => ErrorRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
             create: (ctx) {
-              return AuthBloc(ctx.read<AuthRepository>(), ctx.read<PrefRepo>())
+              return AuthBloc(ctx.read<AuthRepository>(), ctx.read<PrefRepo>(), ctx.read<ErrorRepository>())
                 ..add(AuthSubscriptionRequested());
             },
           ),
@@ -76,9 +78,14 @@ void main() {
                 ..add(ActiveDlSubscribe());
             },
           ),
+          BlocProvider(
+            create:
+                (ctx) =>
+                    ErrorBloc(ctx.read<ErrorRepository>())
+                      ..add(ErrorSubscribe()),
+          ),
           BlocProvider(create: (_) => PageBloc()),
           BlocProvider(create: (_) => SearchBloc()),
-          BlocProvider(create: (_) => ErrorBloc()),
         ],
         child: Clavis(),
       ),

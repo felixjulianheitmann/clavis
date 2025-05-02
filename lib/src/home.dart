@@ -20,7 +20,7 @@ class ClavisHome extends StatelessWidget {
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is Unauthenticated) {
-            return LoginPage(errorMessage: state.message);
+            return LoginPage();
           } else {
             return ClavisScaffold();
           }
