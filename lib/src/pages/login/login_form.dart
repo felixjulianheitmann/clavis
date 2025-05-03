@@ -1,6 +1,7 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
+import 'package:clavis/src/util/form_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,13 +33,6 @@ class LoginFormState extends State<LoginForm> {
     }
   }
 
-  String? Function(String?) nonEmptyValidator(AppLocalizations translate) {
-    return (String? input) {
-      if (input == null) return translate.validation_error_field_empty;
-      return null;
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final translate = AppLocalizations.of(context)!;
@@ -48,7 +42,7 @@ class LoginFormState extends State<LoginForm> {
         icon: Icon(Icons.web),
         labelText: translate.hostname_label,
       ),
-      validator: nonEmptyValidator(translate),
+      validator: FormValidators.nonNullEmpty(translate),
       onFieldSubmitted: (_) => _submit(context),
       autocorrect: false,
       textInputAction: TextInputAction.next,
@@ -59,7 +53,7 @@ class LoginFormState extends State<LoginForm> {
         icon: Icon(Icons.person),
         labelText: translate.username_label,
       ),
-      validator: nonEmptyValidator(translate),
+      validator: FormValidators.nonNullEmpty(translate),
       onFieldSubmitted: (_) => _submit(context),
       autocorrect: false,
       textInputAction: TextInputAction.next,
@@ -71,7 +65,7 @@ class LoginFormState extends State<LoginForm> {
         labelText: translate.password_label,
       ),
       obscureText: true,
-      validator: nonEmptyValidator(translate),
+      validator: FormValidators.nonNullEmpty(translate),
       onFieldSubmitted: (_) => _submit(context),
     );
 

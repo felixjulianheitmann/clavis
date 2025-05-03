@@ -67,7 +67,9 @@ class _ClavisScaffoldState extends State<ClavisScaffold> {
     return BlocListener<ErrorBloc, ErrorState>(
       listener: (context, state) {
         if (!state.hasError) return;
-        ScaffoldMessenger.of(context).showSnackBar(errorSnack(state.error!));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(errorSnack(context, state.error!));
       },
       child: BlocListener<PageBloc, PageState>(
         listener: (context, state) {

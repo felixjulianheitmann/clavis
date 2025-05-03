@@ -17,7 +17,9 @@ class LoginPage extends StatelessWidget {
       body: BlocListener<ErrorBloc, ErrorState>(
         listener: (context, state) {
           if (!state.hasError) return;
-          ScaffoldMessenger.of(context).showSnackBar(errorSnack(state.error!));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(errorSnack(context, state.error!));
         },
         child: SingleChildScrollView(
           child: Padding(
