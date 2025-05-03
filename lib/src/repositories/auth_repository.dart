@@ -34,13 +34,12 @@ class AuthRepository {
 
   ApiClient? get api => _api;
 
-  Future<void> checkAuth(Credentials creds) async {
-    if (creds.host == null || creds.user == null || creds.pass == null) {
-      return _controller.add((AuthStatus.unauthenticated, null));
-    }
-
+  ApiClient makeApi(Credentials creds) {
     final auth = HttpBasicAuth(password: creds.pass!, username: creds.user!);
-    final api = ApiClient(basePath: creds.host!, authentication: auth);
+    return ApiClient(basePath: creds.host!, authentication: auth);
+  }
+
+  Future<void> checkAuth(ApiClient api) async {
     GamevaultUser? me;
     try {
       me = await UserApi(api).getUsersMe();
@@ -70,8 +69,7 @@ class AuthRepository {
   Future<void> login(Credentials creds) async {
     if (creds.host == null || creds.user == null || creds.pass == null) return;
 
-    final auth = HttpBasicAuth(password: creds.pass!, username: creds.user!);
-    final api = ApiClient(basePath: creds.host!, authentication: auth);
+    final api = makeApi(creds);
 
     final GamevaultUser? me;
     try {

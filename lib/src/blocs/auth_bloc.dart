@@ -56,14 +56,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     try {
-      // make sure the stored values are available
       if (_prefRepo.creds != null) {
-        return await _doSubscription(event, emit, _prefRepo.creds!);
+        try {
+          final api = _authRepo.makeApi(_prefRepo.creds!);
+          _authRepo.checkAuth(api);
+        } catch (e) {
+          _errorRepo.setError(ClavisError(e));
+          emit(Unauthenticated());
+        }
+      } else {
+        emit(Unauthenticated());
       }
 
       await emit.onEach(
-        _prefRepo.credStream,
-        onData: (creds) async => await _doSubscription(event, emit, creds),
+        _authRepo.status,
+        onData: (auth) async {
+          if (auth.$1 == AuthStatus.authenticated) {
+            if (_prefRepo.creds != null) {
+                await _doSubscription(event, emit, auth.$2!);
+            }
+          } else if (auth.$1 == AuthStatus.unauthenticated) {
+            _errorRepo.setError(ClavisError("couldn't authenticate"));
+          }
+        },
       );
     } catch (e) {
       _errorRepo.setError(ClavisError(e));
@@ -74,16 +89,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _doSubscription(
     AuthSubscriptionRequested event,
     Emitter<AuthState> emit,
-    Credentials creds,
+    ApiClient api,
   ) async {
     // check if the user is already authenticated and set the initial state
-    await _authRepo.checkAuth(creds);
+    await _authRepo.checkAuth(api);
 
-    void startNewAuthCheckTimer(Credentials creds) {
+    void startNewAuthCheckTimer(ApiClient api) {
       if (_authCheckTimer != null) _authCheckTimer!.cancel();
       _authCheckTimer = Timer.periodic(_authCheckInterval, (_) async {
         try {
-          await _authRepo.checkAuth(creds);
+          await _authRepo.checkAuth(api);
         } catch (e) {
           _errorRepo.setError(ClavisError(e));
         }
@@ -99,7 +114,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           case AuthStatus.unauthenticated:
             return emit(Unauthenticated());
           case AuthStatus.authenticated:
-            startNewAuthCheckTimer(creds);
+            startNewAuthCheckTimer(api);
             return emit(Authenticated(api: status.$2!));
         }
       },
