@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:clavis/src/repositories/pref_repository.dart';
+import 'package:clavis/src/types.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
-class AuthRepoException implements Exception {
-  AuthRepoException(this.msg);
-  String msg;
-  @override
-  String toString() => "AuthRepoException: $msg";
+class AuthRepoException extends ClavisException {
+  AuthRepoException(super.msg, {super.innerException}) {
+    prefix = "AuthRepoException";
+  }
 }
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
@@ -45,17 +45,15 @@ class AuthRepository {
       me = await UserApi(api).getUsersMe();
     } catch (e) {
       _controller.add((AuthStatus.unauthenticated, null));
-      throw ApiException.withInner(
-        0,
+      throw AuthRepoException(
         "credential check: couldn't authenticate",
-        Exception(e.toString()),
-        StackTrace.current,
+        innerException: e,
       );
     }
 
     if (me == null) {
       _controller.add((AuthStatus.unauthenticated, null));
-      throw ApiException(0, "credential check: authenticate returned null");
+      throw AuthRepoException("credential check: authenticate returned null");
     } else {
       // if this I was unauthenticated before, authenticate me
       // don't always push to stream to not update the authentication state
@@ -76,18 +74,15 @@ class AuthRepository {
       me = await UserApi(api).getUsersMe();
     } catch (e) {
       _controller.add((AuthStatus.unauthenticated, null));
-      throw ApiException.withInner(
-        0,
+      throw AuthRepoException(
         "authentication failed - querying user info failed",
-        Exception(e.toString()),
-        StackTrace.current,
+        innerException: e,
       );
     }
 
     if (me == null) {
       _controller.add((AuthStatus.unauthenticated, null));
-      throw ApiException(
-        0,
+      throw AuthRepoException(
         "authentication failed - querying user info returned null",
       );
     }
