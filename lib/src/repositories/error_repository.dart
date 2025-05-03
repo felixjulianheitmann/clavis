@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:clavis/src/types.dart';
+
 class ClavisError {
-  ClavisError(this.err, {StackTrace? stack, DateTime? ts})
+  ClavisError(this.code, this.err, {StackTrace? stack, DateTime? ts})
     : stack = stack ?? StackTrace.current,
       ts = ts ?? DateTime.now();
+  final ClavisErrCode code;
   final Object err;
   final DateTime ts;
   final StackTrace stack;

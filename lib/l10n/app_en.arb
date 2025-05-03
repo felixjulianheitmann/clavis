@@ -12,6 +12,7 @@
     "hostname_label": "Hostname",
     "validation_error_field_empty": "Field must not be empty",
     "action_login": "Login",
+    "action_copy": "Copy",
     "size_bytes": "{size} B",
     "size_kilobytes": "{size} kB",
     "size_megabytes": "{size} MB",
@@ -87,5 +88,9 @@
     "download_duration_label": "Duration",
     "bookmarks_label": "Bookmarks",
     "bookmarked_by_label": "Bookmarked by",
-    "recently_played_label": "Recently Played"
+    "recently_played_label": "Recently Played",
+    "error_authentication_failed": "Authentication failed",
+    "error_authentication_failed_saved_creds": "Authentication failed using saved credentials",
+    "error_login_failed": "Login failed",
+    "error_logout_failed": "Logout failed"
 }

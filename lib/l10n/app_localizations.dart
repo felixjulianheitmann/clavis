@@ -155,6 +155,12 @@ abstract class AppLocalizations {
   /// **'Login'**
   String get action_login;
 
+  /// No description provided for @action_copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get action_copy;
+
   /// No description provided for @size_bytes.
   ///
   /// In en, this message translates to:
@@ -610,6 +616,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recently Played'**
   String get recently_played_label;
+
+  /// No description provided for @error_authentication_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed'**
+  String get error_authentication_failed;
+
+  /// No description provided for @error_authentication_failed_saved_creds.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed using saved credentials'**
+  String get error_authentication_failed_saved_creds;
+
+  /// No description provided for @error_login_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed'**
+  String get error_login_failed;
+
+  /// No description provided for @error_logout_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout failed'**
+  String get error_logout_failed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

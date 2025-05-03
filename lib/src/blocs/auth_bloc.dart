@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/repositories/auth_repository.dart';
 import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
+import 'package:clavis/src/types.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
@@ -28,6 +30,27 @@ class Unauthenticated extends AuthState {
 class Authenticated extends AuthState {
   Authenticated({required this.api}) : super();
   final ApiClient api;
+}
+
+enum _ErrCode { authFailed, authFailedSavedCreds, loginFailed, logoutFailed }
+
+class _AuthErrCode extends ClavisErrCode {
+  _AuthErrCode(this.code);
+  final _ErrCode code;
+
+  @override
+  String localize(AppLocalizations translate) {
+    switch (code) {
+      case _ErrCode.authFailed:
+        return translate.error_authentication_failed;
+      case _ErrCode.authFailedSavedCreds:
+        return translate.error_authentication_failed_saved_creds;
+      case _ErrCode.loginFailed:
+        return translate.error_login_failed;
+      case _ErrCode.logoutFailed:
+        return translate.error_logout_failed;
+    }
+  }
 }
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -61,7 +84,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final api = _authRepo.makeApi(_prefRepo.creds!);
           _authRepo.checkAuth(api);
         } catch (e) {
-          _errorRepo.setError(ClavisError(e));
+          _errorRepo.setError(
+            ClavisError(_AuthErrCode(_ErrCode.authFailedSavedCreds), e),
+          );
           emit(Unauthenticated());
         }
       } else {
@@ -73,15 +98,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         onData: (auth) async {
           if (auth.$1 == AuthStatus.authenticated) {
             if (_prefRepo.creds != null) {
-                await _doSubscription(event, emit, auth.$2!);
+              await _doSubscription(event, emit, auth.$2!);
             }
           } else if (auth.$1 == AuthStatus.unauthenticated) {
-            _errorRepo.setError(ClavisError("couldn't authenticate"));
+            emit(Unauthenticated());
           }
         },
       );
     } catch (e) {
-      _errorRepo.setError(ClavisError(e));
+      _errorRepo.setError(ClavisError(_AuthErrCode(_ErrCode.authFailed), e));
       emit(Unauthenticated());
     }
   }
@@ -100,7 +125,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         try {
           await _authRepo.checkAuth(api);
         } catch (e) {
-          _errorRepo.setError(ClavisError(e));
+          _errorRepo.setError(
+            ClavisError(_AuthErrCode(_ErrCode.authFailed), e),
+          );
         }
       });
     }
@@ -119,7 +146,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
       onError: (error, stackTrace) {
-        _errorRepo.setError(ClavisError(error, stack: stackTrace));
+        _errorRepo.setError(
+          ClavisError(
+            _AuthErrCode(_ErrCode.authFailed),
+            error,
+            stack: stackTrace,
+          ),
+        );
         emit(Unauthenticated());
       },
     );
@@ -131,7 +164,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _prefRepo.remove();
       _authRepo.logout();
     } catch (e) {
-      _errorRepo.setError(ClavisError(e));
+      _errorRepo.setError(ClavisError(_AuthErrCode(_ErrCode.logoutFailed), e));
     }
   }
 
@@ -141,7 +174,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _authRepo.login(event.creds);
       await _prefRepo.write(event.creds);
     } catch (e) {
-      _errorRepo.setError(ClavisError(e));
+      _errorRepo.setError(ClavisError(_AuthErrCode(_ErrCode.loginFailed), e));
     }
   }
 }

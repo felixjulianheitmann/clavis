@@ -39,6 +39,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_login => 'Login';
 
   @override
+  String get action_copy => 'Copy';
+
+  @override
   String size_bytes(Object size) {
     return '$size B';
   }
@@ -289,4 +292,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recently_played_label => 'Recently Played';
+
+  @override
+  String get error_authentication_failed => 'Authentication failed';
+
+  @override
+  String get error_authentication_failed_saved_creds => 'Authentication failed using saved credentials';
+
+  @override
+  String get error_login_failed => 'Login failed';
+
+  @override
+  String get error_logout_failed => 'Logout failed';
 }
