@@ -5,9 +5,8 @@ import 'package:clavis/src/types.dart';
 import 'package:gamevault_client_sdk/api.dart';
 
 class AuthRepoException extends ClavisException {
-  AuthRepoException(super.msg, {super.innerException}) {
-    prefix = "AuthRepoException";
-  }
+  AuthRepoException(super.msg, {super.innerException, super.stack})
+    : super(prefix: "AuthRepoException");
 }
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
@@ -43,11 +42,12 @@ class AuthRepository {
     GamevaultUser? me;
     try {
       me = await UserApi(api).getUsersMe();
-    } catch (e) {
+    } catch (e, s) {
       _controller.add((AuthStatus.unauthenticated, null));
       throw AuthRepoException(
         "credential check: couldn't authenticate",
         innerException: e,
+        stack: s,
       );
     }
 
@@ -72,11 +72,12 @@ class AuthRepository {
     final GamevaultUser? me;
     try {
       me = await UserApi(api).getUsersMe();
-    } catch (e) {
+    } catch (e, s) {
       _controller.add((AuthStatus.unauthenticated, null));
       throw AuthRepoException(
         "authentication failed - querying user info failed",
         innerException: e,
+        stack: s,
       );
     }
 
@@ -84,6 +85,7 @@ class AuthRepository {
       _controller.add((AuthStatus.unauthenticated, null));
       throw AuthRepoException(
         "authentication failed - querying user info returned null",
+        stack: StackTrace.current,
       );
     }
 

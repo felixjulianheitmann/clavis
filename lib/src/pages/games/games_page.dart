@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:clavis/src/blocs/search_bloc.dart';
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/games_list_bloc.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/types.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class GamesPage extends StatelessWidget {
 
     return BlocProvider(
       create: (ctx) {
-        return GamesListBloc(gameRepo: ctx.read<GameRepository>())
+        return GamesListBloc(gameRepo: ctx.read<GameRepository>(), errorRepo: ctx.read<ErrorRepository>())
           ..add(Subscribe());
       },
       child: BlocBuilder<AuthBloc, AuthState>(

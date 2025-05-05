@@ -83,7 +83,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         try {
           final api = _authRepo.makeApi(_prefRepo.creds!);
           _authRepo.checkAuth(api);
-        } catch (e) {
+        } on ClavisException catch (e) {
           _errorRepo.setError(
             ClavisError(_AuthErrCode(_ErrCode.authFailedSavedCreds), e),
           );
@@ -105,7 +105,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           }
         },
       );
-    } catch (e) {
+    } on ClavisException catch (e) {
       _errorRepo.setError(ClavisError(_AuthErrCode(_ErrCode.authFailed), e));
       emit(Unauthenticated());
     }
@@ -124,7 +124,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       _authCheckTimer = Timer.periodic(_authCheckInterval, (_) async {
         try {
           await _authRepo.checkAuth(api);
-        } catch (e) {
+        } on ClavisException catch (e) {
           _errorRepo.setError(
             ClavisError(_AuthErrCode(_ErrCode.authFailed), e),
           );
@@ -145,14 +145,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             return emit(Authenticated(api: status.$2!));
         }
       },
-      onError: (error, stackTrace) {
-        _errorRepo.setError(
-          ClavisError(
-            _AuthErrCode(_ErrCode.authFailed),
-            error,
-            stack: stackTrace,
-          ),
-        );
+      onError: (error, _) {
+        if (error is ClavisException) {
+          _errorRepo.setError(
+            ClavisError(_AuthErrCode(_ErrCode.authFailed), error),
+          );
+        }
         emit(Unauthenticated());
       },
     );
@@ -163,7 +161,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (_authCheckTimer != null) _authCheckTimer!.cancel();
       await _prefRepo.remove();
       _authRepo.logout();
-    } catch (e) {
+    } on ClavisException catch (e) {
       _errorRepo.setError(ClavisError(_AuthErrCode(_ErrCode.logoutFailed), e));
     }
   }
@@ -173,7 +171,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (_authCheckTimer != null) _authCheckTimer!.cancel();
       await _authRepo.login(event.creds);
       await _prefRepo.write(event.creds);
-    } catch (e) {
+    } on ClavisException catch (e) {
       _errorRepo.setError(ClavisError(_AuthErrCode(_ErrCode.loginFailed), e));
     }
   }

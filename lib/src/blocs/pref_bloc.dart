@@ -1,6 +1,16 @@
+import 'package:clavis/l10n/app_localizations.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/pref_repository.dart';
+import 'package:clavis/src/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+class _PrefErrorCode extends ClavisErrCode {
+  _PrefErrorCode();
+
+  @override
+  String localize(AppLocalizations translate) => translate.error_preferences;
+}
 
 sealed class PrefEvent {}
 
@@ -41,8 +51,12 @@ class PrefState {
 
 class PrefBloc extends Bloc<PrefEvent, PrefState> {
   final PrefRepo _prefRepo;
+  final ErrorRepository _errorRepo;
 
-  PrefBloc(PrefRepo prefRepo) : _prefRepo = prefRepo, super(PrefState(preferences: Preferences(), status: Status.loading)) {
+  PrefBloc(PrefRepo prefRepo, ErrorRepository errorRepo)
+    : _prefRepo = prefRepo,
+      _errorRepo = errorRepo,
+      super(PrefState(preferences: Preferences(), status: Status.loading)) {
     on<PrefSubscribe>(_onPrefSubscribe);
     on<SetDownloadDir>((e, _) => _prefRepo.setDownloadDir(e.downloadDir));
     on<SetTheme>((e, _) => _prefRepo.setTheme(e.theme));
@@ -59,6 +73,20 @@ class PrefBloc extends Bloc<PrefEvent, PrefState> {
       _prefRepo.prefStream,
       onData: (preferences) {
         emit(PrefState(preferences: preferences, status: Status.ready));
-    });
+      },
+      onError: (error, stackTrace) {
+        _errorRepo.setError(
+          ClavisError(
+            _PrefErrorCode(),
+            ClavisException(
+              "preferences error",
+              prefix: "PreferenceException",
+              innerException: error,
+              stack: stackTrace,
+            ),
+          ),
+        );
+      },
+    );
   }
 }

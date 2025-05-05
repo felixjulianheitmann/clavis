@@ -4,6 +4,7 @@ import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/games/game_card.dart';
 import 'package:clavis/src/pages/games/game_progress_card.dart';
 import 'package:clavis/src/pages/users/user_detail_page.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/headline_divider.dart';
@@ -23,8 +24,10 @@ class UserMePage extends StatelessWidget {
     
     return BlocProvider(
       create:
-          (context) =>
-              UserMeBloc(context.read<UserRepository>())..add(UserSubscribe()),
+          (ctx) => UserMeBloc(
+            ctx.read<UserRepository>(),
+            ctx.read<ErrorRepository>(),
+          )..add(UserSubscribe()),
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -54,8 +57,11 @@ class _Bookmarks extends StatelessWidget {
     bookmarks.sortBy((e) => e.sortTitle ?? "___");
     return BlocProvider(
       create:
-          (context) =>
-              GamesListBloc(gameRepo: context.read<GameRepository>())
+          (ctx) =>
+              GamesListBloc(
+                  gameRepo: ctx.read<GameRepository>(),
+                  errorRepo: ctx.read<ErrorRepository>(),
+                )
                 ..add(Subscribe())
                 ..add(Reload(api: api)),
       child: Wrap(

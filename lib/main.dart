@@ -57,12 +57,16 @@ void main() {
           ),
           BlocProvider(
             create: (ctx) {
-              return PrefBloc(ctx.read<PrefRepo>())..add(PrefSubscribe());
+              return PrefBloc(ctx.read<PrefRepo>(), ctx.read<ErrorRepository>())
+                ..add(PrefSubscribe());
             },
           ),
           BlocProvider(
             create: (ctx) {
-              return UserMeBloc(ctx.read<UserRepository>())
+              return UserMeBloc(
+                ctx.read<UserRepository>(),
+                ctx.read<ErrorRepository>(),
+              )
                 ..add(UserSubscribe());
             },
           ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:clavis/src/types.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +9,11 @@ import 'package:gamevault_client_sdk/api.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
-class UserRepoException implements Exception {
-  UserRepoException(this.msg);
-  final String msg;
-  @override
-  String toString() => 'UserRepoException: $msg';
+class UserRepoException extends ClavisException {
+  UserRepoException(super.msg, {super.innerException, super.stack})
+    : super(prefix: 'UserRepoException');
+  UserRepoException.fromHere(super.msg)
+    : super(prefix: 'UserRepoException', stack: StackTrace.current);
 }
 
 class UserBundle {
@@ -33,12 +34,16 @@ class UserRepository {
 
   UserRepository() {
     Future(() async {
-      await for (final u in _userMeController.stream) {
+      await for (final u in _userMeController.stream.handleError((_) {
+        /* errors are caught by the bloc */
+      }, test: (error) => error is ClavisException)) {
         _userMe = u;
       }
     });
     Future(() async {
-      await for (final ul in _usersController.stream) {
+      await for (final ul in _usersController.stream.handleError((_) {
+        /* errors are caught by the bloc */
+      }, test: (error) => error is ClavisException)) {
         _users = ul;
       }
     });
@@ -60,25 +65,35 @@ class UserRepository {
       if (user != null) yield user;
     }
 
-    await for (final users in _usersController.stream) {
+    await for (final users in _usersController.stream.handleError((_) {
+      /* errors are caught by the bloc */
+    }, test: (error) => error is ClavisException)) {
       final user = users.firstWhereOrNull((u) => u.user.id == id);
       if (user != null) yield user;
     }
   }
 
   Future<void> reloadUsers(ApiClient api) async {
-    final users = await UserApi(api).getUsers();
+    List<GamevaultUser>? users;
+    try {
+      users = await UserApi(api).getUsers();
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException("users reload failed", innerException: e, stack: s),
+      );
+    }
     if (users == null) {
-      throw UserRepoException("users reload returned with null");
+      return _usersController.addError(
+        UserRepoException.fromHere("users reload returned with null"),
+      );
     }
 
-    for(final u in users) {
+    for (final u in users) {
       getAvatar(api, u);
     }
 
     final bundles = users.map((u) => UserBundle(user: u)).toList();
     _usersController.add(bundles);
-
   }
 
   void _updateUserEntry(GamevaultUser user) {
@@ -95,9 +110,18 @@ class UserRepository {
   }
 
   Future<void> getUserMe(ApiClient api) async {
-    final me = await UserApi(api).getUsersMe();
+    GamevaultUser? me;
+    try {
+      me = await UserApi(api).getUsersMe();
+    } catch (e, s) {
+      return _userMeController.addError(
+        UserRepoException("user me query failed", innerException: e, stack: s),
+      );
+    }
     if (me == null) {
-      throw UserRepoException("user me query returned with null");
+      return _userMeController.addError(
+        UserRepoException.fromHere("user me query returned with null"),
+      );
     }
 
     getAvatar(api, me);
@@ -108,11 +132,19 @@ class UserRepository {
     GamevaultUser? user;
     try {
       user = await UserApi(api).getUserByUserId(id);
-    } catch (e) {
-      throw UserRepoException("Couldn't query user info: $e");
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "Couldn't query user info",
+          innerException: e,
+          stack: s,
+        ),
+      );
     }
     if (user == null) {
-      throw UserRepoException("user query returned with null: $id");
+      return _usersController.addError(
+        UserRepoException.fromHere("user query returned with null: $id"),
+      );
     }
 
     _updateUserEntry(user);
@@ -144,12 +176,20 @@ class UserRepository {
     String? media;
     try {
       media = await MediaApi(api).getMediaByMediaId("${user.avatar!.id}");
-    } catch (e) {
-      throw UserRepoException("error querying user avatar: $e");
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "error querying user avatar",
+          innerException: e,
+          stack: s,
+        ),
+      );
     }
     if (media == null) {
-      throw UserRepoException(
-        "avatar query returned null response - user-id: ${user.id}",
+      return _usersController.addError(
+        UserRepoException.fromHere(
+          "avatar query returned null response - user-id: ${user.id}",
+        ),
       );
     }
 
@@ -157,9 +197,18 @@ class UserRepository {
   }
 
   Future<void> updateUserMe(ApiClient api, UpdateUserDto update) async {
-    final updatedMe = await UserApi(api).putUsersMe(update);
+    GamevaultUser? updatedMe;
+    try {
+      updatedMe = await UserApi(api).putUsersMe(update);
+    } catch (e, s) {
+      return _userMeController.addError(
+        UserRepoException("user me update failed", innerException: e, stack: s),
+      );
+    }
     if (updatedMe == null) {
-      throw UserRepoException("user me update returned with null");
+      return _userMeController.addError(
+        UserRepoException.fromHere("user me update returned with null"),
+      );
     }
 
     // username has been updated and will be needed for authentication
@@ -177,20 +226,17 @@ class UserRepository {
     try {
       updatedUser = await UserApi(api).putUserByUserId(id, update);
     } catch (e) {
-      throw UserRepoException("Couldn't update user info: $e");
+      return _usersController.addError(
+        UserRepoException("Couldn't update user info: $e"),
+      );
     }
 
     if (updatedUser == null) {
-      throw UserRepoException("user update returned with null");
+      return _usersController.addError(
+        UserRepoException("user update returned with null"),
+      );
     }
 
-    // username has been updated and will be needed for authentication
-    if (update.username != null) {
-      (api.authentication as HttpBasicAuth).username = update.username!;
-    }
-    if (update.password != null) {
-      (api.authentication as HttpBasicAuth).password = update.password!;
-    }
     await getUser(api, id); // reload user list
   }
 
@@ -198,26 +244,39 @@ class UserRepository {
     GamevaultUser? res;
     try {
       res = await UserApi(api).deleteUserByUserId(id);
-    } catch (e) {
-      throw UserRepoException("error deleting user: $e");
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException("error deleting user", innerException: e, stack: s),
+      );
     }
     if (res == null) {
-      throw UserRepoException(
-        "user deletion returned null response - user-id: $id",
+      return _usersController.addError(
+        UserRepoException.fromHere(
+          "user deletion returned null response - user-id: $id",
+        ),
       );
     }
 
     await reloadUsers(api);
   }
+
   Future<void> deleteUserMe(ApiClient api) async {
     GamevaultUser? res;
     try {
       res = await UserApi(api).deleteUserMe();
-    } catch (e) {
-      throw UserRepoException("error deleting user me: $e");
+    } catch (e, s) {
+      return _userMeController.addError(
+        UserRepoException(
+          "error deleting user me",
+          innerException: e,
+          stack: s,
+        ),
+      );
     }
     if (res == null) {
-      throw UserRepoException("user me deletion returned null response");
+      return _userMeController.addError(
+        UserRepoException.fromHere("user me deletion returned null response"),
+      );
     }
 
     await reloadUsers(api);
@@ -227,12 +286,20 @@ class UserRepository {
     GamevaultUser? res;
     try {
       res = await UserApi(api).postUserRecoverByUserId(id);
-    } catch (e) {
-      throw UserRepoException("error restoring user: $e");
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "error restoring user - user-id: $id",
+          innerException: e,
+          stack: s,
+        ),
+      );
     }
     if (res == null) {
-      throw UserRepoException(
-        "user restoration returned null response - user-id: $id",
+      return _usersController.addError(
+        UserRepoException.fromHere(
+          "user restoration returned null response - user-id: $id",
+        ),
       );
     }
 
@@ -242,8 +309,14 @@ class UserRepository {
   Future<void> addBookmark(ApiClient api, num id) async {
     try {
       await UserApi(api).postUsersMeBookmark(id);
-    } catch (e) {
-      throw UserRepoException("error adding bookmark: $id - $e");
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "error adding bookmark: $id",
+          innerException: e,
+          stack: s,
+        ),
+      );
     }
     await getUserMe(api);
   }
@@ -251,25 +324,61 @@ class UserRepository {
   Future<void> removeBookmark(ApiClient api, num id) async {
     try {
       await UserApi(api).deleteUsersMeBookmark(id);
-    } catch (e) {
-      throw UserRepoException("error adding bookmark: $id - $e");
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "error adding bookmark: $id",
+          innerException: e,
+          stack: s,
+        ),
+      );
     }
     await getUserMe(api);
   }
 
   Future<void> activateUser(ApiClient api, num id) async {
-    final update = UpdateUserDto(activated: true);
-    await updateUser(api, id, update);
+    try {
+      final update = UpdateUserDto(activated: true);
+      await updateUser(api, id, update);
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "user activation failed",
+          innerException: e,
+          stack: s,
+        ),
+      );
+    }
   }
 
   Future<void> deactivateUser(ApiClient api, num id) async {
-    final update = UpdateUserDto(activated: false);
-    await updateUser(api, id, update);
+    try {
+      final update = UpdateUserDto(activated: false);
+      await updateUser(api, id, update);
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "user deactivation failed",
+          innerException: e,
+          stack: s,
+        ),
+      );
+    }
   }
 
   Future<void> deactivateUserMe(ApiClient api) async {
-    final update = UpdateUserDto(activated: false);
-    await updateUserMe(api, update);
+    try {
+      final update = UpdateUserDto(activated: false);
+      await updateUserMe(api, update);
+    } catch (e, s) {
+      return _userMeController.addError(
+        UserRepoException(
+          "deactivating me failed",
+          innerException: e,
+          stack: s,
+        ),
+      );
+    }
   }
 
   Future<num?> uploadAvatar(
@@ -288,14 +397,22 @@ class UserRepository {
           contentType: MediaType("image", file.extension ?? "png"),
         ),
       );
-    } catch (e) {
-      throw UserRepoException("upload of avatar failed: $e");
+    } catch (e, s) {
+      _usersController.addError(
+        UserRepoException(
+          "upload of avatar failed",
+          innerException: e,
+          stack: s,
+        ),
+      );
+      return null;
     }
 
     if (uploaded == null) {
-      throw UserRepoException(
-        "upload of avatar returned with null",
+      _usersController.addError(
+        UserRepoException.fromHere("upload of avatar returned with null"),
       );
+      return null;
     }
 
     return uploaded.id;
@@ -305,14 +422,18 @@ class UserRepository {
     GamevaultUser? addedUser;
     try {
       addedUser = await UserApi(api).postUserRegister(registration);
-    } catch (e) {
-      _usersController.addError(
-        UserRepoException("user registration failed: $e"),
+    } catch (e, s) {
+      return _usersController.addError(
+        UserRepoException(
+          "user registration failed",
+          innerException: e,
+          stack: s,
+        ),
       );
     }
     if (addedUser == null) {
-      _usersController.addError(
-        UserRepoException("user registration returned with null"),
+      return _usersController.addError(
+        UserRepoException.fromHere("user registration returned with null"),
       );
     }
 

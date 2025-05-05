@@ -1,5 +1,6 @@
 import 'package:clavis/src/blocs/game_bloc.dart';
 import 'package:clavis/src/pages/games/game_page.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/util/cache_image.dart';
 import 'package:clavis/src/util/focusable.dart';
@@ -29,7 +30,11 @@ class GameInfoCard extends StatelessWidget {
     return BlocProvider(
       create:
           (ctx) =>
-              GameBloc(gameRepo: ctx.read<GameRepository>(), id: gameId)
+              GameBloc(
+                  gameRepo: ctx.read<GameRepository>(),
+                  errorRepo: ctx.read<ErrorRepository>(),
+                  id: gameId,
+                )
                 ..add(GameSubscribe(api: api))
                 ..add(GameReload(api: api, id: gameId)),
       child: SizedBox(

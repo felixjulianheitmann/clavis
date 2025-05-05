@@ -26,7 +26,11 @@ class ErrorBloc extends Bloc<ErrorEvent, ErrorState> {
       await emit.onEach(
         _errorRepo.errorStream,
         onData: (error) {
-          log.e(error.err.toString(), time: error.ts, stackTrace: error.stack);
+          log.e(
+            error.err.toString(),
+            time: error.ts,
+            stackTrace: error.err.stack,
+          );
           emit(ErrorState(error: error));
         },
       );
@@ -36,7 +40,6 @@ class ErrorBloc extends Bloc<ErrorEvent, ErrorState> {
       log.e(
         event.error.err.toString(),
         time: event.error.ts,
-        stackTrace: event.error.stack,
       );
       emit(ErrorState(error: event.error));
     });

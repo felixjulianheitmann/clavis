@@ -92,5 +92,8 @@
     "error_authentication_failed": "Authentication failed",
     "error_authentication_failed_saved_creds": "Authentication failed using saved credentials",
     "error_login_failed": "Login failed",
-    "error_logout_failed": "Logout failed"
+    "error_logout_failed": "Logout failed",
+    "error_game_api": "Error with Game API",
+    "error_preferences": "Error with preference storage",
+    "error_user_api": "Error with User API"
 }

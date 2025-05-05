@@ -1,6 +1,7 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/game_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/games_repository.dart';
 import 'package:clavis/src/util/game_info_card.dart';
 import 'package:clavis/src/util/helpers.dart';
@@ -33,8 +34,12 @@ class GameProgressCard extends StatelessWidget {
 
     return BlocProvider(
       create:
-          (context) =>
-              GameBloc(gameRepo: context.read<GameRepository>(), id: gameId)
+          (ctx) =>
+              GameBloc(
+                  gameRepo: ctx.read<GameRepository>(),
+                  errorRepo: ctx.read<ErrorRepository>(),
+                  id: gameId,
+                )
                 ..add(GameSubscribe(api: api))
                 ..add(GameReload(api: api, id: gameId)),
       child: BlocBuilder<GameBloc, GameState>(

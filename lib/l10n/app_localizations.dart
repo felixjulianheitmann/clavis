@@ -640,6 +640,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout failed'**
   String get error_logout_failed;
+
+  /// No description provided for @error_game_api.
+  ///
+  /// In en, this message translates to:
+  /// **'Error with Game API'**
+  String get error_game_api;
+
+  /// No description provided for @error_preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Error with preference storage'**
+  String get error_preferences;
+
+  /// No description provided for @error_user_api.
+  ///
+  /// In en, this message translates to:
+  /// **'Error with User API'**
+  String get error_user_api;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

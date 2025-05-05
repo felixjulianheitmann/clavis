@@ -1,5 +1,6 @@
 import 'package:clavis/src/blocs/auth_bloc.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/cache_image.dart';
 import 'package:flutter/material.dart';
@@ -128,8 +129,17 @@ abstract class Helpers {
   }
 
   static Bloc getUserSpecificBloc(BuildContext context, num? id) {
-    if (id == null) return UserMeBloc(context.read<UserRepository>());
-    return UserBloc(context.read<UserRepository>(), id);
+    if (id == null) {
+      return UserMeBloc(
+        context.read<UserRepository>(),
+        context.read<ErrorRepository>(),
+      );
+    }
+    return UserBloc(
+      context.read<UserRepository>(),
+      context.read<ErrorRepository>(),
+      id,
+    );
   }
 
   static String formatDuration(Duration d) {

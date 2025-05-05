@@ -1,6 +1,7 @@
 import 'package:clavis/l10n/app_localizations.dart';
 import 'package:clavis/src/blocs/user_bloc.dart';
 import 'package:clavis/src/pages/users/user_detail_page.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
 import 'package:clavis/src/util/focusable.dart';
 import 'package:clavis/src/util/helpers.dart';
@@ -28,7 +29,11 @@ class UserTile extends StatelessWidget {
             builder: (_) {
               return BlocProvider(
                 create: (ctx) {
-                  return UserBloc(ctx.read<UserRepository>(), user.user.id)
+                  return UserBloc(
+                    ctx.read<UserRepository>(),
+                    ctx.read<ErrorRepository>(),
+                    user.user.id,
+                  )
                     ..add(UserSubscribe());
                 },
                 child: DetailPage(id: user.user.id),

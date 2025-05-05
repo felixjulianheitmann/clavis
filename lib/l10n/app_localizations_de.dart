@@ -304,4 +304,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get error_logout_failed => 'Logout failed';
+
+  @override
+  String get error_game_api => 'Error with Game API';
+
+  @override
+  String get error_preferences => 'Error with preference storage';
+
+  @override
+  String get error_user_api => 'Error with User API';
 }

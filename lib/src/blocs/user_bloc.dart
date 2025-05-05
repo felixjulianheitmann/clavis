@@ -1,7 +1,15 @@
+import 'package:clavis/l10n/app_localizations.dart';
+import 'package:clavis/src/repositories/error_repository.dart';
 import 'package:clavis/src/repositories/user_repository.dart';
+import 'package:clavis/src/types.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gamevault_client_sdk/api.dart';
+
+class _UserErrCode extends ClavisErrCode {
+  @override
+  String localize(AppLocalizations translate) => translate.error_user_api;
+}
 
 sealed class UserEvent {}
 
@@ -70,36 +78,23 @@ final class Edited extends UserEvent {
   String? email;
 }
 
-class UserState {
-  UserState({this.error, this.stack});
-  Object? error;
-  StackTrace? stack;
-  UserState copyWith({Object? error, StackTrace? stack}) {
-    return UserState(error: error ?? this.error, stack: stack ?? this.stack);
-  }
-}
+class UserState {}
 
 class Unavailable extends UserState {}
 
 class Ready extends UserState {
-  Ready({required this.user, super.error, super.stack});
+  Ready({required this.user});
   final UserBundle user;
-  @override
-  Ready copyWith({UserBundle? user, Object? error, StackTrace? stack}) {
-    return Ready(
-      user: user ?? this.user,
-      error: error ?? this.error,
-      stack: stack ?? this.stack,
-    );
-  }
 }
 
 class UserBaseBloc extends Bloc<UserEvent, UserState> {
   final UserRepository _userRepo;
+  final ErrorRepository _errorRepo;
   final num? id;
 
-  UserBaseBloc(UserRepository userRepo, this.id)
+  UserBaseBloc(UserRepository userRepo, ErrorRepository errorRepo, this.id)
     : _userRepo = userRepo,
+      _errorRepo = errorRepo,
       super(Unavailable()) {
     on<UserSubscribe>((_, emit) async {
       final stream = id == null ? _userRepo.userMe : _userRepo.user(id!);
@@ -107,7 +102,9 @@ class UserBaseBloc extends Bloc<UserEvent, UserState> {
         stream,
         onData: (user) => emit(Ready(user: user)),
         onError: (error, stackTrace) {
-          emit(state.copyWith(error: error, stack: stackTrace));
+          if (error is ClavisException) {
+            _errorRepo.setError(ClavisError(_UserErrCode(), error));
+          }
         },
       );
     });
@@ -170,8 +167,9 @@ class UserBaseBloc extends Bloc<UserEvent, UserState> {
 
 // a different type makes the bloc lookup a lot easier
 class UserMeBloc extends UserBaseBloc {
-  UserMeBloc(UserRepository userRepo) : super(userRepo, null);
+  UserMeBloc(UserRepository userRepo, ErrorRepository errorRepo)
+    : super(userRepo, errorRepo, null);
 }
 class UserBloc extends UserBaseBloc {
-  UserBloc(super.userRepo, super.id);
+  UserBloc(super.userRepo, super.errorRepo, super.id);
 }

@@ -9,14 +9,28 @@ abstract class ClavisErrCode {
 }
 
 class ClavisException implements Exception {
-  ClavisException(this.msg, {this.innerException});
+  ClavisException(
+    this.msg, {
+    required this.prefix,
+    this.innerException,
+    this.stack,
+  });
 
   final String msg;
   final Object? innerException;
-  String prefix = "";
-  StackTrace stack = StackTrace.current;
+  String prefix;
+  StackTrace? stack;
 
   String get message => "$prefix: $msg";
   String get details => innerException.toString();
   bool get hasDetails => innerException != null;
+  bool get hasStack => stack != null;
+
+  @override
+  String toString() {
+    var text = message;
+    if (hasDetails) text += "\n$details";
+    if (hasStack) text += "\n\n${stack.toString()}";
+    return text;
+  }
 }
