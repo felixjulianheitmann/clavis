@@ -29,9 +29,13 @@ if ver.build is not None:
 
 buildDirty = "1" if int(distance) > 0 else "0"
 
-
-print(json.dumps({
-    'semver': ver.to_dict(),
-    'distance': distance,
-    'versionEncoded': f"{ver.major}.{ver.minor}.{ver.patch}.{buildFlag}{buildRelease}{buildDirty}",
-}))
+print(
+    json.dumps(
+        {
+            "semver": ver.to_dict(),
+            "distance": distance,
+            "versionEncoded": f"{ver.major}.{ver.minor}.{ver.patch}.{buildFlag}{buildRelease}{buildDirty}",
+            "isPrerelease": ver.prerelease is not None,
+        }
+    )
+)
