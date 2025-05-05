@@ -14,6 +14,10 @@ on:
         type: string
         description: a version in form of "x.x.x.x"
         required: true
+      is-prerelease:
+        type: boolean
+        description: whether this is a pre-release
+        required: true
 
 permissions:
   contents: write
@@ -49,8 +53,8 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: target/*
-        draft: ${{ inputs.distance != 0 }}
-        make_latest: ${{ inputs.distance == 0 }}
+        draft: ${{ inputs.is-prerelease }}
+        make_latest: ${{ !inputs.is-prerelease }}
         generate_release_notes: true
         fail_on_unmatched_files: true
         token: ${{ secrets.GITHUB_TOKEN }}

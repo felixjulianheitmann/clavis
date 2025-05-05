@@ -3,12 +3,16 @@ on:
   workflow_call:
     inputs:
       tag:
-        type: string  
+        type: string
         description: the tag used for this action
         required: true
       distance:
-        type: string  
+        type: string
         description: number of additional builds since last tag
+        required: true
+      is-prerelease:
+        type: boolean
+        description: whether this is a pre-release
         required: true
 
 permissions:
@@ -38,7 +42,7 @@ jobs:
     - name: build docker
       shell: bash
       run: |
-        docker build --file package/web/Dockerfile --build-arg BUILD_DIR=tmp.cicd/build --tag clavis:${{ inputs.tag }} --tag clavis:latest .
+        docker build --file package/web/Dockerfile --build-arg BUILD_DIR=tmp.cicd/build --tag clavis:${{ inputs.tag }} ${{ (inputs.is-prerelease && '--tag clavis:latest') || '' }} .
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3

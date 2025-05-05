@@ -53,6 +53,7 @@ jobs:
     with:
       distance: ${{ needs.build-web.outputs.distance }}
       tag: ${{ needs.build-web.outputs.tag }}
+      is-prerelease: ${{ needs.build-web.outputs.is-prerelease }}
 
   package-rpm:
     if: ${{ needs.build-linux.outputs.distance == 0 }}
@@ -61,6 +62,7 @@ jobs:
     with:
       distance: ${{ needs.build-linux.outputs.distance }}
       tag: ${{ needs.build-linux.outputs.tag }}
+      is-prerelease: ${{ needs.build-web.outputs.is-prerelease }}
 
   package-deb:
     if: ${{ needs.build-linux.outputs.distance == 0 }}
@@ -70,6 +72,8 @@ jobs:
       distance: ${{ needs.build-linux.outputs.distance }}
       arch: amd64
       tag: ${{ needs.build-linux.outputs.tag }}
+      is-prerelease: ${{ needs.build-web.outputs.is-prerelease }}
+
   package-android:
     if: ${{ needs.build-android.outputs.distance == 0 }}
     uses: ./.github/workflows/publish-apk.yaml
@@ -77,6 +81,7 @@ jobs:
     with:
       distance: ${{ needs.build-android.outputs.distance }}
       tag: ${{ needs.build-android.outputs.tag }}
+      is-prerelease: ${{ needs.build-web.outputs.is-prerelease }}
     
   package-windows:
     if: ${{ needs.build-windows.outputs.distance == 0 }}
@@ -86,3 +91,4 @@ jobs:
       distance: ${{ needs.build-windows.outputs.distance }}
       tag: ${{ needs.build-windows.outputs.tag }}
       versionEncoded: ${{ fromJson(needs.build-windows.outputs.parsedVersion)['versionEncoded'] }}
+      is-prerelease: ${{ needs.build-web.outputs.is-prerelease }}
