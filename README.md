@@ -1,3 +1,7 @@
+> [!NOTE]
+> This repository was created to provide a cross-platform way to access your gamevault library. I paused development for some time, Gamevault changed its authentication mechanism and now the login is broken on this app. In the meantime Gamevault already released their own web-frontend which is going to serve as the basis for a future cross-platform client.
+> Therefore, I will refrain from any further development as I don't see any reason to compete. I have no feature in mind that Gamevault is not working at the moment.
+
 <p align="center">
 <img src="assets/Key-Logo_Diagonal.png" width="10%" />
 </p>
